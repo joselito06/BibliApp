@@ -1,0 +1,125 @@
+package com.example.bibliaapp.view.components
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.bibliaapp.view.Routes
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBehavior: TopAppBarScrollBehavior){
+
+    TopAppBar(
+        modifier = Modifier
+            //.offset(y = if (isTopBarVisible) 0.dp else -56.dp) // Oculta la TopAppBar al hacer scroll
+            .animateContentSize(),
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        scrollBehavior = scrollBehavior,
+        navigationIcon = {if (canPop) {
+            IconButton(onClick = { navigation.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+        } else null},
+        actions = {
+            IconButton(onClick = { /* Acción adicional */ }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
+                )
+            }
+        },
+        title = {
+            Text("Busca tu Biblia")
+        }
+    )
+}
+
+@Composable
+fun FloatingActionButtonComponent(){
+    FloatingActionButton(
+        onClick = {  },
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(8.dp)
+    ) {
+        Icon(Icons.Default.PlayArrow, contentDescription = "Add")
+    }
+}
+
+@Composable
+fun NavigationBottomJBN(navigation: NavHostController, isBottomBarVisible: Boolean){
+
+    val navBackStackEntry by navigation.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    NavigationBar(
+        Modifier
+            //.offset(y = if (!isBottomBarVisible) 0.dp else 100.dp) // Oculta la BottomAppBar al hacer scroll
+            .animateContentSize(),
+        containerColor = MaterialTheme.colorScheme.onPrimary,
+        //contentColor = MaterialTheme.colorScheme.primary
+    ){
+        NavigationBarItem(
+            selected = currentRoute == Routes.HomeScreen.route,
+            onClick = { navigation.navigate(Routes.HomeScreen.route) },
+            icon = { Icon( Icons.Filled.Home, null) },
+            label = { Text(text = "Inicio")}
+        )
+        NavigationBarItem(
+            selected = currentRoute == Routes.BibleScreen.route,
+            onClick = { navigation.navigate(Routes.BibleScreen.route)},
+            icon = { Icon( Icons.Filled.Book, null) },
+            label = { Text(text = "Biblia")}
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { /*TODO*/ },
+            icon = { Icon( Icons.Filled.Search, null) },
+            label = { Text(text = "Buscar")}
+        )
+        NavigationBarItem(
+            selected = currentRoute == Routes.MoreScreen.route,
+            onClick = { navigation.navigate(Routes.MoreScreen.route)},
+            icon = { Icon( Icons.Filled.Menu, null) },
+            label = { Text(text = "Mas")}
+        )
+    }
+}
