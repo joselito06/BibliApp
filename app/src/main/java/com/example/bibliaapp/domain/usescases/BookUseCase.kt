@@ -86,42 +86,45 @@ class BookUseCase @Inject constructor(
             valid = true
             for (header in headers){
                 if (header.BookId == verse.Book && header.ChapteId == verse.Chapter && header.VerseId == verse.Verse){
-                    versesResponse.add( Verses(
-                        Number = verse.Number,
-                        Book = verse.Book,
-                        Chapter = verse.Chapter,
-                        Verse = verse.Verse,
-                        Contenido = verse.Contenido,
-                        ChapterName = header.Titulo,
-                        ChapterNum = if (verse.Verse == 1) verse.Chapter else null
-                    )
+                    versesResponse.add(
+                        Verses(
+                            Number = verse.Number,
+                            Book = verse.Book,
+                            Chapter = verse.Chapter,
+                            Verse = verse.Verse,
+                            Contenido = verse.Contenido,
+                            ChapterName = header.Titulo,
+                            ChapterNum = if (verse.Verse == 1) verse.Chapter else null
+                        )
                     )
                     valid = false
                     break
                 }
             }
             if (valid == true){
-                versesResponse.add( Verses(
-                    Number = verse.Number,
-                    Book = verse.Book,
-                    Chapter = verse.Chapter,
-                    Verse = verse.Verse,
-                    Contenido = verse.Contenido,
-                    ChapterName = "",
-                    ChapterNum = if (verse.Verse == 1) verse.Chapter else null
-                )
+                versesResponse.add(
+                    Verses(
+                        Number = verse.Number,
+                        Book = verse.Book,
+                        Chapter = verse.Chapter,
+                        Verse = verse.Verse,
+                        Contenido = verse.Contenido,
+                        ChapterName = "",
+                        ChapterNum = if (verse.Verse == 1) verse.Chapter else null
+                    )
                 )
             }
         }
 
         for (book in books){
-            booksResponse.add( Books(
-                Number = book.Number,
-                Osis = book.Osis,
-                Human = book.Human,
-                Chapters = book.Chapters,
-                Verse = versesResponse.filter { v -> v.Book == book.Osis }.toMutableList()
-            )
+            booksResponse.add(
+                Books(
+                    Number = book.Number,
+                    Osis = book.Osis,
+                    Human = book.Human,
+                    Chapters = book.Chapters,
+                    Verse = versesResponse.filter { v -> v.Book == book.Osis }.toMutableList()
+                )
             )
         }
 

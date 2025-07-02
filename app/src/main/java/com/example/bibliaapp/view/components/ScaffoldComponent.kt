@@ -35,12 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.bibliaapp.ConfigTopAppBar
 import com.example.bibliaapp.view.Routes
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBehavior: TopAppBarScrollBehavior){
+fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBehavior: TopAppBarScrollBehavior, optionTopAppBar: ConfigTopAppBar){
 
     TopAppBar(
         modifier = Modifier
@@ -51,24 +52,38 @@ fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBeh
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         scrollBehavior = scrollBehavior,
-        navigationIcon = {if (canPop) {
-            IconButton(onClick = { navigation.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
-        } else null},
+        navigationIcon = {
+            if (canPop) {
+                IconButton(onClick = { navigation.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            } else null 
+        },
         actions = {
-            IconButton(onClick = { /* Acción adicional */ }) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings"
-                )
+            if (optionTopAppBar.Actions.isEmpty()){
+                IconButton(onClick = { /* Acción adicional */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings"
+                    )
+                }
+            } else {
+                for (item in optionTopAppBar.Actions){
+                    IconButton(onClick = item.OnClickIconButton) {
+                        Icon(
+                            imageVector = item.ImageIconVector,
+                            contentDescription = item.Description
+                        )
+                    }
+                }
             }
+
         },
         title = {
-            Text("Busca tu Biblia")
+            Text(optionTopAppBar.Title)
         }
     )
 }

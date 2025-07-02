@@ -22,6 +22,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bibliaapp.view.Routes
 import com.example.bibliaapp.view.viewmodel.BibleViewmodel
+import com.example.bibliaapp.view.viewmodel.MainViewmodel
 import com.example.bibliaapp.view.viewmodel.MoreViewmodel
 import com.example.bibliaapp.view.viewmodel.VersesViewmodel
 
@@ -38,12 +40,22 @@ fun MoreScreen(
     modifier: Modifier,
     moreViewmodel: MoreViewmodel,
     versesViewmodel: VersesViewmodel,
+    mainViewmodel: MainViewmodel,
     navigation : NavHostController){
+
+    LaunchedEffect(true) {
+        mainViewmodel.showTopAppBar(true)
+        mainViewmodel.showBottomBar(true)
+
+        //mainViewmodel.updateFabIcon(Icons.Default.Add)
+        //mainViewmodel.showFloatingActionButton(false)
+    }
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)) {
         ListItem(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier.clickable { navigation.navigate(Routes.NotificationScreen.route) },
             headlineContent = { Text("Notificaciones") },
             leadingContent = {
                 Icon(
@@ -67,7 +79,7 @@ fun MoreScreen(
         )
 
         ListItem(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier.clickable { navigation.navigate(Routes.BibleSelectionScreen.route) },
             headlineContent = { Text("Otras Biblias") },
             leadingContent = {
                 Icon(
@@ -78,7 +90,7 @@ fun MoreScreen(
         )
 
         ListItem(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier.clickable { navigation.navigate(Routes.AboutScreen.route) },
             headlineContent = { Text("Acerca de") },
             leadingContent = {
                 Icon(
@@ -100,7 +112,7 @@ fun MoreScreen(
         )
 
         ListItem(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier.clickable { navigation.navigate(Routes.ConfigScreen.route) },
             headlineContent = { Text("Configuracion") },
             leadingContent = {
                 Icon(

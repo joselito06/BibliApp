@@ -59,6 +59,9 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
+    implementation("androidx.compose.animation:animation:1.6.0")
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
+
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     ksp("com.google.dagger:hilt-compiler:2.48")

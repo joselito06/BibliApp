@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun VersesScreenPreview(){
 @Composable
 fun VersesScreen(modifier: Modifier, versesViewmodel: VersesViewmodel, navigation : NavHostController, scrollBehavior: TopAppBarScrollBehavior){
     versesViewmodel.onGet()
-    val list: List<VersesDaily> by versesViewmodel.getAllVerses.observeAsState(initial = listOf())
+    val list: List<VersesDaily> by versesViewmodel.getAllVerses.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Column(modifier = Modifier
