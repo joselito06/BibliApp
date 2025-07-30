@@ -101,7 +101,7 @@ class BookUseCase @Inject constructor(
                     break
                 }
             }
-            if (valid == true){
+            if (valid){
                 versesResponse.add(
                     Verses(
                         Number = verse.Number,

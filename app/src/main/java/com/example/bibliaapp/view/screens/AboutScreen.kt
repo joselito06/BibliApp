@@ -1,6 +1,7 @@
 package com.example.bibliaapp.view.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bibliaapp.view.viewmodel.MainViewmodel
@@ -30,33 +32,23 @@ fun AboutScreen(mainViewmodel: MainViewmodel) {
         //mainViewmodel.updateFabIcon(Icons.Default.Add)
         //mainViewmodel.showFloatingActionButton(false)
     }
-    Scaffold(
-        topBar = {
+    Box(
 
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-
-        }
-    ) { paddingValues ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Acerca de la Aplicación",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Esta aplicación te ayuda a recibir y leer versículos diarios de la Biblia, permitiéndote personalizar notificaciones y seleccionar diferentes versiones de la Biblia.",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
+
                 lineHeight = 24.sp
             )
 
@@ -70,7 +62,7 @@ fun AboutScreen(mainViewmodel: MainViewmodel) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Desarrollado por: Tu Nombre",
+                text = "Desarrollado por: JBN Code",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

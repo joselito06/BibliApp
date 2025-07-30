@@ -93,10 +93,12 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
 
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {
+                    _currentVerseIndex.value = utteranceId?.toInt() ?: 0
                     // Aquí podemos agregar lógica para hacer scroll o hacer otras cosas.
                     coroutineScope.launch {
-                        listState.animateScrollToItem(_Capitulo.value)
+                        listState.animateScrollToItem(utteranceId?.toInt() ?: 0)
                     }
+
                 }
 
                 override fun onDone(utteranceId: String?) {
@@ -245,7 +247,7 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
     }
 
     fun aumentarCapitulo(){
-        if (_Capitulo.value < _getAllBiblia.value.first().Chapters - 1){
+        if (_Capitulo.value <= _getAllBiblia.value.first().Chapters - 1){
             _Capitulo.value += 1
             shared.saveCapitulo(_Capitulo.value) // Guardar capítulo actualizado
         }

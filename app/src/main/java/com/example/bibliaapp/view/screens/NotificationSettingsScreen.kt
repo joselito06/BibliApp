@@ -3,24 +3,26 @@ package com.example.bibliaapp.view.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,42 +58,52 @@ fun NotificationSettingsScreen(viewModel: SettingsViewmodel, mainViewmodel: Main
         //mainViewmodel.updateFabIcon(Icons.Default.Add)
         //mainViewmodel.showFloatingActionButton(false)
     }
-    Scaffold(
-        topBar = {
-            //TopAppBarNotification(navigation)
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 8.dp)
+    ) {
+        ElevatedCard(
+            modifier = Modifier,
 
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(
+                        checked = notificationsEnabled,
+                        onCheckedChange = { viewModel.setNotificationsEnabled(it) }
+                    )
+                    Text(text = if (notificationsEnabled) "Notificaciones activadas" else "Notificaciones desactivadas")
+                }
+                HorizontalDivider(thickness = 2.dp)
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Switch(
-                checked = notificationsEnabled,
-                onCheckedChange = { viewModel.setNotificationsEnabled(it) }
-            )
-            Text(text = if (notificationsEnabled) "Notificaciones activadas" else "Notificaciones desactivadas")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TimePicker(state = timePickerState)
-            TextButton(onClick = {
-                viewModel.setSelectedTime(LocalTime.of(timePickerState.hour, timePickerState.minute))
-            }) {
-                Text("Aceptar")
-            }
-            TextButton(onClick = {  }) {
-                Text("Cancelar")
+                TimePicker(state = timePickerState)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(onClick = {
+                        viewModel.setSelectedTime(LocalTime.of(timePickerState.hour, timePickerState.minute))
+                    }) {
+                        Text("Aceptar")
+                    }
+                    Button(onClick = {  }) {
+                        Text("Cancelar")
+                    }
+                }
             }
 
         }
-    }
 
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +121,7 @@ fun TopAppBarNotification(navigation: NavHostController)
         navigationIcon = {
             IconButton(onClick = { navigation.popBackStack() }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = "Back"
                 )
             }

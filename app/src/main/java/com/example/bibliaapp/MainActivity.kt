@@ -44,6 +44,7 @@ import com.example.bibliaapp.view.screens.ConfigScreen
 import com.example.bibliaapp.view.screens.HomeScreen
 import com.example.bibliaapp.view.screens.MoreScreen
 import com.example.bibliaapp.view.screens.NotificationSettingsScreen
+import com.example.bibliaapp.view.screens.ShareScreen
 import com.example.bibliaapp.view.screens.VersesScreen
 import com.example.bibliaapp.view.viewmodel.BibleViewmodel
 import com.example.bibliaapp.view.viewmodel.HomeViewmodel
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private val versesViewmodel: VersesViewmodel by viewModels()
     private val settingViewmodel: SettingsViewmodel by viewModels()
     private val mainViewModel : MainViewmodel by viewModels()
+
 
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -208,6 +210,11 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Routes.ConfigScreen.route){
                                 ConfigScreen(mainViewModel)
+                            }
+                            composable(Routes.ShareScreen.route){
+                                ShareScreen(
+                                    mainViewModel
+                                    )
                             }
                         }
                     }

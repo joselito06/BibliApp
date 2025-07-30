@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -38,28 +42,46 @@ fun BibleSelectionScreen(viewModel: SettingsViewmodel, mainViewmodel: MainViewmo
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        //verticalArrangement = Arrangement.Center,
+        //horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Seleccionar versión de la Biblia", style = MaterialTheme.typography.headlineSmall)
+        ElevatedCard(
 
-        Spacer(modifier = Modifier.height(16.dp))
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Seleccionar versión de la Biblia", style = MaterialTheme.typography.headlineSmall)
 
-        LazyColumn {
-            items(bibleVersions) { version ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (version == selectedBible),
-                        onClick = { viewModel.setSelectedBible(version) }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(version.toString())
+                Spacer(modifier = Modifier.height(16.dp))
+
+                LazyColumn {
+                    itemsIndexed(bibleVersions) { index, version ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (version == selectedBible),
+                                onClick = { viewModel.setSelectedBible(version) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(version.toString())
+                        }
+                        if (index+1 < bibleVersions.count())
+                            HorizontalDivider(thickness = 1.dp)
+
+
+                    }
                 }
             }
+
         }
+
     }
 }

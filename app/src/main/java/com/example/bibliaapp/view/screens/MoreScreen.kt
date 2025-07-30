@@ -101,7 +101,7 @@ fun MoreScreen(
         )
 
         ListItem(
-            modifier = Modifier.clickable {  },
+            modifier = Modifier.clickable { navigation.navigate(Routes.ShareScreen.route) },
             headlineContent = { Text("Comparte Busca Tu Biblia APP") },
             leadingContent = {
                 Icon(
