@@ -33,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.bibliaapp.ui.theme.AppThemeType
 import com.example.bibliaapp.ui.theme.BibliaAppTheme
 import com.example.bibliaapp.view.Routes
 import com.example.bibliaapp.view.components.NavigationBottomJBN
@@ -55,9 +56,13 @@ import com.example.bibliaapp.view.viewmodel.VersesViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var sharedPreferenceBible: SharedPreferenceBible // Inyección
 
     private val homeViewModel: HomeViewmodel by viewModels()
     private val bibleViewModel : BibleViewmodel by viewModels()
@@ -89,7 +94,14 @@ class MainActivity : ComponentActivity() {
             val fabAction by mainViewModel.fabAction.collectAsState()
             val fabIcon by mainViewModel.fabIcon.collectAsState()
 
-            BibliaAppTheme {
+            var currentAppTheme by remember { mutableStateOf(sharedPreferenceBible.getAppTheme()) } // O el que prefieras por defecto
+            val onThemeChange: (AppThemeType) -> Unit = { newTheme ->
+                currentAppTheme = newTheme
+                sharedPreferenceBible.saveAppTheme(newTheme)
+            }
+            BibliaAppTheme(
+                selectedTheme = currentAppTheme,
+            ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -132,7 +144,14 @@ class MainActivity : ComponentActivity() {
 
 
                         if(isTopAppBarVisible){
-                            TopAppBarComponent(navigation, canPop, scrollBehavior, optionTopApp)
+                            TopAppBarComponent(
+                                navigation,
+                                canPop,
+                                scrollBehavior,
+                                optionTopApp,
+                                currentAppTheme,
+                                onThemeChange
+                            )
                         }
 
                              },

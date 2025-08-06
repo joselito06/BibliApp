@@ -2,6 +2,7 @@ package com.example.bibliaapp
 
 import android.content.Context
 import com.example.bibliaapp.data.networking.models.VersesDaily
+import com.example.bibliaapp.ui.theme.AppThemeType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -9,6 +10,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Context) {
+    private val SHARED_APP_THEME = "app_theme"
     private val SHARED_NAME = "BibleInit"
     private val SHARED_LIBRO = "libro"
     private val SHARED_CAPITULO = "capitulo"
@@ -19,6 +21,19 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     private val storage = context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE)
     private val storage2 = context.getSharedPreferences(SHARED_VERSE_DAILY_INDEX, Context.MODE_PRIVATE)
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    fun saveAppTheme(theme: AppThemeType) {
+        storage.edit().putString(SHARED_APP_THEME, theme.name).apply()
+    }
+
+    fun getAppTheme(): AppThemeType {
+        val themeName = storage.getString(SHARED_APP_THEME, AppThemeType.SYSTEM_DEFAULT.name)
+        return try {
+            AppThemeType.valueOf(themeName ?: AppThemeType.SYSTEM_DEFAULT.name)
+        } catch (e: IllegalArgumentException) {
+            AppThemeType.SYSTEM_DEFAULT // Fallback por si el valor guardado es inválido
+        }
+    }
 
     fun saveCapitulo(capitulo: Int) {
         storage.edit().putInt(SHARED_CAPITULO, capitulo).apply()

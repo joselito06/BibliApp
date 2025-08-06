@@ -2,13 +2,17 @@ package com.example.bibliaapp.view.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -23,17 +27,30 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bibliaapp.ConfigTopAppBar
+import com.example.bibliaapp.ui.theme.AppThemeType
 import com.example.bibliaapp.view.Routes
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBehavior: TopAppBarScrollBehavior, optionTopAppBar: ConfigTopAppBar){
+fun TopAppBarComponent(
+    navigation: NavHostController,
+    canPop: Boolean,
+    scrollBehavior: TopAppBarScrollBehavior,
+    optionTopAppBar: ConfigTopAppBar,
+    currentTheme: AppThemeType,
+    onThemeChange: (AppThemeType) -> Unit
+){
+    var menuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         modifier = Modifier
@@ -48,13 +65,44 @@ fun TopAppBarComponent(navigation: NavHostController, canPop: Boolean, scrollBeh
             if (canPop) {
                 IconButton(onClick = { navigation.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
             } else null 
         },
         actions = {
+            // Icono para cambiar el tema
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.Palette,
+                    contentDescription = "Change Theme"
+                )
+            }
+            // Menú desplegable para seleccionar el tema
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                AppThemeType.values().forEach { themeType ->
+                    DropdownMenuItem(
+                        trailingIcon = {
+                            if (currentTheme == themeType) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected"
+                                )
+                            }
+                        },
+                        text = { Text(themeType.name.replace("_", " ").lowercase().capitalize(
+                            Locale.current)) },
+                        onClick = {
+                            onThemeChange(themeType)
+                            menuExpanded = false
+                        }
+                    )
+                }
+            }
             if (optionTopAppBar.Actions.isEmpty()){
                 IconButton(onClick = { /* Acción adicional */ }) {
                     Icon(
