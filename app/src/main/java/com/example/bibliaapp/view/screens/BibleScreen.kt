@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -31,17 +30,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerScope
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBackIos
-import androidx.compose.material.icons.rounded.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.CopyAll
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -93,7 +87,8 @@ import com.example.bibliaapp.view.viewmodel.BibleViewmodel
 import com.example.bibliaapp.view.viewmodel.MainViewmodel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
+@OptIn(ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
     ExperimentalLayoutApi::class
 )
 @Composable
@@ -101,7 +96,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
     val context = LocalContext.current
     val list: List<Books> by bibleViewmodel.getAllBiblia.collectAsState()
-    val listBook by bibleViewmodel.getAllBook.collectAsState()
+    //val listBook by bibleViewmodel.getAllBook.collectAsState()
     val libro: String by bibleViewmodel.libro.collectAsState("Gen")
     val capitulo: Int by bibleViewmodel.capitulo.collectAsState()
     //val shared: SharedPreferenceBible by bibleViewmodel.sharedComp.collectAsState(initial = SharedPreferenceBible(context = context))
@@ -114,8 +109,8 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var isScrollingDown by remember { mutableStateOf(false) }
-    var previousIndex by remember { mutableStateOf(0) }
-    var previousOffset by remember { mutableStateOf(0) }
+    var previousIndex by remember { mutableIntStateOf(0) }
+    var previousOffset by remember { mutableIntStateOf(0) }
     var isUserScrolling by remember { mutableStateOf(false) }
 
     val selectedItems = remember { mutableStateOf(setOf<Int>()) }
@@ -123,7 +118,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     //val clipboardManager = LocalClipboardManager.current
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
-    var searchLetter by remember { mutableStateOf("") }
+    //var searchLetter by remember { mutableStateOf("") }
 
     fun toggleSelection(index: Int) {
         val currentSelection = selectedItems.value.toMutableSet()
@@ -133,46 +128,121 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
             currentSelection.add(index)
         }
         selectedItems.value = currentSelection
-        selectedItemToSpeak.intValue = -1
 
         coroutineScope.launch {
-            bottomSheetState.show()
+            if (currentSelection.isNotEmpty())
+                bottomSheetState.show()
         }
-    }
-
-    fun toggleSelectionToSpeak(index: Int) {
-        var currentSelection = selectedItemToSpeak.intValue
-        if (currentSelection == index) {
-            currentSelection = -1
-        } else {
-            currentSelection = index
-        }
-        selectedItemToSpeak.intValue = currentSelection
     }
 
     fun copySelectedText(items: List<Verses>) {
-        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
-        val clip = ClipData.newPlainText("selected text", selectedText)
+//        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
+//        val clip = ClipData.newPlainText("selected text", selectedText)
+//        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//        clipboard.setPrimaryClip(clip)
+//        Toast.makeText(context, "Texto copiado al portapapeles", Toast.LENGTH_SHORT).show()
+        val selected = selectedItems.value
+            .sorted()
+            .mapNotNull { index -> items.getOrNull(index) }
+            .filter { verser ->
+                !verser.Contenido.isNullOrBlank()
+            }
+
+        if (selected.isEmpty()) return
+
+        val bookName = selected.firstOrNull()?.Book ?: "Biblia"
+        val sb = StringBuilder()
+        sb.append("📖 $bookName\n\n")
+
+        var lastChapter: Int? = null
+
+        for (verse in selected) {
+            if (verse.ChapterNum != null && verse.ChapterNum != lastChapter) {
+                sb.append("Capítulo ${verse.ChapterNum}\n\n")
+                lastChapter = verse.ChapterNum
+
+            }
+
+            if (!verse.ChapterName.isNullOrEmpty()) {
+                sb.append("${verse.ChapterName}\n")
+            }
+
+            sb.append("${verse.Verse}. ${verse.Contenido?.trim()}\n")
+        }
+
+        val clip = ClipData.newPlainText("Texto bíblico", sb.toString())
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(context, "Texto copiado al portapapeles", Toast.LENGTH_SHORT).show()
+
+        Toast.makeText(context, "Versículos copiados al portapapeles", Toast.LENGTH_SHORT).show()
+
+        // Limpiar selección si deseas
+        // selectedItems.value = emptySet()
     }
 
     fun shareSelectedText(items: List<Verses>) {
-        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, selectedText)
-            type = "text/plain"
+//        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
+//        val shareIntent = Intent().apply {
+//            action = Intent.ACTION_SEND
+//            putExtra(Intent.EXTRA_TEXT, selectedText)
+//            type = "text/plain"
+//        }
+//        context.startActivity(Intent.createChooser(shareIntent, "Compartir texto con"))
+
+        val selected = selectedItems.value
+            .sorted()
+            .mapNotNull { index -> items.getOrNull(index) }
+            .filter { !it.Contenido.isNullOrBlank() }
+
+        if (selected.isEmpty()) return
+
+        val bookName = selected.first().Book ?: "Biblia"
+        val chapterNum = selected.first().ChapterNum ?: 1
+
+        val formattedBookName = bookName.lowercase()
+            .replace(" ", "-")
+            .replace("á", "a")
+            .replace("é", "e")
+            .replace("í", "i")
+            .replace("ó", "o")
+            .replace("ú", "u")
+            .replace("ñ", "n")
+
+        val link = "https://bibliapp.com/biblia/$formattedBookName/$chapterNum"
+
+        val sb = StringBuilder()
+        sb.append("📖 $bookName\n\n")
+
+        var lastChapter: Int? = null
+
+        for (verse in selected) {
+            if (verse.ChapterNum != null && verse.ChapterNum != lastChapter) {
+                sb.append("Capítulo ${verse.ChapterNum}\n\n")
+                lastChapter = verse.ChapterNum
+
+                if (!verse.ChapterName.isNullOrEmpty()) {
+                    sb.append("${verse.ChapterName}\n\n")
+                }
+            }
+
+            sb.append("${verse.Verse}. ${verse.Contenido?.trim()}\n")
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Compartir texto con"))
+
+        sb.append("\n📲 Lee más aquí: $link")
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, sb.toString())
+        }
+
+        context.startActivity(Intent.createChooser(intent, "Compartir versículos con..."))
     }
 
     // Detectar eventos de scroll manual (táctil) usando `nestedScrollConnection`
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.Drag) {
+                if (source == NestedScrollSource.UserInput) {
                     isUserScrolling = true // Usuario deslizó con el dedo
                 }else{
                     isUserScrolling = false;
@@ -225,7 +295,6 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
             if (!isUserScrolling){
                 bibleViewmodel.scrollToChapter(coroutineScope, listState)
             }
-
         }
         catch (e: Exception){
             Log.e("Error ScrollToLetter Plus", e.message.toString())
@@ -381,7 +450,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                         bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
 
                                     }) {
-                                        Icon(imageVector = Icons.Rounded.ArrowBackIos, contentDescription = null)
+                                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
                                     }
 
                                     Text(text = book.Human, style = MaterialTheme.typography.displaySmall)
@@ -390,7 +459,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                         bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
 
                                     }) {
-                                        Icon(imageVector = Icons.Rounded.ArrowForwardIos, contentDescription = null)
+                                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
                                     }
                                 }
                             }
@@ -433,12 +502,14 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                             .pointerInput(Unit){
                                                 detectTapGestures(
                                                     onLongPress = {
-                                                        if (!isSelectedMode)
-                                                            toggleSelection(index)
+//                                                        if (!isSelectedMode)
+//                                                            toggleSelection(index)
                                                     },
                                                     onTap = {
-                                                        if(!isSelected)
-                                                            toggleSelectionToSpeak(index)
+//                                                        if(!isSelected)
+//                                                            toggleSelectionToSpeak(index)
+                                                        if (!isSelectedMode)
+                                                            toggleSelection(index)
                                                     }
                                                 )
                                             }
@@ -471,10 +542,11 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                                 .pointerInput(Unit){
                                                     detectTapGestures(
                                                         onLongPress = {
-                                                            toggleSelection(index)
+                                                            //toggleSelection(index)
                                                         },
                                                         onTap = {
-                                                            toggleSelectionToSpeak(index)
+                                                            //toggleSelectionToSpeak(index)
+                                                            toggleSelection(index)
                                                         }
                                                     )
                                                 }
@@ -526,7 +598,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                     bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
                                 },
                                 modifier = Modifier.padding(2.dp)) {
-                                Icon(imageVector = Icons.Rounded.ArrowBackIos, contentDescription = null)
+                                Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
                             }
                             Column(modifier = Modifier) {
                                 TextButton(onClick = { expanded = true }, modifier = Modifier.padding(2.dp)) {
@@ -578,13 +650,13 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                                     bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
                                 },
                                 modifier = Modifier.padding(2.dp)) {
-                                Icon(imageVector = Icons.Rounded.ArrowForwardIos, contentDescription = null)
+                                Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
                             }
 
                         }
 
                     }
-                    TextToSpeechControls(viewModel = bibleViewmodel, listState, capitulo)
+                    TextToSpeechControls(viewModel = bibleViewmodel)
                     /*Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
 
                         Row {
@@ -633,9 +705,10 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 }
 
 @Composable
-fun TextToSpeechControls(viewModel: BibleViewmodel, listState: LazyListState, capitulo: Int) {
+fun TextToSpeechControls(viewModel: BibleViewmodel) {
     val isSpeaking by viewModel.isSpeaking.collectAsState()
     val isPaused by viewModel.isPaused.collectAsState()
+
     Row(Modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
         Row {
             IconButton(
@@ -668,13 +741,13 @@ fun TextToSpeechControls(viewModel: BibleViewmodel, listState: LazyListState, ca
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+/*@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DynamicPagerWithSwipeAction(items: List<Books>, book: List<Books>, onSwipeLeft: () -> Unit, onSwipeRight: () -> Unit, content: @Composable PagerScope.(page: Int, pageState: PagerState) -> Unit){
     val pagerState = rememberPagerState(
         initialPage = if(items.any() && book.any()) items.indexOfFirst { v -> v.Osis == book.first().Osis } + 1 else 0,
         pageCount = { items.size })
-    var previousPage by remember { mutableStateOf(0) }
+    var previousPage by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(pagerState.currentPage) {
         val currentPage = pagerState.currentPage
@@ -697,7 +770,7 @@ fun DynamicPagerWithSwipeAction(items: List<Books>, book: List<Books>, onSwipeLe
         content(page, pagerState)
     }
 
-}
+}*/
 
 /*DynamicPagerWithSwipeAction(
 items = listBook,
