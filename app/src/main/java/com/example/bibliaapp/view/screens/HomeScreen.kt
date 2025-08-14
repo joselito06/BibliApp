@@ -90,9 +90,9 @@ fun HomeCard(versesViewmodel: VersesViewmodel){
             {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "Versiculo del Dia", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(text = versesDaily.verse_direction, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    versesDaily.verse_direction?.let { Text(text = it, fontWeight = FontWeight.Medium, fontSize = 16.sp) }
                     Spacer(modifier = Modifier.padding(16.dp))
-                    Text(text = versesDaily.verse_content)
+                    versesDaily.verse_content?.let { Text(text = it) }
                 }
 
             }

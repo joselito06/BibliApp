@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import java.util.Calendar
 
 @HiltViewModel
 class VersesViewmodel @Inject constructor(private val versesUC : VersesDailyUseCase,
@@ -28,7 +27,7 @@ class VersesViewmodel @Inject constructor(private val versesUC : VersesDailyUseC
 
     fun onGet(){
         viewModelScope.launch {
-            val selects = versesUC.invoke()
+            val selects = versesUC.invoke("VersosDiarios", filter = { it.code == "tla" })
             _getAllVerses.value = selects
             loadVerseOfTheDay()
         }

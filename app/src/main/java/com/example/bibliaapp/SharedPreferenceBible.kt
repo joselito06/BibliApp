@@ -1,13 +1,24 @@
 package com.example.bibliaapp
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.example.bibliaapp.data.networking.models.VersesDaily
 import com.example.bibliaapp.ui.theme.AppThemeType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import androidx.core.content.edit
+import com.example.bibliaapp.domain.model.AppLanguage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.channels.awaitClose
 
 class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Context) {
     private val SHARED_APP_THEME = "app_theme"
@@ -15,12 +26,31 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     private val SHARED_LIBRO = "libro"
     private val SHARED_CAPITULO = "capitulo"
     private val SHARED_CURRENT_INDEX = "current_index"
+    private val PREF_NOTIFICATIONS_ENABLED = "notifications_enabled"
+    private val PREF_SELECTED_HOUR = "selected_hour"
+    private val PREF_SELECTED_MINUTE = "selected_minute"
 
+    private val KEY_APP_LANGUAGE = "app_language_code"
     private  val SHARED_VERSE_DAILY_INDEX = "VersePrefs"
 
     private val storage = context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE)
     private val storage2 = context.getSharedPreferences(SHARED_VERSE_DAILY_INDEX, Context.MODE_PRIVATE)
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    // --- Preferencias de Notificación y Hora ---
+    private val _notificationsEnabled = MutableStateFlow(
+        storage.getBoolean(PREF_NOTIFICATIONS_ENABLED, false) // Leer desde 'storage'
+    )
+    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
+
+    private val _selectedTime = MutableStateFlow(
+        LocalTime.of(
+            storage.getInt(PREF_SELECTED_HOUR, 12), // Leer desde 'storage', Hora por defecto: 12
+            storage.getInt(PREF_SELECTED_MINUTE, 0)  // Leer desde 'storage', Minuto por defecto: 00
+        )
+    )
+    val selectedTime: StateFlow<LocalTime> = _selectedTime.asStateFlow()
+
 
     fun saveAppTheme(theme: AppThemeType) {
         storage.edit().putString(SHARED_APP_THEME, theme.name).apply()
@@ -68,4 +98,50 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
             return verses[nextIndex]
         }
     }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        _notificationsEnabled.value = enabled
+        with(storage.edit()) { // Usar 'storage'
+            putBoolean(PREF_NOTIFICATIONS_ENABLED, enabled)
+            apply()
+        }
+    }
+
+    fun setSelectedTime(time: LocalTime) {
+        _selectedTime.value = time
+        with(storage.edit()) { // Usar 'storage'
+            putInt(PREF_SELECTED_HOUR, time.hour)
+            putInt(PREF_SELECTED_MINUTE, time.minute)
+            apply()
+        }
+    }
+
+    fun saveAppLanguageCode(languageCode: String) {
+        storage.edit { putString(KEY_APP_LANGUAGE, languageCode) }
+    }
+
+    fun getAppLanguageCode(): String {
+        // Devuelve el código del idioma, por ejemplo, "en" o "es".
+        // Puedes usar el idioma del sistema como valor por defecto si lo deseas,
+        // o un idioma fijo como inglés.
+        return storage.getString(KEY_APP_LANGUAGE, AppLanguage.ENGLISH.code) ?: AppLanguage.ENGLISH.code
+    }
+
+    // Flow para observar cambios en el idioma (similar al del tema)
+    fun getAppLanguageCodeFlow(): Flow<String> = callbackFlow {
+        val listener = object : SharedPreferences.OnSharedPreferenceChangeListener {
+            override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+                if (key == KEY_APP_LANGUAGE) { // Usando tu constante KEY_APP_LANGUAGE
+                    trySend(getAppLanguageCode())
+                }
+            }
+        }
+        trySend(getAppLanguageCode()) // Emisión inicial
+        storage.registerOnSharedPreferenceChangeListener(listener)
+        // awaitClose debe ser la última expresión en el bloque callbackFlow
+        awaitClose {
+            storage.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }.conflate()
+
 }

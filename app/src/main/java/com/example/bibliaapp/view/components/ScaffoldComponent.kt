@@ -31,14 +31,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.bibliaapp.ConfigTopAppBar
+import com.example.bibliaapp.R
 import com.example.bibliaapp.ui.theme.AppThemeType
 import com.example.bibliaapp.view.Routes
+import com.example.bibliaapp.view.screens.getThemeDisplayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +87,7 @@ fun TopAppBarComponent(
                 expanded = menuExpanded,
                 onDismissRequest = { menuExpanded = false }
             ) {
-                AppThemeType.values().forEach { themeType ->
+                AppThemeType.entries.forEach { themeType ->
                     DropdownMenuItem(
                         trailingIcon = {
                             if (currentTheme == themeType) {
@@ -94,8 +97,9 @@ fun TopAppBarComponent(
                                 )
                             }
                         },
-                        text = { Text(themeType.name.replace("_", " ").lowercase().capitalize(
-                            Locale.current)) },
+                        /*text = { Text(themeType.name.replace("_", " ").lowercase().capitalize(
+                            Locale.current)) },*/
+                        text = { Text(getThemeDisplayName(themeType)) },
                         onClick = {
                             onThemeChange(themeType)
                             menuExpanded = false
@@ -156,25 +160,25 @@ fun NavigationBottomJBN(navigation: NavHostController, isBottomBarVisible: Boole
             selected = currentRoute == Routes.HomeScreen.route,
             onClick = { navigation.navigate(Routes.HomeScreen.route) },
             icon = { Icon( Icons.Filled.Home, null) },
-            label = { Text(text = "Inicio")}
+            label = { Text(text = stringResource(R.string.navigarion_bar_home))}
         )
         NavigationBarItem(
             selected = currentRoute == Routes.BibleScreen.route,
             onClick = { navigation.navigate(Routes.BibleScreen.route)},
             icon = { Icon( Icons.Filled.Book, null) },
-            label = { Text(text = "Biblia")}
+            label = { Text(text = stringResource(R.string.navigarion_bar_bible))}
         )
         NavigationBarItem(
             selected = false,
             onClick = { /*TODO*/ },
             icon = { Icon( Icons.Filled.Search, null) },
-            label = { Text(text = "Buscar")}
+            label = { Text(text = stringResource(R.string.navigarion_bar_search))}
         )
         NavigationBarItem(
             selected = currentRoute == Routes.MoreScreen.route,
             onClick = { navigation.navigate(Routes.MoreScreen.route)},
             icon = { Icon( Icons.Filled.Menu, null) },
-            label = { Text(text = "Mas")}
+            label = { Text(text = stringResource(R.string.navigarion_bar_more))}
         )
     }
 }

@@ -36,6 +36,9 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
     val isPaused: StateFlow<Boolean> get() = _isPaused
     val pausedText: StateFlow<String> get() = _pausedText
 
+    private val _getBooks = MutableStateFlow<List<Books>>(listOf())
+    val getBooks: StateFlow<List<Books>> = _getBooks
+
     private val _getAllBook = MutableStateFlow<List<Books>>(listOf())
     val getAllBook: StateFlow<List<Books>> = _getAllBook
 
@@ -64,6 +67,8 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
         viewModelScope.launch {
             val booksSelect = booksUC.invoke()
             _getAllBook.value = booksSelect
+
+            _getBooks.value = booksUC.GetAllBook()
 
             // Buscar el índice del libro guardado
             val savedBook = shared.getCurrentBook() ?: booksSelect.first().Osis
@@ -215,6 +220,7 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
     fun getBook(osis: String){
         viewModelScope.launch {
             _Libro.value = _getAllBook.value.first { v -> v.Osis == osis }.Osis
+            _LibroIndex.value = _getAllBook.value.indexOfFirst { v -> v.Osis == osis }
             try{
                 _getAllBiblia.value = booksUC.GetAllBookAndVerses(_Libro.value)
             }catch (e: Exception){

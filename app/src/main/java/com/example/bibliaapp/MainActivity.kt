@@ -1,11 +1,26 @@
 package com.example.bibliaapp
 
+import android.Manifest
+import android.app.LocaleManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.os.LocaleList
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,13 +34,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -45,7 +65,7 @@ import com.example.bibliaapp.view.screens.ConfigScreen
 import com.example.bibliaapp.view.screens.HomeScreen
 import com.example.bibliaapp.view.screens.MoreScreen
 import com.example.bibliaapp.view.screens.NotificationSettingsScreen
-import com.example.bibliaapp.view.screens.ShareScreen
+import com.example.bibliaapp.view.screens.ShareAppScreen
 import com.example.bibliaapp.view.screens.VersesScreen
 import com.example.bibliaapp.view.viewmodel.BibleViewmodel
 import com.example.bibliaapp.view.viewmodel.HomeViewmodel
@@ -78,6 +98,45 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+            //Notificaciones----------------------------------
+            val context = LocalContext.current
+            val requestPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    // Permiso concedido
+                } else {
+                    // Permiso denegado. Informar al usuario.
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                // Cuando habilitas notificaciones o al inicio de la pantalla:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // TIRAMISU es API 33
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                        PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // Permiso ya concedido
+                    } else {
+                        // Solicitar permiso
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+                //------------------------------------------------
+            }
+
+            val currentLanguageCode by mainViewModel.appLanguageCode.collectAsState()
+
+            LaunchedEffect(currentLanguageCode) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.getSystemService(LocaleManager::class.java)
+                        .applicationLocales = LocaleList.forLanguageTags(currentLanguageCode)
+                } else {
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(currentLanguageCode))
+                }
+            }
+
             val navigation = rememberNavController()
             // Estado para rastrear la posición del scroll
             val scrollState = rememberScrollState()
@@ -88,17 +147,22 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry = navigation.currentBackStackEntryAsState().value
             val versesDaily by versesViewmodel.verseOfTheDay.collectAsState()
 
+            val isScrollingDown by mainViewModel.isTopAppBarAnimationVisible.collectAsState()
             val isTopAppBarVisible by mainViewModel.isTopAppBarVisible.collectAsState()
             val isBottomBarVisible by mainViewModel.isBottomBarVisible.collectAsState()
             val isFloatingActionButtonVisible by mainViewModel.isFloatingActionButtonVisible.collectAsState()
             val fabAction by mainViewModel.fabAction.collectAsState()
             val fabIcon by mainViewModel.fabIcon.collectAsState()
 
-            var currentAppTheme by remember { mutableStateOf(sharedPreferenceBible.getAppTheme()) } // O el que prefieras por defecto
+            //var currentAppTheme by remember { mutableStateOf(sharedPreferenceBible.getAppTheme()) }
+            val currentAppTheme by settingViewmodel.appTheme.collectAsState() // O el que prefieras por defecto
             val onThemeChange: (AppThemeType) -> Unit = { newTheme ->
+                settingViewmodel.setAppTheme(newTheme)
+            }
+            /*val onThemeChange: (AppThemeType) -> Unit = { newTheme ->
                 currentAppTheme = newTheme
                 sharedPreferenceBible.saveAppTheme(newTheme)
-            }
+            }*/
             BibliaAppTheme(
                 selectedTheme = currentAppTheme,
             ) {
@@ -144,20 +208,50 @@ class MainActivity : ComponentActivity() {
 
 
                         if(isTopAppBarVisible){
-                            TopAppBarComponent(
-                                navigation,
-                                canPop,
-                                scrollBehavior,
-                                optionTopApp,
-                                currentAppTheme,
-                                onThemeChange
-                            )
+                            if (false){
+                                AnimatedVisibility(
+                                    visible = !isScrollingDown,
+                                    enter = fadeIn() + slideInVertically { -it },
+                                    exit = fadeOut() + slideOutVertically { -it }
+                                ){
+                                    TopAppBarComponent(
+                                        navigation,
+                                        canPop,
+                                        scrollBehavior,
+                                        optionTopApp,
+                                        currentAppTheme,
+                                        onThemeChange
+                                    )
+                                }
+                            }else{
+                                TopAppBarComponent(
+                                    navigation,
+                                    canPop,
+                                    scrollBehavior,
+                                    optionTopApp,
+                                    currentAppTheme,
+                                    onThemeChange
+                                )
+                            }
+
+
                         }
 
                              },
                     bottomBar = {
                         if (isBottomBarVisible){
-                            NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
+                            if (navBackStackEntry?.destination?.route == Routes.BibleScreen.route){
+                                AnimatedVisibility(
+                                    visible = !isScrollingDown,
+                                    enter = fadeIn() + slideInVertically { it },
+                                    exit = fadeOut() + slideOutVertically { it }
+                                ){
+                                    NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
+                                }
+                            }else{
+                                NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
+                            }
+
                         }
 //                        if (navBackStackEntry?.destination?.route == Routes.HomeScreen.route){
 //                            NavigationBottomJBN(navigation = navigation, isBottomBarVisible = false)
@@ -173,7 +267,7 @@ class MainActivity : ComponentActivity() {
 
                 )
                 { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding),)
+                    Column(modifier = Modifier.padding(innerPadding))
                     {
                         NavHost(navController = navigation, startDestination = Routes.BibleScreen.route){
                             composable(Routes.HomeScreen.route){
@@ -207,6 +301,7 @@ class MainActivity : ComponentActivity() {
                                 VersesScreen(
                                     modifier = Modifier.padding(innerPadding),
                                     versesViewmodel,
+                                    mainViewModel,
                                     navigation,
                                     scrollBehavior
                                 )
@@ -221,26 +316,28 @@ class MainActivity : ComponentActivity() {
                             composable(Routes.BibleSelectionScreen.route){
                                 BibleSelectionScreen(
                                     settingViewmodel,
-                                    mainViewModel
+                                    mainViewModel,
+                                    navigation
                                 )
                             }
                             composable(Routes.AboutScreen.route){
-                                AboutScreen(mainViewModel)
+                                AboutScreen(mainViewModel, navigation)
                             }
                             composable(Routes.ConfigScreen.route){
-                                ConfigScreen(mainViewModel)
+                                ConfigScreen(
+                                    mainViewModel,
+                                    settingViewmodel,
+                                    navigation
+                                )
                             }
                             composable(Routes.ShareScreen.route){
-                                ShareScreen(
-                                    mainViewModel
-                                    )
+                                ShareAppScreen(
+                                    mainViewModel,
+                                    navigation
+                                )
                             }
                         }
                     }
-//                    HomeScreen(
-//                        modifier = Modifier.padding(innerPadding),
-//                        homeViewmodel = homeViewModel
-//                    )
 
                 }
             }

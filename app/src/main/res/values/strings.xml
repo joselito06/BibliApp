@@ -1,3 +1,69 @@
 <resources>
-    <string name="app_name">BibliaApp</string>
+    <string name="app_name">BibliApp</string>
+    <string name="config_screen_title">Settings</string>
+    <string name="theme_selection_title">Select Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_high_contrast_light">High Contrast Light</string>
+    <string name="theme_high_contrast_dark">High Contrast Light</string>
+    <string name="theme_medium_contrast_light">Medium Contrast Light</string>
+    <string name="theme_medium_contrast_dark">Medium Contrast Dark</string>
+    <string name="theme_setting_title">Application Theme</string>
+    <string name="language_setting_title">Language</string>
+    <string name="notification_alerts_title">Verse Alerts</string>
+    <string name="bible_version_title">Bible Version</string>
+    <string name="about_app_title">About App</string>
+    <string name="appearance_section_title">Appearance</string>
+
+    <string name="content_section_title">Content</string>
+    <string name="more_info_section_title">More Information</string>
+
+    <string name="accept_button">ACCEPT</string>
+    <string name="cancel_button">CANCEL</string>
+
+    <string name="notifications_section_title">Notifications</string>
+    <string name="notifications_status_enabled">Enabled</string>
+    <string name="notifications_status_disabled">Disabled</string>
+
+    <string name="more_screen_daily_verse_title">Verse of the Day</string>
+    <string name="more_screen_other_bibles_title">Other Bibles</string>
+    <string name="more_screen_settings_title">Settings</string>
+    <string name="more_screen_share_app_title">Share BibliAPP</string>
+
+    <string name="verses_screen_title">Verses</string>
+    <string name="verses_screen_search_placeholder">Search in verses…</string>
+
+    <string name="share_screen_title">Share</string>
+    <string name="share_app_message_template">📖 Discover *Bibliapp* – your free Bible app 📲\n\nStudy God\'s Word wherever you are, offline and with a beautiful interface.\n\n👉 Download it here: %1$s</string>
+    <string name="share_app_card_title">Share Bibliapp!</string>
+    <string name="share_app_card_subtitle">Help others carry God\'s Word on their mobile 📲🙏</string>
+    <string name="share_app_button_text">Share the app</string>
+    <string name="share_app_chooser_title">Share Bibliapp with…</string>
+    <string name="share_verse_message_template">%1$s\n\n%2$s\n\n📖 Read in Bibliapp 🙏</string>
+    <string name="share_verse_button_text">Share</string>
+
+    <string name="about_screen_title">About Bibliapp</string>
+    <string name="about_screen_description_text">This application helps you receive and read daily Bible verses, allowing you to customize notifications and select different Bible versions.</string>
+    <string name="about_screen_version">Version:</string>
+    <string name="about_screen_developer">Developed by:</string>
+
+    <string name="navigarion_bar_home">Home</string>
+    <string name="navigarion_bar_bible">Bible</string>
+    <string name="navigarion_bar_search">Search</string>
+    <string name="navigarion_bar_more">More</string>
+
+    <string name="bible_selection_screen_title">Bible Versions</string>
+    <string name="bible_selection_settings_desc">Settings</string>
+
+    <string name="bible_in_use_title">Bible in Use</string>
+    <string name="selected_bible_prefix">Selected:</string> <!-- Opcional, si quieres un prefijo -->
+
+    <string name="available_bibles_title">Available Bibles</string>
+    <string name="change_to_other_available_bible">Change to another available Bible</string>
+
+    <string name="download_more_bibles_button">Download More Bibles</string>
+
+    <string name="language_english">English</string>
+    <string name="language_spanish">Spanish</string>
 </resources>

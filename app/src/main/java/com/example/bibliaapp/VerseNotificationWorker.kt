@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.bibliaapp.view.viewmodel.VersesViewmodel
@@ -38,7 +37,7 @@ class VerseNotificationWorker(context: Context, params: WorkerParameters, verses
         notificationManager.notify(1, notification)
     }
 
-    private fun getVerseOfTheDay(): String{
+    private fun getVerseOfTheDay(): String? {
         val verse = _versesViewmodel.verseOfTheDay.value
         if (verse.verse_id >= 0){
             return verse.verse_content

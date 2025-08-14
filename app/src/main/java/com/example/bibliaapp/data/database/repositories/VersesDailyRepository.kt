@@ -9,13 +9,20 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.text.contains
 
 class VersesDailyRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
-    suspend fun GetAll() : List<VersesDaily> {
+    suspend fun GetAll(fileName: String, filter: ((VersesDaily) -> Boolean)? = null) : List<VersesDaily> {
         return withContext(Dispatchers.IO){
-            val jsonString = readJsonFromAssets(context = context, "VersosDiarios.json")
-            jsonString?.let { parseJson(it) } ?: emptyList()
+            val jsonString = readJsonFromAssets(context = context, "$fileName.json")
+            val allVerses = jsonString?.let { parseJson(it) } ?: emptyList()
+
+            if (filter != null) {
+                allVerses.filter(filter)
+            } else {
+                allVerses
+            }
         }
     }
 

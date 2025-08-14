@@ -15,6 +15,7 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.CollectionsBookmark
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -26,9 +27,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.bibliaapp.R
 import com.example.bibliaapp.view.Routes
 import com.example.bibliaapp.view.viewmodel.BibleViewmodel
 import com.example.bibliaapp.view.viewmodel.MainViewmodel
@@ -56,7 +59,7 @@ fun MoreScreen(
         .padding(16.dp)) {
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.NotificationScreen.route) },
-            headlineContent = { Text("Notificaciones") },
+            headlineContent = { Text(stringResource(R.string.notifications_section_title)) },
             leadingContent = {
                 Icon(
                     Icons.Filled.Notifications,
@@ -69,7 +72,7 @@ fun MoreScreen(
 
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.VersesScreen.route)  },
-            headlineContent = { Text("Versiculo del dia") },
+            headlineContent = { Text(stringResource(R.string.more_screen_daily_verse_title)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Bookmark,
@@ -80,7 +83,7 @@ fun MoreScreen(
 
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.BibleSelectionScreen.route) },
-            headlineContent = { Text("Otras Biblias") },
+            headlineContent = { Text(stringResource(R.string.more_screen_other_bibles_title)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.CollectionsBookmark,
@@ -91,7 +94,7 @@ fun MoreScreen(
 
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.AboutScreen.route) },
-            headlineContent = { Text("Acerca de") },
+            headlineContent = { Text(stringResource(R.string.about_app_title)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Info,
@@ -102,7 +105,7 @@ fun MoreScreen(
 
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.ShareScreen.route) },
-            headlineContent = { Text("Comparte Busca Tu Biblia APP") },
+            headlineContent = { Text(stringResource(R.string.more_screen_share_app_title)) },
             leadingContent = {
                 Icon(
                     Icons.Rounded.Share,
@@ -113,10 +116,10 @@ fun MoreScreen(
 
         ListItem(
             modifier = Modifier.clickable { navigation.navigate(Routes.ConfigScreen.route) },
-            headlineContent = { Text("Configuracion") },
+            headlineContent = { Text(stringResource(R.string.more_screen_settings_title)) },
             leadingContent = {
                 Icon(
-                    Icons.Rounded.Build,
+                    Icons.Rounded.Settings,
                     contentDescription = "Localized description",
                 )
             }

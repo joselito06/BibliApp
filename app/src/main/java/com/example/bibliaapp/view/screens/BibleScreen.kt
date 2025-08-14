@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,12 +54,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -71,15 +75,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.example.bibliaapp.domain.model.Books
 import com.example.bibliaapp.domain.model.Verses
@@ -93,12 +101,48 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmodel: MainViewmodel, navigation : NavHostController, scrollBehavior: TopAppBarScrollBehavior){
+    val view = LocalView.current
 
+    // --- Define los colores que quieres para esta pantalla ---
+    val desiredStatusBarColor = MaterialTheme.colorScheme.primaryContainer // Ejemplo: Negro semi-transparente
+    val desiredNavBarColor = MaterialTheme.colorScheme.primaryContainer    // Ejemplo: Un azul oscuro opaco
+
+    if (!view.isInEditMode) {
+        val window = view.context.findActivity()?.window
+        DisposableEffect(key1 = window, key2 = desiredStatusBarColor, key3 = desiredNavBarColor) {
+            window?.let { win ->
+                val originalStatusBarColor = win.statusBarColor
+                val originalNavBarColor = win.navigationBarColor
+                val insetsController = WindowCompat.getInsetsController(win, view)
+                val originalIsLightStatusBar = insetsController.isAppearanceLightStatusBars
+                val originalIsLightNavBar = insetsController.isAppearanceLightNavigationBars
+
+                // Establecer nuevos colores para las barras
+                win.statusBarColor = desiredStatusBarColor.toArgb()
+                win.navigationBarColor = desiredNavBarColor.toArgb()
+
+                // Ajustar el color de los iconos de las barras para contraste
+                // Si la barra es oscura, los iconos deben ser claros (isAppearanceLight... = false)
+                // Si la barra es clara, los iconos deben ser oscuros (isAppearanceLight... = true)
+                insetsController.isAppearanceLightStatusBars = !desiredStatusBarColor.isPerceivedAsDark()
+                insetsController.isAppearanceLightNavigationBars = !desiredNavBarColor.isPerceivedAsDark()
+
+                onDispose {
+                    // Restaurar colores e iconos originales al salir de la pantalla
+                    win.statusBarColor = originalStatusBarColor
+                    win.navigationBarColor = originalNavBarColor
+                    insetsController.isAppearanceLightStatusBars = originalIsLightStatusBar
+                    insetsController.isAppearanceLightNavigationBars = originalIsLightNavBar
+                }
+            } ?: onDispose {} // Si window es null, onDispose no tiene nada que hacer
+        }
+    }
     val context = LocalContext.current
     val list: List<Books> by bibleViewmodel.getAllBiblia.collectAsState()
     //val listBook by bibleViewmodel.getAllBook.collectAsState()
     val libro: String by bibleViewmodel.libro.collectAsState("Gen")
     val capitulo: Int by bibleViewmodel.capitulo.collectAsState()
+    val libros by bibleViewmodel.getBooks.collectAsState()
     //val shared: SharedPreferenceBible by bibleViewmodel.sharedComp.collectAsState(initial = SharedPreferenceBible(context = context))
 
 //    var tts: TextToSpeech? by remember { mutableStateOf(null) }
@@ -108,7 +152,8 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var isScrollingDown by remember { mutableStateOf(false) }
+    //var isScrollingDown by remember { mutableStateOf(false) }
+    val isScrollingDown by mainViewmodel.isTopAppBarAnimationVisible.collectAsState()
     var previousIndex by remember { mutableIntStateOf(0) }
     var previousOffset by remember { mutableIntStateOf(0) }
     var isUserScrolling by remember { mutableStateOf(false) }
@@ -116,6 +161,8 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     val selectedItems = remember { mutableStateOf(setOf<Int>()) }
     val selectedItemToSpeak = remember { mutableIntStateOf(-1) }
     //val clipboardManager = LocalClipboardManager.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
     //var searchLetter by remember { mutableStateOf("") }
@@ -131,7 +178,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
         coroutineScope.launch {
             if (currentSelection.isNotEmpty())
-                bottomSheetState.show()
+                showBottomSheet = true//bottomSheetState.show()
         }
     }
 
@@ -267,13 +314,20 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
                 if (!isUserScrolling) return@collect
 
-                isScrollingDown = if (index > previousIndex) {
+                mainViewmodel.showTopAppBarAnimation( if (index > previousIndex) {
                     true
                 } else if (index < previousIndex) {
                     false
                 } else {
                     offset > previousOffset
-                }
+                })
+                /*isScrollingDown = if (index > previousIndex) {
+                    true
+                } else if (index < previousIndex) {
+                    false
+                } else {
+                    offset > previousOffset
+                }*/
 
                 // Actualizar capítulo si cambia el índice
                 val newChapter = if(list.any()) list.first().Verse[index].Chapter else capitulo // Implementa esta función según tu lógica
@@ -304,56 +358,17 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     LaunchedEffect(Unit) {
         bibleViewmodel.initializeTTS(context, coroutineScope, listState)
     }
-    /*LaunchedEffect(key1 = context) {
-        tts = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val result = tts?.setLanguage(Locale("es", "ES"))
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Toast.makeText(context, "Idioma no soportado", Toast.LENGTH_SHORT).show()
-                } else {
-                    val voices = tts?.voices
-                    val preferredVoice = voices?.find { it.name.contains("es-es-x-") }
-                    if (preferredVoice != null) {
-                        tts?.voice = preferredVoice
-                        Toast.makeText(context, "TextToSpeech initialized with preferred voice", Toast.LENGTH_SHORT).show()
-                    } else {
-                        //Toast.makeText(context, "Preferred voice not found", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                Toast.makeText(context, "TextToSpeech initialization failed", Toast.LENGTH_SHORT).show()
-            }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState
+        ){
+            BottomModalCopyText(list, libro = libro, copySelectedText = { copySelectedText(it) }, shareSelectedText = { shareSelectedText(it) })
         }
+    }
 
-        tts?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {
-//                currentIndex = utteranceId?.toInt() ?: 0
-//                coroutineScope.launch {
-//                    listState.animateScrollToItem(currentIndex)
-//                }
-                //currentIndex = utteranceId?.toInt() ?: 0
-                coroutineScope.launch {
-                    listState.animateScrollToItem(capitulo)
-                }
-            }
-
-            override fun onDone(utteranceId: String?) {
-                val nextIndex = (utteranceId?.toInt() ?: 0) + 1
-                if (nextIndex < list.first().Verse.size) {
-                    tts?.speak(list.first().Verse[nextIndex].Contenido, TextToSpeech.QUEUE_FLUSH, null, nextIndex.toString())
-                } else {
-                    bibleViewmodel.setCapitulo(0)
-                    //currentIndex = 0
-                    isSpeaking = false
-                }
-            }
-
-            override fun onError(utteranceId: String?) {}
-        })
-
-    }*/
-
-    BottomSheetScaffold(
+    /*BottomSheetScaffold(
         modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary),
         scaffoldState = scaffoldState,
         //sheetContainerColor = BottomSheetDefaults.ContainerColor.apply { MaterialTheme.colorScheme.onPrimary },
@@ -406,302 +421,313 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
         },
         sheetPeekHeight = 0.dp
     ){ innerPadding ->
-        Box(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()
 
-        ){
+    }*/
 
-            LazyColumn(
-                Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 70.dp)
-                    .nestedScroll(nestedScrollConnection) // Aplica el detector de scroll táctil
-                ,
-                state = listState
-            )
-            {
+//    val navVisible by remember { mutableStateOf(true) }
+//    val offsetY by animateDpAsState(
+//        targetValue = if (navVisible) 0.dp else 80.dp, // altura del nav
+//        label = ""
+//    )
+    Box(modifier = Modifier
+        .fillMaxSize()
 
-                list.forEach{ book ->
-                    stickyHeader {
-                        AnimatedVisibility(
-                            visible = !isScrollingDown,
-                            enter = fadeIn() + slideInVertically { -it },
-                            exit = fadeOut() + slideOutVertically { -it }
-                        )
-                        {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(
-                                    bottomStart = 50.dp,
-                                    bottomEnd = 50.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                            ){
+    ){
 
-                                Row(
-                                    Modifier
-                                        .padding(8.dp)
-                                        .fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    IconButton(onClick = {
-                                        bibleViewmodel.lessBook()
-                                        bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = 70.dp)
+                .nestedScroll(nestedScrollConnection) // Aplica el detector de scroll táctil
+            ,
+            state = listState
+        )
+        {
 
-                                    }) {
-                                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
-                                    }
-
-                                    Text(text = book.Human, style = MaterialTheme.typography.displaySmall)
-                                    IconButton(onClick = {
-                                        bibleViewmodel.plusBook()
-                                        bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
-
-                                    }) {
-                                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    itemsIndexed((book.Verse)){ index, item ->
-                        //val isSelected = selectedIndex == index
-                        val isSelected = selectedItems.value.contains(index)
-                        val isSelectedMode = selectedItemToSpeak.intValue >= 0
-
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                //.height(80.dp)
-                                .padding(8.dp)
+            list.forEach{ book ->
+                stickyHeader {
+                    AnimatedVisibility(
+                        visible = !isScrollingDown,
+                        enter = fadeIn() + slideInVertically { -it },
+                        exit = fadeOut() + slideOutVertically { -it }
+                    )
+                    {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(
+                                bottomStart = 50.dp,
+                                bottomEnd = 50.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                         ){
-                            Column(modifier = Modifier.fillMaxWidth()) {
-                                if (item.ChapterNum != null){
-                                    Text(
-                                        text = item.Chapter.toString(),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp)
-                                            .clickable {
-                                                //toggleSelection(index)
-                                                //selectedIndex = index
-                                            },
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.displaySmall
-                                    )
+                            var expanded by remember { mutableStateOf(false) }
+                            Row(
+                                Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(onClick = {
+                                    bibleViewmodel.lessBook()
+                                    bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
 
+                                }) {
+                                    Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
                                 }
-
-                                if (!item.ChapterName.isNullOrEmpty()){
-                                    Text(text = item.ChapterName,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp)
-                                            //.background(if (isSelected) Color.Yellow else Color.Transparent)
-                                            .pointerInput(Unit){
-                                                detectTapGestures(
-                                                    onLongPress = {
-//                                                        if (!isSelectedMode)
-//                                                            toggleSelection(index)
-                                                    },
-                                                    onTap = {
-//                                                        if(!isSelected)
-//                                                            toggleSelectionToSpeak(index)
-                                                        if (!isSelectedMode)
-                                                            toggleSelection(index)
-                                                    }
-                                                )
-                                            }
-                                            /*.clickable {
-                                                //toggleSelection(index)
-                                            },*/,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        textAlign = TextAlign.Center,
-                                        fontSize = 20.sp
-                                    )
-                                }
-                                Row(
-                                    Modifier
-                                        //.height(100.dp)
-                                        .fillMaxWidth()) {
-                                    Box(modifier = Modifier
-                                        //.background(Color.Blue)
-                                        .fillMaxHeight(),
-                                        contentAlignment = Alignment.Center
-
-                                    ){
-                                        Text(modifier = Modifier
-                                            .padding(8.dp),
-                                            text = "${item.Verse} ",
-                                            fontSize = 12.sp)
+                                //Text(text = book.Human, style = MaterialTheme.typography.displaySmall)
+                                Column(modifier = Modifier) {
+                                    TextButton(onClick = { expanded = true }, modifier = Modifier.padding(2.dp)) {
+                                        Text(text = book.Human, style = MaterialTheme.typography.displaySmall)
                                     }
-                                    Column(modifier = Modifier.padding(8.dp)){
-                                        Text(text = "${item.Contenido}",
-                                            modifier = Modifier
-                                                .pointerInput(Unit){
-                                                    detectTapGestures(
-                                                        onLongPress = {
-                                                            //toggleSelection(index)
-                                                        },
-                                                        onTap = {
-                                                            //toggleSelectionToSpeak(index)
-                                                            toggleSelection(index)
-                                                        }
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false },
+                                        modifier = Modifier
+                                            .width(300.dp)
+                                            .heightIn(max = 400.dp)
+                                            .background(MaterialTheme.colorScheme.surface)
+                                    ) {
+                                        FlowRow(
+                                            modifier = Modifier.fillMaxWidth().padding(8.dp),
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+
+                                            libros.forEach { book2 ->
+                                                val books = book2
+                                                TextButton(
+                                                    onClick = {
+                                                        bibleViewmodel.setLibro(books.Osis)
+                                                        bibleViewmodel.sharedComp.value.saveCurrentBook(books.Osis)
+                                                        bibleViewmodel.getBook(books.Osis)
+                                                        expanded = false
+                                                    },
+                                                    modifier = Modifier
+                                                        .padding(2.dp)
+                                                        .background(
+                                                            if (books.Human == book.Human)
+                                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                                            else Color.Transparent,
+                                                            shape = RoundedCornerShape(4.dp)
+                                                        )
+                                                ) {
+                                                    Text(
+                                                        text = books.Human,
+                                                        fontWeight = if (books.Human == book.Human) FontWeight.Bold else FontWeight.Normal,
+                                                        color = if (books.Human == book.Human) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                                                        modifier = Modifier.padding(4.dp)
                                                     )
                                                 }
-                                                /*.clickable {
-                                                    //toggleSelection(index)
-                                                },*/,
-                                            fontWeight = if (isSelected) FontWeight.Bold else if(isSelectedMode) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isSelectedMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                        )
+                                            }
+                                        }
                                     }
+                                }
+                                IconButton(onClick = {
+                                    bibleViewmodel.plusBook()
+                                    bibleViewmodel.sharedComp.value.saveCurrentBook(libro)
 
+                                }) {
+                                    Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
                                 }
                             }
-
                         }
                     }
                 }
+                itemsIndexed((book.Verse)){ index, item ->
+                    //val isSelected = selectedIndex == index
+                    val isSelected = selectedItems.value.contains(index)
+                    val isSelectedMode = selectedItemToSpeak.intValue >= 0
 
-            }
-
-            Card(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
-                elevation = CardDefaults.cardElevation(16.dp),
-                shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
-            ) {
-                Row(
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    ElevatedCard(modifier = Modifier
-                        .weight(3f)
-                        .fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                        shape = RoundedCornerShape(50.dp)
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            //.height(80.dp)
+                            .padding(8.dp)
                     ){
-                        var expanded by remember { mutableStateOf(false) }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            TextButton(
-                                onClick = {
-                                    bibleViewmodel.decrementCapitulo()
-                                    bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
-                                },
-                                modifier = Modifier.padding(2.dp)) {
-                                Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
-                            }
-                            Column(modifier = Modifier) {
-                                TextButton(onClick = { expanded = true }, modifier = Modifier.padding(2.dp)) {
-                                    Text(text = "Capitulo $capitulo")
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            if (item.ChapterNum != null){
+                                Text(
+                                    text = item.Chapter.toString(),
                                     modifier = Modifier
-                                        .width(300.dp)
-                                        .heightIn(max = 400.dp)
-                                        .background(MaterialTheme.colorScheme.surface)
-                                ) {
-                                    FlowRow(
-                                        modifier = Modifier.fillMaxWidth().padding(8.dp)
-                                    ) {
-                                        List(if(list.any()) list.first().Chapters else 0) { chapter ->
-                                            val chapterr = chapter+1
-                                            TextButton(
-                                                onClick = {
-                                                    bibleViewmodel.setCapitulo(chapterr)
-                                                    bibleViewmodel.sharedComp.value.saveCapitulo(chapterr)
-                                                    expanded = false
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                        .clickable {
+                                            //toggleSelection(index)
+                                            //selectedIndex = index
+                                        },
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+
+                            }
+
+                            if (!item.ChapterName.isNullOrEmpty()){
+                                Text(text = item.ChapterName,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                        //.background(if (isSelected) Color.Yellow else Color.Transparent)
+                                        .pointerInput(Unit){
+                                            detectTapGestures(
+                                                onLongPress = {
+//                                                        if (!isSelectedMode)
+//                                                            toggleSelection(index)
                                                 },
-                                                modifier = Modifier
-                                                    .padding(2.dp)
-                                                    .background(
-                                                        if (chapterr == capitulo)
-                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                                        else Color.Transparent,
-                                                        shape = RoundedCornerShape(4.dp)
-                                                    )
-                                            ) {
-                                                Text(
-                                                    text = (chapterr).toString(),
-                                                    fontWeight = if (chapterr == capitulo) FontWeight.Bold else FontWeight.Normal,
-                                                    color = if (chapterr == capitulo) MaterialTheme.colorScheme.primary else Color.Unspecified,
-                                                    modifier = Modifier.padding(4.dp)
+                                                onTap = {
+//                                                        if(!isSelected)
+//                                                            toggleSelectionToSpeak(index)
+                                                    if (!isSelectedMode)
+                                                        toggleSelection(index)
+                                                }
+                                            )
+                                        }
+                                    /*.clickable {
+                                        //toggleSelection(index)
+                                    },*/,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 20.sp
+                                )
+                            }
+                            Row(
+                                Modifier
+                                    //.height(100.dp)
+                                    .fillMaxWidth()) {
+                                Box(modifier = Modifier
+                                    //.background(Color.Blue)
+                                    .fillMaxHeight(),
+                                    contentAlignment = Alignment.Center
+
+                                ){
+                                    Text(modifier = Modifier
+                                        .padding(8.dp),
+                                        text = "${item.Verse} ",
+                                        fontSize = 12.sp)
+                                }
+                                Column(modifier = Modifier.padding(8.dp)){
+                                    Text(text = "${item.Contenido}",
+                                        modifier = Modifier
+                                            .pointerInput(Unit){
+                                                detectTapGestures(
+                                                    onLongPress = {
+                                                        //toggleSelection(index)
+                                                    },
+                                                    onTap = {
+                                                        //toggleSelectionToSpeak(index)
+                                                        toggleSelection(index)
+                                                    }
                                                 )
                                             }
-                                        }
-                                    }
-//
+                                        /*.clickable {
+                                            //toggleSelection(index)
+                                        },*/,
+                                        fontWeight = if (isSelected) FontWeight.Bold else if(isSelectedMode) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelectedMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
-                            }
-                            TextButton(
-                                onClick = {
-                                    bibleViewmodel.aumentarCapitulo()
-                                    bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
-                                },
-                                modifier = Modifier.padding(2.dp)) {
-                                Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
-                            }
 
+                            }
                         }
 
                     }
-                    TextToSpeechControls(viewModel = bibleViewmodel)
-                    /*Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-
-                        Row {
-                            IconButton(
-                                onClick = {
-                                    if (isSpeaking) {
-                                        tts?.stop()
-                                        isSpeaking = false
-                                        isPaused = false
-                                    } else {
-                                        if (isPaused) {
-                                            tts?.speak(pausedText, TextToSpeech.QUEUE_FLUSH, null, capitulo.toString())
-                                            isPaused = false
-                                        } else {
-                                            tts?.speak(list.first().Verse[capitulo].Contenido, TextToSpeech.QUEUE_FLUSH, null, capitulo.toString())
-                                        }
-                                        isSpeaking = true
-                                    }
-                                }
-                            ) {
-                                Icon(imageVector = if (isSpeaking) Icons.Rounded.Stop else Icons.Rounded.PlayArrow, contentDescription = "")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(
-                                onClick = {
-                                    if (isSpeaking) {
-                                        tts?.stop()
-                                        pausedText = list.first().Verse[capitulo].Contenido!!
-                                        isSpeaking = false
-                                        isPaused = true
-                                    }
-                                },
-                                enabled = isSpeaking
-                            ) {
-                                Icon(imageVector = Icons.Rounded.Pause, contentDescription = "pausa")
-                            }
-                        }
-                    }*/
-
                 }
             }
 
         }
-    }
 
+        Card(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            elevation = CardDefaults.cardElevation(16.dp),
+            shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
+        ) {
+            Row(
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ElevatedCard(modifier = Modifier
+                    .weight(3f)
+                    .fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 6.dp
+                    ),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    shape = RoundedCornerShape(50.dp)
+                ){
+                    var expanded by remember { mutableStateOf(false) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        TextButton(
+                            onClick = {
+                                bibleViewmodel.decrementCapitulo()
+                                bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
+                            },
+                            modifier = Modifier.padding(2.dp)) {
+                            Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null)
+                        }
+                        Column(modifier = Modifier) {
+                            TextButton(onClick = { expanded = true }, modifier = Modifier.padding(2.dp)) {
+                                Text(text = "Capitulo $capitulo")
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .heightIn(max = 400.dp)
+                                    .background(MaterialTheme.colorScheme.surface)
+                            ) {
+                                FlowRow(
+                                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                                ) {
+                                    List(if(list.any()) list.first().Chapters else 0) { chapter ->
+                                        val chapterr = chapter+1
+                                        TextButton(
+                                            onClick = {
+                                                bibleViewmodel.setCapitulo(chapterr)
+                                                bibleViewmodel.sharedComp.value.saveCapitulo(chapterr)
+                                                expanded = false
+                                            },
+                                            modifier = Modifier
+                                                .padding(2.dp)
+                                                .background(
+                                                    if (chapterr == capitulo)
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                                    else Color.Transparent,
+                                                    shape = RoundedCornerShape(4.dp)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = (chapterr).toString(),
+                                                fontWeight = if (chapterr == capitulo) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (chapterr == capitulo) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                                                modifier = Modifier.padding(4.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        TextButton(
+                            onClick = {
+                                bibleViewmodel.aumentarCapitulo()
+                                bibleViewmodel.sharedComp.value.saveCapitulo(capitulo)
+                            },
+                            modifier = Modifier.padding(2.dp)) {
+                            Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null)
+                        }
+
+                    }
+
+                }
+                TextToSpeechControls(viewModel = bibleViewmodel)
+
+            }
+        }
+    }
 }
 
 @Composable
@@ -740,6 +766,55 @@ fun TextToSpeechControls(viewModel: BibleViewmodel) {
         }
     }
 }
+
+@Composable
+fun BottomModalCopyText(items: List<Books>, libro: String, copySelectedText: (List<Verses>) -> Unit, shareSelectedText: (List<Verses>) -> Unit){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .background(MaterialTheme.colorScheme.onPrimary)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically)
+        {
+            Button(
+                onClick = {
+                    copySelectedText(items.first { v -> v.Osis == libro }.Verse)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary),
+                elevation = ButtonDefaults.elevatedButtonElevation(10.dp)
+            ) {
+                Icon(imageVector = Icons.Rounded.CopyAll, contentDescription = "")
+                Spacer(modifier = Modifier.padding(end = 8.dp))
+                Text("Copiar")
+            }
+
+            Button(
+                onClick = {
+                    shareSelectedText(items.first { v -> v.Osis == libro }.Verse)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary),
+                elevation = ButtonDefaults.elevatedButtonElevation(10.dp)
+            ) {
+                Icon(imageVector = Icons.Rounded.Share, contentDescription = "")
+                Spacer(modifier = Modifier.padding(end = 8.dp))
+                Text("Compartir")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+    }
+}
+
 
 /*@OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">BibliApp</string>
+    <string name="config_screen_title">Configuraciones</string>
+    <string name="theme_selection_title">Seleccionar Tema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="theme_system">Predeterminado del Sistema</string>
+    <string name="theme_high_contrast_light">Contraste Alto Claro</string>
+    <string name="theme_high_contrast_dark">Contraste Alto Oscuro</string>
+    <string name="theme_medium_contrast_light">Contraste Medio Claro</string>
+    <string name="theme_medium_contrast_dark">Contraste Medio Oscuro</string>
+    <string name="theme_setting_title">Tema de la Aplicación</string>
+    <string name="language_setting_title">Idioma</string>
+    <string name="notification_alerts_title">Alertas de Versículos</string>
+    <string name="bible_version_title">Versión de la Biblia</string>
+    <string name="about_app_title">Acerca de la App</string>
+    <string name="appearance_section_title">Apariencia</string>
+    <string name="content_section_title">Contenido</string>
+
+    <string name="accept_button">ACEPTAR</string>
+    <string name="cancel_button">CANCELAR</string>
+
+    <string name="notifications_section_title">Notificaciones</string>
+    <string name="notifications_status_enabled">Activadas</string>
+    <string name="notifications_status_disabled">Desactivadas</string>
+
+    <string name="more_info_section_title">Más Información</string>
+    <string name="more_screen_daily_verse_title">Versículo del día</string>
+    <string name="more_screen_other_bibles_title">Otras Biblias</string>
+    <string name="more_screen_settings_title">Configuración</string>
+    <string name="more_screen_share_app_title">Comparte BibliAPP</string>
+
+    <string name="verses_screen_title">Versículos</string>
+    <string name="verses_screen_search_placeholder">Buscar en versículos…</string>
+
+    <string name="share_screen_title">Compartir</string>
+    <string name="share_app_message_template">📖 Descubre *Bibliapp* – tu app de Biblia gratis 📲\n\nEstudia la Palabra de Dios donde estés, sin conexión y con una interfaz hermosa.\n\n👉 Descárgala aquí: %1$s</string>
+    <string name="share_app_card_title">¡Comparte Bibliapp!</string>
+    <string name="share_app_card_subtitle">Ayuda a otros a llevar la Palabra de Dios en su móvil 📲🙏</string>
+    <string name="share_app_button_text">Compartir la app</string>
+    <string name="share_app_chooser_title">Compartir Bibliapp con…</string>
+    <string name="share_verse_message_template">%1$s\n\n%2$s\n\n📖 Leído en Bibliapp 🙏</string>
+    <string name="share_verse_button_text">Compartir</string>
+
+    <string name="about_screen_title">Acerca de Bibliapp</string>
+    <string name="about_screen_description_text">Esta aplicación te ayuda a recibir y leer versículos diarios de la Biblia, permitiéndote personalizar notificaciones y seleccionar diferentes versiones de la Biblia.</string>
+    <string name="about_screen_version">Versión:</string>
+    <string name="about_screen_developer">Desarrollado por:</string>
+
+    <string name="navigarion_bar_home">Inicio</string>
+    <string name="navigarion_bar_bible">Biblia</string>
+    <string name="navigarion_bar_search">Buscar</string>
+    <string name="navigarion_bar_more">Mas</string>
+
+    <string name="bible_selection_screen_title">Versiones de la Biblia</string>
+    <string name="bible_selection_settings_desc">Configuración</string>
+
+    <string name="bible_in_use_title">Biblia en uso</string>
+    <string name="selected_bible_prefix">Seleccionada:</string>
+
+    <string name="available_bibles_title">Biblias Disponibles</string>
+    <string name="change_to_other_available_bible">Cambiar a otra Biblia disponible</string>
+
+    <string name="download_more_bibles_button">Descargar más Biblias</string>
+
+    <string name="language_english">Inglés</string>
+    <string name="language_spanish">Español</string>
+</resources>

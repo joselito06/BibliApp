@@ -81,6 +81,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.8") // para Gson
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0") // para Kotlinx.serialization
 
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -89,6 +91,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3.android)
+    implementation("androidx.compose.foundation:foundation")
     //implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

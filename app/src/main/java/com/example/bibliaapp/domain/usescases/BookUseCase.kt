@@ -17,6 +17,15 @@ class BookUseCase @Inject constructor(
         val list: List<Books> = booksRepo.GetAll()
         return list
     }
+    suspend fun GetBookByLibro(book: String): List<Books>{
+        val list: List<Books> = booksRepo.GetBookByLibro(book)
+        return list
+    }
+
+    suspend fun GetAllBook(): List<Books>{
+        val list: List<Books> = booksRepo.GetAll()
+        return list
+    }
 
     suspend fun GetAllBookAndVerses() : List<Books>{
         val books: List<Books> = booksRepo.GetAll()
