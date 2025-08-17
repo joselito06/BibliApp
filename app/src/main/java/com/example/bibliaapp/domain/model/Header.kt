@@ -4,7 +4,7 @@ import com.example.bibliaapp.data.database.entities.HeaderEntity
 
 data class Header(
     val Number : Int,
-    val Titulo : String,
+    val Titulo : String?,
     val BookId : String?,
     val ChapteId : Int?,
     val VerseId : Int?

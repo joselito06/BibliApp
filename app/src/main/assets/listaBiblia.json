@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "langCode": "spa",
     "langVisualCode": "es",
     "lang": "Español",
@@ -19,6 +20,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 2,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -38,6 +40,7 @@
     "downloadDisabled": true
   },
   {
+    "id": 3,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -57,6 +60,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 4,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -76,6 +80,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 5,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -95,6 +100,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 6,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -114,6 +120,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 7,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -133,6 +140,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 8,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -152,6 +160,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 9,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -171,6 +180,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 10,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -190,6 +200,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 11,
     "langCode": "spa",
     "country": "MEX",
     "langVisualCode": "es",
@@ -209,6 +220,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 12,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -228,6 +240,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 13,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -247,6 +260,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 14,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -266,6 +280,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 15,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -285,6 +300,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 16,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -304,6 +320,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 17,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -323,6 +340,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 18,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -342,6 +360,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 19,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -361,6 +380,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 20,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -380,6 +400,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 21,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -399,6 +420,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 22,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -418,6 +440,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 23,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -437,6 +460,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 24,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -456,6 +480,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 25,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -475,6 +500,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 26,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -494,6 +520,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 27,
     "langCode": "FRANCE",
     "lang": "Français",
     "langVisualCode": "fr",
@@ -513,6 +540,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 28,
     "langCode": "FRANCE",
     "lang": "Français",
     "langVisualCode": "fr",
@@ -532,6 +560,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 29,
     "langCode": "FRANCE",
     "lang": "Français",
     "langVisualCode": "fr",
@@ -551,6 +580,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 30,
     "langCode": "FRANCE",
     "lang": "Français",
     "langVisualCode": "fr",
@@ -570,6 +600,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 31,
     "langCode": "pt",
     "lang": "Português",
     "langVisualCode": "pt",
@@ -589,6 +620,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 32,
     "langCode": "pt",
     "lang": "Português",
     "langVisualCode": "pt",
@@ -608,6 +640,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 33,
     "langCode": "ro",
     "lang": "Română",
     "langVisualCode": "ro",
@@ -627,6 +660,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 34,
     "langCode": "ENGLISH",
     "lang": "English",
     "langVisualCode": "en",
@@ -646,6 +680,7 @@
     "downloadDisabled": false
   },
   {
+    "id": 35,
     "langCode": "FRANCE",
     "lang": "Français",
     "langVisualCode": "fr",

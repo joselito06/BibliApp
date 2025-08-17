@@ -4,7 +4,7 @@ import com.example.bibliaapp.data.database.entities.BooksEntity
 
 
 data class Books(
-    val Number : Int,
+    val Number : Int?,
     val Osis : String,
     val Human : String,
     val Chapters: Int,

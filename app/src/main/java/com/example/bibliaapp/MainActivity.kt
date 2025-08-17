@@ -46,6 +46,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -59,12 +60,14 @@ import com.example.bibliaapp.view.Routes
 import com.example.bibliaapp.view.components.NavigationBottomJBN
 import com.example.bibliaapp.view.components.TopAppBarComponent
 import com.example.bibliaapp.view.screens.AboutScreen
+import com.example.bibliaapp.view.screens.BibleDownloadScreen
 import com.example.bibliaapp.view.screens.BibleScreen
 import com.example.bibliaapp.view.screens.BibleSelectionScreen
 import com.example.bibliaapp.view.screens.ConfigScreen
 import com.example.bibliaapp.view.screens.HomeScreen
 import com.example.bibliaapp.view.screens.MoreScreen
 import com.example.bibliaapp.view.screens.NotificationSettingsScreen
+import com.example.bibliaapp.view.screens.RestartingScreen
 import com.example.bibliaapp.view.screens.ShareAppScreen
 import com.example.bibliaapp.view.screens.VersesScreen
 import com.example.bibliaapp.view.viewmodel.BibleViewmodel
@@ -335,6 +338,14 @@ class MainActivity : ComponentActivity() {
                                     mainViewModel,
                                     navigation
                                 )
+                            }
+                            composable(Routes.BibleDownloadScreen.route) {
+                                BibleDownloadScreen(
+                                    navController = navigation,
+                                )
+                            }
+                            composable(Routes.RestartingScreen.route){
+                                RestartingScreen()
                             }
                         }
                     }

@@ -214,6 +214,7 @@ fun BibleSelectionScreen(viewModel: SettingsViewmodel, mainViewmodel: MainViewmo
                     // TODO: Lógica para navegar a la pantalla de descarga
                     // o mostrar un diálogo/modal de selección de nuevas Biblias.
                     // Ejemplo: navController.navigate("downloadBiblesScreen")
+                    navigation.navigate("bibleDownloadScreen")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium

@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.channels.awaitClose
 
+private const val SHARED_SELECTED_DB_FILENAME = "selected_db_filename"
+
 class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Context) {
     private val SHARED_APP_THEME = "app_theme"
     private val SHARED_NAME = "BibleInit"
@@ -53,7 +55,7 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
 
 
     fun saveAppTheme(theme: AppThemeType) {
-        storage.edit().putString(SHARED_APP_THEME, theme.name).apply()
+        storage.edit { putString(SHARED_APP_THEME, theme.name) }
     }
 
     fun getAppTheme(): AppThemeType {
@@ -66,11 +68,11 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     }
 
     fun saveCapitulo(capitulo: Int) {
-        storage.edit().putInt(SHARED_CAPITULO, capitulo).apply()
+        storage.edit { putInt(SHARED_CAPITULO, capitulo) }
     }
 
     fun saveCurrentBook(book: String) {
-        storage.edit().putString(SHARED_LIBRO, book).apply()
+        storage.edit { putString(SHARED_LIBRO, book) }
     }
 
     fun getCapitulo(): Int = storage.getInt(SHARED_CAPITULO, 1)
@@ -116,6 +118,17 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
         }
     }
 
+    // --- Preferencias de Selección de Base de Datos ---
+    fun saveSelectedDatabaseFileName(fileName: String?) { // fileName puede ser null para "ninguna descargada seleccionada"
+        storage.edit { putString(SHARED_SELECTED_DB_FILENAME, fileName) }
+    }
+
+    fun getSelectedDatabaseFileName(): String? {
+        // Devuelve el nombre del archivo de la BD descargada seleccionada,
+        // o null si no hay una selección explícita (lo que implica la de assets por defecto inicialmente)
+        return storage.getString(SHARED_SELECTED_DB_FILENAME, null)
+    }
+
     fun saveAppLanguageCode(languageCode: String) {
         storage.edit { putString(KEY_APP_LANGUAGE, languageCode) }
     }
@@ -143,5 +156,17 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
             storage.unregisterOnSharedPreferenceChangeListener(listener)
         }
     }.conflate()
+
+    // --- Flujo para observar cambios en la selección de la BD (opcional pero útil) ---
+    fun getSelectedDatabaseFileNameFlow(): Flow<String?> = callbackFlow<String?> {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == SHARED_SELECTED_DB_FILENAME) {
+                trySend(getSelectedDatabaseFileName())
+            }
+        }
+        trySend(getSelectedDatabaseFileName()) // Emisión inicial
+        storage.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { storage.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.conflate() // conflate() es útil para no perder actualizaciones si el colector es lento
 
 }

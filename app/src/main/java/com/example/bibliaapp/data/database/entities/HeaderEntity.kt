@@ -9,9 +9,10 @@ import org.jetbrains.annotations.NotNull
 @Entity(tableName = "header")
 data class HeaderEntity(
 
-    @PrimaryKey @NotNull val number : Int,
-    @NotNull val titulo : String,
+    @PrimaryKey  val number : Int,
+    val titulo : String?,
+    @ColumnInfo(name = "verseid") val verseId : Int?,
     @ColumnInfo(name = "bookid")  val bookId : String?,
-    @ColumnInfo(name = "chapterid") val chapteId : Int?,
-    @ColumnInfo(name = "verseid") val verseId : Int?
+    @ColumnInfo(name = "chapterid") val chapteId : Int?
+
 )

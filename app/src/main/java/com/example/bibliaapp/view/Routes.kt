@@ -12,4 +12,7 @@ sealed class Routes(val route: String) {
     object AboutScreen: Routes("aboutScreen")
     object ConfigScreen: Routes("configScreen")
     object ShareScreen: Routes("shareScreen")
+    object BibleDownloadScreen: Routes("bibleDownloadScreen")
+    object RestartingScreen: Routes("restartingScreen")
+
 }
