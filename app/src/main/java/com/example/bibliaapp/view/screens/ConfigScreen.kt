@@ -58,6 +58,7 @@ import com.example.bibliaapp.ui.theme.AppThemeType
 import com.example.bibliaapp.view.viewmodel.MainViewmodel
 import com.example.bibliaapp.view.viewmodel.SettingsViewmodel
 import com.example.bibliaapp.R
+import com.example.bibliaapp.view.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,6 +119,16 @@ fun ConfigScreen(
     }
     val currentAppLanguage by settingsViewmodel.appLanguage.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
+
+    // Configurar el callback en el ViewModel para la navegación
+    LaunchedEffect(settingsViewmodel, navigation) {
+        settingsViewmodel.onNavigateToRestartScreen = {
+            navigation.navigate(Routes.RestartingScreen.route) { // Usa tu constante de ruta
+                popUpTo(navigation.graph.startDestinationId) { inclusive = true } // Limpia backstack
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)

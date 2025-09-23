@@ -54,6 +54,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.bibliaapp.di.RoomModule
 import com.example.bibliaapp.ui.theme.AppThemeType
 import com.example.bibliaapp.ui.theme.BibliaAppTheme
 import com.example.bibliaapp.view.Routes
@@ -99,6 +100,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoomModule.cleanupTempFiles(this)
+        RoomModule.forceCloseAllConnections(this)
         enableEdgeToEdge()
         setContent {
 

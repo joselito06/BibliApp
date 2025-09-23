@@ -53,6 +53,11 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     )
     val selectedTime: StateFlow<LocalTime> = _selectedTime.asStateFlow()
 
+    // App Language - NUEVO StateFlow para compatibilidad con BibleViewmodel
+    private val _appLanguage = MutableStateFlow(
+        AppLanguage.fromCode(getAppLanguageCode())
+    )
+    val appLanguage: StateFlow<AppLanguage> = _appLanguage.asStateFlow()
 
     fun saveAppTheme(theme: AppThemeType) {
         storage.edit { putString(SHARED_APP_THEME, theme.name) }
@@ -131,6 +136,8 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
 
     fun saveAppLanguageCode(languageCode: String) {
         storage.edit { putString(KEY_APP_LANGUAGE, languageCode) }
+        // ACTUALIZAR el StateFlow cuando se guarda un nuevo idioma
+        _appLanguage.value = AppLanguage.fromCode(languageCode)
     }
 
     fun getAppLanguageCode(): String {

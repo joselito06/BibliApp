@@ -9,10 +9,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bibliaapp.SharedPreferenceBible
+import com.example.bibliaapp.di.RoomModule
+import com.example.bibliaapp.domain.model.AppLanguage
 import com.example.bibliaapp.domain.model.Books
 import com.example.bibliaapp.domain.usescases.BookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +24,11 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, private val shared: SharedPreferenceBible) : ViewModel() {
+class BibleViewmodel @Inject constructor(
+    private val booksUC: BookUseCase,
+    private val shared: SharedPreferenceBible,
+    @ApplicationContext private val context: Context
+) : ViewModel() {
     val validChapterItem = MutableStateFlow(true)
     val numChapterItem = MutableStateFlow(0)
     val sharedComp = MutableStateFlow(shared)
@@ -31,7 +39,15 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
     private val _isPaused = MutableStateFlow(false)
     private val _pausedText = MutableStateFlow("")
 
-    val currentVerseIndex: StateFlow<Int> get() = _currentVerseIndex
+    // Nuevo: Estado para el idioma del TTS
+    private val _currentTTSLanguage = MutableStateFlow(AppLanguage.fromCode(shared.getAppLanguageCode()))
+    val currentTTSLanguage: StateFlow<AppLanguage> = _currentTTSLanguage
+
+    // Nuevo: Estado para indicar si TTS está inicializado
+    private val _isTTSInitialized = MutableStateFlow(false)
+    val isTTSInitialized: StateFlow<Boolean> = _isTTSInitialized
+
+    //val currentVerseIndex: StateFlow<Int> get() = _currentVerseIndex
     val isSpeaking: StateFlow<Boolean> get() = _isSpeaking
     val isPaused: StateFlow<Boolean> get() = _isPaused
     val pausedText: StateFlow<String> get() = _pausedText
@@ -61,10 +77,26 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
     var numLibro : StateFlow<Int> = _numLibro
 
     init {
+        RoomModule.forceCloseAllConnections(context)
         loadSavedState() // Cargar el último libro y capítulo al iniciar la app
+        // Observar cambios en el idioma desde SharedPreferences
+        observeLanguageChanges()
     }
-    private fun loadSavedState() {
+
+    private fun observeLanguageChanges() {
         viewModelScope.launch {
+            // Observar cambios en el idioma de la app usando tu StateFlow existente
+            shared.appLanguage.collect { newLanguage ->
+                if (newLanguage != _currentTTSLanguage.value && _isTTSInitialized.value) {
+                    _currentTTSLanguage.value = newLanguage
+                    updateTTSLanguage(newLanguage)
+                }
+            }
+        }
+    }
+
+    private fun loadSavedState() {
+        viewModelScope.launch(Dispatchers.IO) {
             val booksSelect = booksUC.invoke()
             _getAllBook.value = booksSelect
 
@@ -85,7 +117,7 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
         }
     }
 
-    fun initializeTTS(context: Context, coroutineScope: CoroutineScope, listState: LazyListState) {
+    /*fun initializeTTS(context: Context, coroutineScope: CoroutineScope, listState: LazyListState) {
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 val result = tts?.setLanguage(Locale("es", "ES"))
@@ -133,6 +165,125 @@ class BibleViewmodel @Inject constructor(private val booksUC: BookUseCase, priva
                 override fun onError(utteranceId: String?) {}
             })
         }
+    }*/
+
+    fun initializeTTS(context: Context, coroutineScope: CoroutineScope, listState: LazyListState) {
+        // Detener TTS anterior si existe
+        tts?.shutdown()
+
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                _isTTSInitialized.value = true
+                // Configurar el idioma inicial
+                val currentLanguage = _currentTTSLanguage.value
+                setTTSLanguage(currentLanguage)
+
+                setupTTSProgressListener(coroutineScope, listState)
+            } else {
+                _isTTSInitialized.value = false
+                Toast.makeText(context, "Error al inicializar TextToSpeech", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setupTTSProgressListener(coroutineScope: CoroutineScope, listState: LazyListState) {
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+                _currentVerseIndex.value = utteranceId?.toInt() ?: 0
+                coroutineScope.launch {
+                    listState.animateScrollToItem(utteranceId?.toInt() ?: 0)
+                }
+            }
+
+            override fun onDone(utteranceId: String?) {
+                val nextIndex = (utteranceId?.toInt() ?: 0) + 1
+
+                if (nextIndex >= _getAllBiblia.value.first().Verse.size) {
+                    val nextChapter = capitulo.value + 1
+                    if (nextChapter < _getAllBiblia.value.first().Chapters) {
+                        val textoIntro = "${_getAllBiblia.value.first().Human}, Capítulo $nextChapter"
+                        tts?.speak(textoIntro, TextToSpeech.QUEUE_FLUSH, null, "chapter_intro")
+                        tts?.speak(_getAllBiblia.value.first().Verse[0].Contenido, TextToSpeech.QUEUE_ADD, null, "0")
+                        setCapitulo(nextChapter)
+                    } else {
+                        _isSpeaking.value = false
+                    }
+                } else {
+                    tts?.speak(_getAllBiblia.value.first().Verse[nextIndex].Contenido, TextToSpeech.QUEUE_FLUSH, null, nextIndex.toString())
+                }
+            }
+
+            override fun onError(utteranceId: String?) {
+                Log.e("TTS", "Error en utterance: $utteranceId")
+            }
+        })
+    }
+
+    private fun updateTTSLanguage(newLanguage: AppLanguage) {
+        if (_isTTSInitialized.value) {
+            // Pausar lectura actual si está en progreso
+            val wasPlaying = _isSpeaking.value
+            if (wasPlaying) {
+                pauseReading()
+            }
+
+            // Cambiar idioma
+            setTTSLanguage(newLanguage)
+
+            // Resumir lectura si estaba en progreso
+            if (wasPlaying && !_isPaused.value) {
+                resumeReading()
+            }
+        }
+    }
+
+    private fun setTTSLanguage(language: AppLanguage) {
+        tts?.let { textToSpeech ->
+            val locale = when (language) {
+                AppLanguage.SPANISH -> Locale("es", "ES")
+                AppLanguage.ENGLISH -> Locale("en", "US")
+                // Si tienes más idiomas en tu enum, agrégalos aquí
+            }
+
+            val result = textToSpeech.setLanguage(locale)
+            val languageDisplayName = language.getDisplayName(context)
+
+            when (result) {
+                TextToSpeech.LANG_MISSING_DATA, TextToSpeech.LANG_NOT_SUPPORTED -> {
+                    Log.w("TTS", "Idioma $languageDisplayName no soportado, usando inglés")
+                    Toast.makeText(
+                        context,
+                        "Idioma $languageDisplayName no disponible para lectura de voz, usando inglés",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Fallback a inglés (tu idioma por defecto)
+                    textToSpeech.setLanguage(Locale("en", "US"))
+                }
+                TextToSpeech.LANG_AVAILABLE, TextToSpeech.LANG_COUNTRY_AVAILABLE, TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> {
+                    Log.i("TTS", "Idioma cambiado exitosamente a: $languageDisplayName")
+                    Toast.makeText(
+                        context,
+                        "Idioma de voz cambiado a: $languageDisplayName",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> {
+                    // Manejar cualquier otro resultado inesperado
+                    Log.w("TTS", "Resultado inesperado al cambiar idioma: $result")
+                    Toast.makeText(
+                        context,
+                        "Resultado inesperado al cambiar idioma TTS",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    // Función pública para cambiar idioma manualmente (si es necesario)
+    fun changeTTSLanguage(language: AppLanguage) {
+        _currentTTSLanguage.value = language
+        updateTTSLanguage(language)
     }
 
     fun speakText(text: String, utteranceId: String) {

@@ -11,5 +11,15 @@ enum class AppLanguage(val code: String, val displayNameResId: Int) {
         fun fromCode(code: String?): AppLanguage {
             return AppLanguage.entries.find { it.code == code } ?: ENGLISH // Default a Inglés si no se encuentra o es nulo
         }
+
+        fun getAllLanguages(): List<AppLanguage> {
+            return entries.toList()
+        }
+
+    }
+
+    // Método helper para obtener el nombre del idioma (necesitarás contexto para esto)
+    fun getDisplayName(context: android.content.Context): String {
+        return context.getString(displayNameResId)
     }
 }

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -28,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,7 +41,6 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -86,7 +83,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.example.bibliaapp.domain.model.Books
@@ -145,14 +141,12 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     val libros by bibleViewmodel.getBooks.collectAsState()
     //val shared: SharedPreferenceBible by bibleViewmodel.sharedComp.collectAsState(initial = SharedPreferenceBible(context = context))
 
-//    var tts: TextToSpeech? by remember { mutableStateOf(null) }
-//    var isSpeaking by remember { mutableStateOf(false) }
-//    var isPaused by remember { mutableStateOf(false) }
-//    var pausedText by remember { mutableStateOf("") }
+    // Observar el idioma actual del TTS
+    val currentTTSLanguage by bibleViewmodel.currentTTSLanguage.collectAsState()
+    val isTTSInitialized by bibleViewmodel.isTTSInitialized.collectAsState()
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    //var isScrollingDown by remember { mutableStateOf(false) }
     val isScrollingDown by mainViewmodel.isTopAppBarAnimationVisible.collectAsState()
     var previousIndex by remember { mutableIntStateOf(0) }
     var previousOffset by remember { mutableIntStateOf(0) }
@@ -160,12 +154,8 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
     val selectedItems = remember { mutableStateOf(setOf<Int>()) }
     val selectedItemToSpeak = remember { mutableIntStateOf(-1) }
-    //val clipboardManager = LocalClipboardManager.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
-    //var searchLetter by remember { mutableStateOf("") }
 
     fun toggleSelection(index: Int) {
         val currentSelection = selectedItems.value.toMutableSet()
@@ -178,16 +168,11 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
         coroutineScope.launch {
             if (currentSelection.isNotEmpty())
-                showBottomSheet = true//bottomSheetState.show()
+                showBottomSheet = true
         }
     }
 
     fun copySelectedText(items: List<Verses>) {
-//        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
-//        val clip = ClipData.newPlainText("selected text", selectedText)
-//        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-//        clipboard.setPrimaryClip(clip)
-//        Toast.makeText(context, "Texto copiado al portapapeles", Toast.LENGTH_SHORT).show()
         val selected = selectedItems.value
             .sorted()
             .mapNotNull { index -> items.getOrNull(index) }
@@ -228,14 +213,6 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     }
 
     fun shareSelectedText(items: List<Verses>) {
-//        val selectedText = selectedItems.value.map { items[it] }.joinToString("\n")
-//        val shareIntent = Intent().apply {
-//            action = Intent.ACTION_SEND
-//            putExtra(Intent.EXTRA_TEXT, selectedText)
-//            type = "text/plain"
-//        }
-//        context.startActivity(Intent.createChooser(shareIntent, "Compartir texto con"))
-
         val selected = selectedItems.value
             .sorted()
             .mapNotNull { index -> items.getOrNull(index) }
@@ -321,13 +298,6 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                 } else {
                     offset > previousOffset
                 })
-                /*isScrollingDown = if (index > previousIndex) {
-                    true
-                } else if (index < previousIndex) {
-                    false
-                } else {
-                    offset > previousOffset
-                }*/
 
                 // Actualizar capítulo si cambia el índice
                 val newChapter = if(list.any()) list.first().Verse[index].Chapter else capitulo // Implementa esta función según tu lógica
@@ -359,6 +329,14 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
         bibleViewmodel.initializeTTS(context, coroutineScope, listState)
     }
 
+    // LaunchedEffect para reinicializar TTS cuando cambie el idioma
+    LaunchedEffect(currentTTSLanguage) {
+        if (isTTSInitialized) {
+            // Reinicializar TTS con el nuevo idioma
+            bibleViewmodel.initializeTTS(context, coroutineScope, listState)
+        }
+    }
+
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
@@ -367,62 +345,6 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
             BottomModalCopyText(list, libro = libro, copySelectedText = { copySelectedText(it) }, shareSelectedText = { shareSelectedText(it) })
         }
     }
-
-    /*BottomSheetScaffold(
-        modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary),
-        scaffoldState = scaffoldState,
-        //sheetContainerColor = BottomSheetDefaults.ContainerColor.apply { MaterialTheme.colorScheme.onPrimary },
-        //containerColor = MaterialTheme.colorScheme.onPrimary,
-        sheetContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(MaterialTheme.colorScheme.onPrimary)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically)
-                {
-                    Button(
-                        onClick = {
-                            copySelectedText(list.first { v -> v.Osis == libro }.Verse)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimary,
-                            contentColor = MaterialTheme.colorScheme.primary),
-                        elevation = ButtonDefaults.elevatedButtonElevation(10.dp)
-                    ) {
-                        Icon(imageVector = Icons.Rounded.CopyAll, contentDescription = "")
-                        Spacer(modifier = Modifier.padding(end = 8.dp))
-                        Text("Copiar")
-                    }
-
-                    Button(
-                        onClick = {
-                            shareSelectedText(list.first { v -> v.Osis == libro }.Verse)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimary,
-                            contentColor = MaterialTheme.colorScheme.primary),
-                        elevation = ButtonDefaults.elevatedButtonElevation(10.dp)
-                    ) {
-                        Icon(imageVector = Icons.Rounded.Share, contentDescription = "")
-                        Spacer(modifier = Modifier.padding(end = 8.dp))
-                        Text("Compartir")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-            }
-        },
-        sheetPeekHeight = 0.dp
-    ){ innerPadding ->
-
-    }*/
 
 //    val navVisible by remember { mutableStateOf(true) }
 //    val offsetY by animateDpAsState(

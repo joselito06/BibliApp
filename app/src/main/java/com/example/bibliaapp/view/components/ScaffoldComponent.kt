@@ -108,7 +108,7 @@ fun TopAppBarComponent(
                 }
             }
             if (optionTopAppBar.Actions.isEmpty()){
-                IconButton(onClick = { /* Acción adicional */ }) {
+                IconButton(onClick = { navigation.navigate(Routes.ConfigScreen.route) }) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Settings"
