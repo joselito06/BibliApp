@@ -94,12 +94,15 @@ class MainActivity : ComponentActivity() {
     private val versesViewmodel: VersesViewmodel by viewModels()
     private val settingViewmodel: SettingsViewmodel by viewModels()
     private val mainViewModel : MainViewmodel by viewModels()
-
-
+    private var appStartTime: Long = 0
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ✅ NUEVO: Marcar inicio de sesión
+        appStartTime = System.currentTimeMillis()
+
         RoomModule.cleanupTempFiles(this)
         RoomModule.forceCloseAllConnections(this)
         enableEdgeToEdge()
@@ -115,6 +118,12 @@ class MainActivity : ComponentActivity() {
                 } else {
                     // Permiso denegado. Informar al usuario.
                 }
+            }
+
+            // NUEVO: Trackear apertura de app
+            LaunchedEffect(Unit) {
+                // Actualizar racha de lectura al abrir la app
+                sharedPreferenceBible.markDailyAppOpen()
             }
 
             LaunchedEffect(Unit) {
@@ -281,6 +290,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(innerPadding),
                                     homeViewModel,
                                     versesViewmodel,
+                                    bibleViewModel,
                                     mainViewModel,
                                     navigation
                                 )
@@ -333,6 +343,7 @@ class MainActivity : ComponentActivity() {
                                 ConfigScreen(
                                     mainViewModel,
                                     settingViewmodel,
+                                    bibleViewModel,
                                     navigation
                                 )
                             }
@@ -357,6 +368,23 @@ class MainActivity : ComponentActivity() {
             }
         }
         scheduleDailyVerseNotification(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        // ✅ NUEVO: Guardar tiempo de sesión cuando se pausa la app
+        val sessionTime = (System.currentTimeMillis() - appStartTime) / 60000
+        if (sessionTime > 0) {
+            sharedPreferenceBible.addReadingTime(sessionTime.toInt())
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // ✅ NUEVO: Resetear contador al resumir
+        appStartTime = System.currentTimeMillis()
     }
 
     fun scheduleDailyVerseNotification(context: Context) {

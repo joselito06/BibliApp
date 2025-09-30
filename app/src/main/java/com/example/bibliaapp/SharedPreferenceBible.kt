@@ -19,10 +19,29 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.channels.awaitClose
+import java.util.Calendar
 
 private const val SHARED_SELECTED_DB_FILENAME = "selected_db_filename"
 
 class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Context) {
+
+    companion object {
+        // ... existing constants ...
+        private const val KEY_ANNOUNCE_VERSE_NUMBERS = "announce_verse_numbers"
+        private const val KEY_ANNOUNCE_CHAPTER_TITLES = "announce_chapter_titles"
+
+        // Nuevas constantes para estadísticas
+        private const val KEY_BOOKS_READ = "books_read"
+        private const val KEY_CHAPTERS_READ = "chapters_read"
+        private const val KEY_READING_STREAK = "reading_streak"
+        private const val KEY_TOTAL_READING_TIME = "total_reading_time_minutes"
+        private const val KEY_LAST_READING_DATE = "last_reading_date"
+        private const val KEY_VERSES_READ = "verses_read"
+
+        private const val KEY_DAILY_APP_OPENS = "daily_app_opens"
+        private const val KEY_LAST_APP_OPEN_DATE = "last_app_open_date"
+    }
+
     private val SHARED_APP_THEME = "app_theme"
     private val SHARED_NAME = "BibleInit"
     private val SHARED_LIBRO = "libro"
@@ -145,6 +164,136 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
         // Puedes usar el idioma del sistema como valor por defecto si lo deseas,
         // o un idioma fijo como inglés.
         return storage.getString(KEY_APP_LANGUAGE, AppLanguage.ENGLISH.code) ?: AppLanguage.ENGLISH.code
+    }
+
+    fun saveAnnounceVerseNumbers(enabled: Boolean) {
+        storage.edit { putBoolean(KEY_ANNOUNCE_VERSE_NUMBERS, enabled) }
+    }
+
+    fun getAnnounceVerseNumbers(): Boolean {
+        return storage.getBoolean(KEY_ANNOUNCE_VERSE_NUMBERS, true) // Default true
+    }
+
+    fun saveAnnounceChapterTitles(enabled: Boolean) {
+        storage.edit { putBoolean(KEY_ANNOUNCE_CHAPTER_TITLES, enabled) }
+    }
+
+    fun getAnnounceChapterTitles(): Boolean {
+        return storage.getBoolean(KEY_ANNOUNCE_CHAPTER_TITLES, true) // Default true
+    }
+
+    // PROGRESO DE LECTURA
+    fun markBookAsRead(bookOsis: String) {
+        val booksRead = getBooksRead().toMutableSet()
+        booksRead.add(bookOsis)
+        storage.edit { putStringSet(KEY_BOOKS_READ, booksRead) }
+    }
+
+    fun getBooksRead(): Set<String> {
+        return storage.getStringSet(KEY_BOOKS_READ, emptySet()) ?: emptySet()
+    }
+
+    fun markChapterAsRead(bookOsis: String, chapter: Int) {
+        val chaptersRead = getChaptersRead().toMutableSet()
+        chaptersRead.add("$bookOsis-$chapter")
+        storage.edit { putStringSet(KEY_CHAPTERS_READ, chaptersRead) }
+
+        // Actualizar racha de lectura
+        updateReadingStreak()
+    }
+
+    fun getChaptersRead(): Set<String> {
+        return storage.getStringSet(KEY_CHAPTERS_READ, emptySet()) ?: emptySet()
+    }
+
+    fun getChaptersReadForBook(bookOsis: String): Int {
+        return getChaptersRead().count { it.startsWith("$bookOsis-") }
+    }
+
+    // ESTADÍSTICAS DE TIEMPO
+    fun addReadingTime(minutes: Int) {
+        val currentTime = getTotalReadingTime()
+        storage.edit { putInt(KEY_TOTAL_READING_TIME, currentTime + minutes) }
+    }
+
+    fun getTotalReadingTime(): Int {
+        return storage.getInt(KEY_TOTAL_READING_TIME, 0)
+    }
+
+    // RACHA DE LECTURA
+    private fun updateReadingStreak() {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val lastDate = storage.getString(KEY_LAST_READING_DATE, "")
+
+        if (lastDate == today) {
+            // Ya leimos hoy, no cambiar racha
+            return
+        }
+
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -1)
+        val yesterday = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+
+        val currentStreak = getReadingStreak()
+
+        if (lastDate == yesterday) {
+            // Leyó ayer, incrementar racha
+            storage.edit {
+                putInt(KEY_READING_STREAK, currentStreak + 1)
+                putString(KEY_LAST_READING_DATE, today)
+            }
+        } else if (lastDate != today) {
+            // No leyó ayer, reiniciar racha
+            storage.edit {
+                putInt(KEY_READING_STREAK, 1)
+                putString(KEY_LAST_READING_DATE, today)
+            }
+        }
+    }
+
+    fun getReadingStreak(): Int {
+        return storage.getInt(KEY_READING_STREAK, 0)
+    }
+
+    // VERSÍCULOS LEÍDOS
+    fun incrementVersesRead(count: Int = 1) {
+        val current = getVersesRead()
+        storage.edit { putInt(KEY_VERSES_READ, current + count) }
+    }
+
+    fun getVersesRead(): Int {
+        return storage.getInt(KEY_VERSES_READ, 0)
+    }
+
+    // NUEVO: Marcar que la app fue abierta hoy
+    fun markDailyAppOpen() {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val lastDate = storage.getString(KEY_LAST_APP_OPEN_DATE, "")
+
+        if (lastDate != today) {
+            // Es el primer acceso del día
+            storage.edit {
+                putString(KEY_LAST_APP_OPEN_DATE, today)
+                putInt(KEY_DAILY_APP_OPENS, getDailyAppOpens() + 1)
+            }
+
+            // Actualizar racha de lectura si es necesario
+            updateReadingStreakOnAppOpen()
+        }
+    }
+
+    private fun updateReadingStreakOnAppOpen() {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val lastReadingDate = storage.getString(KEY_LAST_READING_DATE, "")
+
+        if (lastReadingDate != today) {
+            // Si no ha leído hoy, mantener racha pero no incrementar
+            // La racha se incrementará cuando realmente lea algo
+        }
+    }
+
+    fun getDailyAppOpens(): Int {
+        return storage.getInt(KEY_DAILY_APP_OPENS, 0)
     }
 
     // Flow para observar cambios en el idioma (similar al del tema)

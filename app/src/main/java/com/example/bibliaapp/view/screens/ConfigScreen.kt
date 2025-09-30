@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,6 +31,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -59,12 +62,14 @@ import com.example.bibliaapp.view.viewmodel.MainViewmodel
 import com.example.bibliaapp.view.viewmodel.SettingsViewmodel
 import com.example.bibliaapp.R
 import com.example.bibliaapp.view.Routes
+import com.example.bibliaapp.view.viewmodel.BibleViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigScreen(
     mainViewmodel: MainViewmodel,
     settingsViewmodel: SettingsViewmodel,
+    bibleViewmodel: BibleViewmodel,
     navigation: NavHostController
 ){
     val view = LocalView.current
@@ -72,6 +77,9 @@ fun ConfigScreen(
     // --- Define los colores que quieres para esta pantalla ---
     val desiredStatusBarColor = MaterialTheme.colorScheme.primaryContainer // Ejemplo: Negro semi-transparente
     val desiredNavBarColor = MaterialTheme.colorScheme.primaryContainer    // Ejemplo: Un azul oscuro opaco
+
+    val announceVerseNumbers by bibleViewmodel.announceVerseNumbers.collectAsState()
+    val announceChapterTitles by bibleViewmodel.announceChapterTitles.collectAsState()
 
     if (!view.isInEditMode) {
         val window = view.context.findActivity()?.window
@@ -195,6 +203,14 @@ fun ConfigScreen(
                 title = stringResource(R.string.language_setting_title),
                 subtitle = stringResource(currentAppLanguage.displayNameResId),
                 onClick = { showLanguageDialog = true }
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            TTSSettingsSection(
+                announceVerseNumbers = announceVerseNumbers,
+                announceChapterTitles = announceChapterTitles,
+                onAnnounceVerseNumbersChanged = { bibleViewmodel.setAnnounceVerseNumbers(it) },
+                onAnnounceChapterTitlesChanged = { bibleViewmodel.setAnnounceChapterTitles(it) }
             )
 
         }
@@ -405,6 +421,68 @@ private fun LanguageSelectionDialog(
             }
         }
     )
+}
+
+// 4. COMPONENTE UI PARA CONFIGURACIONES TTS
+@Composable
+fun TTSSettingsSection(
+    announceVerseNumbers: Boolean,
+    announceChapterTitles: Boolean,
+    onAnnounceVerseNumbersChanged: (Boolean) -> Unit,
+    onAnnounceChapterTitlesChanged: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.tts_settings_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAnnounceVerseNumbersChanged(!announceVerseNumbers) },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Switch(
+                    checked = announceVerseNumbers,
+                    onCheckedChange = onAnnounceVerseNumbersChanged,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+                Text(
+                    text = stringResource(R.string.announce_verse_numbers),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAnnounceChapterTitlesChanged(!announceChapterTitles) },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Switch(
+                    checked = announceChapterTitles,
+                    onCheckedChange = onAnnounceChapterTitlesChanged,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+                Text(
+                    text = stringResource(R.string.announce_chapter_titles),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
 }
 
 

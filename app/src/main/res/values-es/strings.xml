@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- HomeScreen - Saludo -->
+    <string name="greeting_morning">¡Buenos días!</string>
+    <string name="greeting_afternoon">¡Buenas tardes!</string>
+    <string name="greeting_evening">¡Buenas noches!</string>
+    <string name="greeting_message">Que tengas un día bendecido</string>
+
+    <!-- HomeScreen - Verso del Día -->
+    <string name="daily_verse_title">Versículo del día</string>
+    <string name="daily_verse_loading">Cargando versículo…</string>
+    <string name="daily_verse_listen">Escuchar</string>
+    <string name="daily_verse_share">Compartir</string>
+    <string name="daily_verse_favorite">Favorito</string>
+
+    <!-- HomeScreen - Continuar Lectura -->
+    <string name="continue_reading_title">Continuar leyendo</string>
+    <string name="continue_reading_chapter">%1$s, Capítulo %2$d</string>
+
+    <!-- HomeScreen - Accesos Rápidos -->
+    <string name="quick_actions_title">Accesos rápidos</string>
+    <string name="quick_action_read">Leer Biblia</string>
+    <string name="quick_action_search">Buscar</string>
+    <string name="quick_action_notifications">Recordatorios</string>
+    <string name="quick_action_downloads">Descargas</string>
+
+    <!-- HomeScreen - Progreso de Lectura -->
+    <string name="reading_progress_title">Progreso de lectura</string>
+    <string name="reading_progress_books">Has leído %1$d de %2$d libros</string>
+    <string name="reading_progress_chapters">%d capítulos completados</string>
+    <string name="reading_progress_percent">%d%%</string>
+
+    <!-- HomeScreen - Recomendaciones -->
+    <string name="recommendations_title">Recomendaciones para ti</string>
+    <string name="recommendations_empty">¡Excelente progreso! Sigue leyendo donde te quedaste.</string>
+
+    <!-- Libros Recomendados -->
+    <string name="recommendation_psalms_title">Los Salmos</string>
+    <string name="recommendation_psalms_desc">Encuentra paz y fortaleza espiritual</string>
+    <string name="recommendation_psalms_reason">Popular para meditación diaria</string>
+
+    <string name="recommendation_proverbs_title">Proverbios</string>
+    <string name="recommendation_proverbs_desc">Sabiduría práctica para la vida diaria</string>
+    <string name="recommendation_proverbs_reason">Ideal para crecimiento personal</string>
+
+    <string name="recommendation_matthew_title">Evangelio de Mateo</string>
+    <string name="recommendation_matthew_desc">La vida y enseñanzas de Jesús</string>
+    <string name="recommendation_matthew_reason">Excelente introducción al Nuevo Testamento</string>
+
+    <string name="recommendation_john_title">Evangelio de Juan</string>
+    <string name="recommendation_john_desc">El amor de Dios revelado</string>
+    <string name="recommendation_john_reason">Profundo y transformador</string>
+
+    <string name="recommendation_genesis_title">Génesis</string>
+    <string name="recommendation_genesis_desc">El origen de todas las cosas</string>
+    <string name="recommendation_genesis_reason">Fundamental para entender la fe</string>
+
+    <!-- HomeScreen - Estadísticas -->
+    <string name="stats_title">Tus estadísticas</string>
+    <string name="stats_streak_label">Días seguidos</string>
+    <string name="stats_chapters_label">Capítulos leídos</string>
+    <string name="stats_time_label">Tiempo total</string>
+    <string name="stats_verses_label">Versículos leídos</string>
+    <string name="stats_books_label">Libros completados</string>
+
+    <!-- Mensajes de Celebración -->
+    <string name="book_completed_toast">¡Felicidades! Completaste %s</string>
+    <string name="chapter_completed_toast">Capítulo completado</string>
+    <string name="streak_milestone">¡%d días seguidos leyendo!</string>
+
+    <!-- Compartir -->
+    <string name="share_verse_title">Compartir versículo</string>
+    <string name="share_verse_with">Compartir con…</string>
+
+    <!-- Errores y Estados Vacíos -->
+    <string name="error_loading_data">Error al cargar datos</string>
+    <string name="no_data_available">No hay datos disponibles</string>
+    <string name="retry">Reintentar</string>
+
+
     <string name="app_name" translatable="false">BibliApp</string>
     <string name="config_screen_title">Configuraciones</string>
     <string name="theme_selection_title">Seleccionar Tema</string>
@@ -17,6 +95,18 @@
     <string name="about_app_title">Acerca de la App</string>
     <string name="appearance_section_title">Apariencia</string>
     <string name="content_section_title">Contenido</string>
+
+    <!-- TTS (Text-to-Speech) -->
+    <string name="tts_book_label">Libro</string>
+    <string name="tts_chapter_label">Capítulo</string>
+    <string name="tts_verse_label">Versículo</string>
+    <string name="unknown_book">Libro desconocido</string>
+    <string name="tts_not_initialized">El lector de voz no está inicializado</string>
+    <string name="reading_completed">Lectura completada</string>
+    <!-- Configuración TTS -->
+    <string name="announce_verse_numbers">Anunciar números de versículos</string>
+    <string name="announce_chapter_titles">Anunciar títulos de capítulos</string>
+    <string name="tts_settings_title">Configuración de lectura</string>
 
     <string name="accept_button">ACEPTAR</string>
     <string name="cancel_button">CANCELAR</string>

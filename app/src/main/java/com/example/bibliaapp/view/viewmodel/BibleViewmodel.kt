@@ -8,10 +8,12 @@ import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bibliaapp.R
 import com.example.bibliaapp.SharedPreferenceBible
 import com.example.bibliaapp.di.RoomModule
 import com.example.bibliaapp.domain.model.AppLanguage
 import com.example.bibliaapp.domain.model.Books
+import com.example.bibliaapp.domain.model.Verses
 import com.example.bibliaapp.domain.usescases.BookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -51,6 +54,14 @@ class BibleViewmodel @Inject constructor(
     val isSpeaking: StateFlow<Boolean> get() = _isSpeaking
     val isPaused: StateFlow<Boolean> get() = _isPaused
     val pausedText: StateFlow<String> get() = _pausedText
+
+    // NUEVAS CONFIGURACIONES PARA TTS
+    private val _announceVerseNumbers = MutableStateFlow(true) // Configuración para anunciar números de versículos
+    val announceVerseNumbers: StateFlow<Boolean> = _announceVerseNumbers.asStateFlow()
+
+    private val _announceChapterTitles = MutableStateFlow(true) // Configuración para anunciar títulos
+    val announceChapterTitles: StateFlow<Boolean> = _announceChapterTitles.asStateFlow()
+
 
     private val _getBooks = MutableStateFlow<List<Books>>(listOf())
     val getBooks: StateFlow<List<Books>> = _getBooks
@@ -167,6 +178,32 @@ class BibleViewmodel @Inject constructor(
         }
     }*/
 
+    // Métodos para cambiar configuraciones
+    fun setAnnounceVerseNumbers(enabled: Boolean) {
+        _announceVerseNumbers.value = enabled
+        // Optionally save to SharedPreferences
+        shared.saveAnnounceVerseNumbers(enabled)
+    }
+
+    fun setAnnounceChapterTitles(enabled: Boolean) {
+        _announceChapterTitles.value = enabled
+        // Optionally save to SharedPreferences
+        shared.saveAnnounceChapterTitles(enabled)
+    }
+
+    // FUNCIONES TTS MEJORADAS CON SOPORTE PARA IDIOMAS
+
+    // Función para obtener strings localizados
+    private fun getLocalizedString(resId: Int): String {
+        return context.getString(resId)
+    }
+
+    // Función para obtener el nombre completo del libro
+    private fun getBookDisplayName(bookCode: String?): String {
+        val currentBook = _getAllBiblia.value.firstOrNull()
+        return currentBook?.Human ?: bookCode ?: getLocalizedString(R.string.unknown_book)
+    }
+
     fun initializeTTS(context: Context, coroutineScope: CoroutineScope, listState: LazyListState) {
         // Detener TTS anterior si existe
         tts?.shutdown()
@@ -187,7 +224,7 @@ class BibleViewmodel @Inject constructor(
     }
 
     private fun setupTTSProgressListener(coroutineScope: CoroutineScope, listState: LazyListState) {
-        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+        /*tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
                 _currentVerseIndex.value = utteranceId?.toInt() ?: 0
                 coroutineScope.launch {
@@ -216,7 +253,146 @@ class BibleViewmodel @Inject constructor(
             override fun onError(utteranceId: String?) {
                 Log.e("TTS", "Error en utterance: $utteranceId")
             }
+        })*/
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            private var startTime: Long = 0
+
+            override fun onStart(utteranceId: String?) {
+                startTime = System.currentTimeMillis()
+                // Actualizar el índice actual basado en el utteranceId
+                utteranceId?.toIntOrNull()?.let { index ->
+                    _currentVerseIndex.value = index
+                    // Hacer scroll al versículo actual
+                    coroutineScope.launch {
+                        try {
+                            listState.animateScrollToItem(index)
+                        } catch (e: Exception) {
+                            Log.e("TTS", "Error en scroll: ${e.message}")
+                        }
+                    }
+                }
+            }
+
+            override fun onDone(utteranceId: String?) {
+                // ✅ NUEVO: Calcular tiempo de escucha
+                val listeningTime = (System.currentTimeMillis() - startTime) / 60000 // en minutos
+                if (listeningTime > 0) {
+                    shared.addReadingTime(listeningTime.toInt())
+                }
+
+                val currentIndex = utteranceId?.toIntOrNull() ?: _currentVerseIndex.value
+                val nextIndex = currentIndex + 1
+
+                val currentBook = _getAllBiblia.value.firstOrNull()
+                if (currentBook == null) {
+                    _isSpeaking.value = false
+                    return
+                }
+
+                // Verificar si hay más versículos en el capítulo actual
+                if (nextIndex < currentBook.Verse.size) {
+                    val nextVerse = currentBook.Verse[nextIndex]
+                    val currentChapter = if (currentIndex >= 0) currentBook.Verse[currentIndex].ChapterNum else null
+                    val nextChapter = nextVerse.ChapterNum
+
+                    _currentVerseIndex.value = nextIndex
+
+                    // Si cambiamos de capítulo, manejar transición
+                    if (currentChapter != null && currentChapter != nextChapter) {
+                        handleChapterTransition(nextVerse, nextIndex, currentBook)
+                    } else {
+                        // Mismo capítulo, leer siguiente versículo
+                        readNextVerseInSameChapter(nextVerse, nextIndex)
+                    }
+                } else {
+                    // No hay más versículos, verificar si hay siguiente capítulo
+                    handleEndOfChapter(currentBook)
+                }
+            }
+
+            override fun onError(utteranceId: String?) {
+                Log.e("TTS", "Error en utterance: $utteranceId")
+                _isSpeaking.value = false
+            }
         })
+    }
+
+    private fun handleChapterTransition(nextVerse: Verses, nextIndex: Int, currentBook: Books) {
+        val bookName = getBookDisplayName(nextVerse.Book)
+        val chapterNum = nextVerse.ChapterNum
+
+        val chapterLabel = getLocalizedString(R.string.tts_chapter_label)
+        val chapterIntro = "$bookName, $chapterLabel $chapterNum"
+
+        // Primero anunciar el capítulo
+        tts?.speak(chapterIntro, TextToSpeech.QUEUE_FLUSH, null, "chapter_intro_$chapterNum")
+
+        // Preparar el texto del versículo
+        val verseText = buildVerseText(nextVerse, isNewChapter = true)
+        tts?.speak(verseText, TextToSpeech.QUEUE_ADD, null, nextIndex.toString())
+    }
+
+    private fun readNextVerseInSameChapter(nextVerse: Verses, nextIndex: Int) {
+        val verseText = buildVerseText(nextVerse, isNewChapter = false)
+        tts?.speak(verseText, TextToSpeech.QUEUE_FLUSH, null, nextIndex.toString())
+    }
+
+    private fun buildVerseText(verse: Verses, isNewChapter: Boolean): String {
+        val textBuilder = StringBuilder()
+
+        // Verificar si hay título de capítulo y si está habilitado
+        if (_announceChapterTitles.value && !verse.ChapterName.isNullOrEmpty()) {
+            textBuilder.append("${verse.ChapterName}. ")
+        }
+
+        if (_announceVerseNumbers.value) {
+            if (isNewChapter) {
+                // Para nuevo capítulo, incluir información completa
+                val bookName = getBookDisplayName(verse.Book)
+                val bookLabel = getLocalizedString(R.string.tts_book_label)
+                val chapterLabel = getLocalizedString(R.string.tts_chapter_label)
+                val verseLabel = getLocalizedString(R.string.tts_verse_label)
+
+                textBuilder.append("$bookLabel $bookName, $chapterLabel ${verse.ChapterNum}, $verseLabel ${verse.Verse}. ")
+            } else {
+                // Mismo capítulo, solo número de versículo
+                val verseLabel = getLocalizedString(R.string.tts_verse_label)
+                textBuilder.append("$verseLabel ${verse.Verse}. ")
+            }
+        }
+
+        textBuilder.append(verse.Contenido ?: "")
+        return textBuilder.toString()
+    }
+
+    private fun handleEndOfChapter(currentBook: Books) {
+        val nextChapter = capitulo.value + 1
+        if (nextChapter <= currentBook.Chapters) {
+            // Pasar al siguiente capítulo
+            setCapitulo(nextChapter)
+            _currentVerseIndex.value = 0
+
+            // Buscar el primer versículo del nuevo capítulo
+            val firstVerseOfNewChapter = currentBook.Verse.find { it.ChapterNum == nextChapter }
+            if (firstVerseOfNewChapter != null) {
+                val bookName = getBookDisplayName(firstVerseOfNewChapter.Book)
+                val chapterLabel = getLocalizedString(R.string.tts_chapter_label)
+                val chapterIntro = "$bookName, $chapterLabel $nextChapter"
+
+                tts?.speak(chapterIntro, TextToSpeech.QUEUE_FLUSH, null, "chapter_intro_$nextChapter")
+
+                val verseText = buildVerseText(firstVerseOfNewChapter, isNewChapter = true)
+                val newVerseIndex = currentBook.Verse.indexOf(firstVerseOfNewChapter)
+                tts?.speak(verseText, TextToSpeech.QUEUE_ADD, null, newVerseIndex.toString())
+
+                _currentVerseIndex.value = newVerseIndex
+            }
+        } else {
+            // No hay más capítulos, detener lectura
+            _isSpeaking.value = false
+            Log.d("TTS", "Lectura completada - fin del libro")
+            Toast.makeText(context, getLocalizedString(R.string.reading_completed), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateTTSLanguage(newLanguage: AppLanguage) {
@@ -298,26 +474,107 @@ class BibleViewmodel @Inject constructor(
     }
 
     fun pauseReading() {
-        tts?.stop()
-        _pausedText.value = _getAllBiblia.value.first().Verse[_currentVerseIndex.value].Contenido!!
-        _isSpeaking.value = false
-        _isPaused.value = true
+//        tts?.stop()
+//        _pausedText.value = _getAllBiblia.value.first().Verse[_currentVerseIndex.value].Contenido!!
+//        _isSpeaking.value = false
+//        _isPaused.value = true
+        if (_isSpeaking.value) {
+            tts?.stop()
+
+            val currentBook = _getAllBiblia.value.firstOrNull()
+            val currentIndex = _currentVerseIndex.value
+
+            if (currentBook != null && currentIndex < currentBook.Verse.size) {
+                val currentVerse = currentBook.Verse[currentIndex]
+                _pausedText.value = currentVerse.Contenido ?: ""
+            }
+
+            _isSpeaking.value = false
+            _isPaused.value = true
+            Log.d("TTS", "Lectura pausada en versículo ${currentIndex + 1}")
+        }
+    }
+
+    // Función para iniciar la lectura desde el versículo actual
+    fun startReading() {
+        if (!_isTTSInitialized.value) {
+            Log.w("TTS", "TTS no está inicializado")
+            Toast.makeText(context, getLocalizedString(R.string.tts_not_initialized), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (_isSpeaking.value) {
+            Log.d("TTS", "Ya se está reproduciendo")
+            return
+        }
+
+        speakNextVerse()
     }
 
     fun resumeReading() {
-        if (_isPaused.value) {
-            tts?.speak(_pausedText.value, TextToSpeech.QUEUE_FLUSH, null, _currentVerseIndex.value.toString())
+//        if (_isPaused.value) {
+//            tts?.speak(_pausedText.value, TextToSpeech.QUEUE_FLUSH, null, _currentVerseIndex.value.toString())
+//            _isPaused.value = false
+//        } else {
+//            speakNextVerse()
+//        }
+//        _isSpeaking.value = true
+
+        if (_isPaused.value && !_isSpeaking.value) {
             _isPaused.value = false
-        } else {
-            speakNextVerse()
+            speakNextVerse() // Usar la función principal para resumir
+            Log.d("TTS", "Lectura reanudada desde versículo ${_currentVerseIndex.value + 1}")
         }
-        _isSpeaking.value = true
     }
 
     fun speakNextVerse() {
-        val currentVerse = _getAllBiblia.value.first().Verse[_currentVerseIndex.value]
-        val text = "Libro: ${currentVerse.Book}, Capítulo: ${currentVerse.ChapterNum}, Versículo: ${currentVerse.Verse}. ${currentVerse.Contenido}"
-        speakText(text, _currentVerseIndex.value.toString())
+//        val currentVerse = _getAllBiblia.value.first().Verse[_currentVerseIndex.value]
+//        val text = "Libro: ${currentVerse.Book}, Capítulo: ${currentVerse.ChapterNum}, Versículo: ${currentVerse.Verse}. ${currentVerse.Contenido}"
+//        speakText(text, _currentVerseIndex.value.toString())
+
+        if (_getAllBiblia.value.isEmpty() || _getAllBiblia.value.first().Verse.isEmpty()) {
+            Log.e("TTS", "No hay datos de biblia disponibles")
+            return
+        }
+        val currentBook = _getAllBiblia.value.first()
+        val verseIndex = _currentVerseIndex.value
+
+        // Verificar que el índice sea válido
+        if (verseIndex < 0 || verseIndex >= currentBook.Verse.size) {
+            Log.e("TTS", "Índice de versículo inválido: $verseIndex")
+            return
+        }
+
+        val currentVerse = currentBook.Verse[verseIndex]
+
+        // Construir el texto de anuncio más claro
+        val bookName = getBookDisplayName(currentVerse.Book)
+        val chapterNum = currentVerse.ChapterNum ?: 1
+        val verseNum = currentVerse.Verse ?: (verseIndex + 1)
+        val verseContent = currentVerse.Contenido ?: ""
+
+        // Construir el texto basado en configuraciones y usando strings localizados
+        val textBuilder = StringBuilder()
+
+        // Verificar si hay título de capítulo y si está habilitado
+        if (_announceChapterTitles.value && !currentVerse.ChapterName.isNullOrEmpty()) {
+            textBuilder.append("${currentVerse.ChapterName}. ")
+        }
+
+        if (_announceVerseNumbers.value) {
+            // Usar strings localizados
+            val bookLabel = getLocalizedString(R.string.tts_book_label) // "Libro"
+            val chapterLabel = getLocalizedString(R.string.tts_chapter_label) // "Capítulo"
+            val verseLabel = getLocalizedString(R.string.tts_verse_label) // "Versículo"
+
+            textBuilder.append("$bookLabel $bookName, $chapterLabel $chapterNum, $verseLabel $verseNum. ")
+        }
+
+        textBuilder.append(verseContent)
+
+        val finalText = textBuilder.toString()
+        Log.d("TTS", "Leyendo: $finalText")
+        speakText(finalText, verseIndex.toString())
     }
 
     // Métodos para cambiar capítulos, aumentar/decrementar capítulo, etc.
@@ -370,8 +627,11 @@ class BibleViewmodel @Inject constructor(
     }
     fun getBook(osis: String){
         viewModelScope.launch {
+            val previousBook = _Libro.value
+
             _Libro.value = _getAllBook.value.first { v -> v.Osis == osis }.Osis
             _LibroIndex.value = _getAllBook.value.indexOfFirst { v -> v.Osis == osis }
+
             try{
                 _getAllBiblia.value = booksUC.GetAllBookAndVerses(_Libro.value)
             }catch (e: Exception){
@@ -380,6 +640,9 @@ class BibleViewmodel @Inject constructor(
             _Capitulo.value = 1
             shared.saveCurrentBook(_Libro.value)
             shared.saveCapitulo(1)
+
+            // ✅ NUEVO: Verificar si el libro anterior fue completado
+            checkBookCompletion(previousBook)
         }
     }
     fun lessBook(){
@@ -425,9 +688,47 @@ class BibleViewmodel @Inject constructor(
     }
 
     fun setCapitulo(value: Int){
+        val previousChapter = _Capitulo.value
         _Capitulo.value = value
         shared.saveCapitulo(value)
+
+        // ✅ NUEVO: Si el capítulo aumentó, marcar el anterior como leído
+        if (value > previousChapter) {
+            trackChapterCompletion(_Libro.value, previousChapter)
+        }
     }
 
+    // NUEVO: función para trackear finalización de capítulo
+    private fun trackChapterCompletion(bookOsis: String, chapter: Int) {
+        // Marcar capítulo como leído
+        shared.markChapterAsRead(bookOsis, chapter)
+
+        // Estimar tiempo de lectura (ejemplo: 3-5 minutos por capítulo)
+        shared.addReadingTime(4) // 4 minutos promedio
+
+        // Incrementar versículos leídos (estimar ~25 versículos por capítulo)
+        val currentBook = _getAllBiblia.value.firstOrNull()
+        currentBook?.let { book ->
+            val versesInChapter = book.Verse.count { it.ChapterNum == chapter }
+            shared.incrementVersesRead(versesInChapter)
+        }
+
+        Log.d("BibleStats", "Capítulo completado: $bookOsis capítulo $chapter")
+    }
+
+    // NUEVO: verificar si un libro fue completado
+    private fun checkBookCompletion(bookOsis: String) {
+        val book = _getAllBook.value.find { it.Osis == bookOsis }
+        book?.let {
+            val chaptersReadInBook = shared.getChaptersReadForBook(bookOsis)
+            if (chaptersReadInBook >= it.Chapters) {
+                shared.markBookAsRead(bookOsis)
+                Log.d("BibleStats", "¡Libro completado!: ${it.Human}")
+
+                // Mostrar celebración (opcional)
+                Toast.makeText(context, context.getString(R.string.book_completed_toast, it.Human), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
 }

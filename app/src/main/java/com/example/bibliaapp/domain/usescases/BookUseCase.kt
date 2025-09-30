@@ -125,6 +125,33 @@ class BookUseCase @Inject constructor(
             }
         }
 
+        /*for (verse in verses) {
+            var headerTitle: String? = null
+
+            // Buscar si hay un header para este versículo
+            for (header in headers) {
+                if (header.BookId == verse.Book &&
+                    header.ChapteId == verse.Chapter &&
+                    header.VerseId == verse.Verse) {
+                    headerTitle = header.Titulo
+                    break
+                }
+            }
+
+            // CLAVE: Poblar ChapterNum con el valor de Chapter
+            versesResponse.add(
+                Verses(
+                    Number = verse.Number,
+                    Book = verse.Book,
+                    Chapter = verse.Chapter,
+                    Verse = verse.Verse,
+                    Contenido = verse.Contenido,
+                    ChapterName = headerTitle ?: "",
+                    ChapterNum = verse.Chapter // ← ESTO ES IMPORTANTE
+                )
+            )
+        }*/
+
         for (book in books){
             booksResponse.add(
                 Books(

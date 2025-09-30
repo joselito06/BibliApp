@@ -63,6 +63,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -262,12 +263,22 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
         context.startActivity(Intent.createChooser(intent, "Compartir versículos con..."))
     }
 
+    // Variables para trackear sesión de lectura
+    var sessionStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var isActivelyReading by remember { mutableStateOf(true) }
+
+    // NUEVO: LaunchedEffect para trackear tiempo de sesión
+    LaunchedEffect(Unit) {
+        sessionStartTime = System.currentTimeMillis()
+    }
+
     // Detectar eventos de scroll manual (táctil) usando `nestedScrollConnection`
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (source == NestedScrollSource.UserInput) {
                     isUserScrolling = true // Usuario deslizó con el dedo
+                    isActivelyReading = true // Usuario está leyendo activamente
                 }else{
                     isUserScrolling = false;
                 }
@@ -306,6 +317,17 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                     bibleViewmodel.sharedComp.value.saveCapitulo(newChapter)
                 }
 
+                if (list.isNotEmpty() && index < list.first().Verse.size) {
+                    val currentVerse = list.first().Verse[index]
+                    val newChapter = currentVerse.ChapterNum ?: currentVerse.Chapter
+
+                    if (newChapter != null && newChapter != capitulo) {
+                        Log.d("BibleScreen", "Scroll manual detectó cambio a capítulo: $newChapter")
+                        bibleViewmodel.setCapitulo(newChapter) // ✅ Aquí se activará el tracking
+                        bibleViewmodel.sharedComp.value.saveCapitulo(newChapter)
+                    }
+                }
+
                 previousIndex = index
                 previousOffset = offset
 
@@ -334,6 +356,19 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
         if (isTTSInitialized) {
             // Reinicializar TTS con el nuevo idioma
             bibleViewmodel.initializeTTS(context, coroutineScope, listState)
+        }
+    }
+
+    // NUEVO: DisposableEffect para guardar tiempo de sesión al salir
+    DisposableEffect(Unit) {
+        onDispose {
+            if (isActivelyReading) {
+                val sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 60000 // minutos
+                if (sessionDuration > 0) {
+                    bibleViewmodel.sharedComp.value.addReadingTime(sessionDuration.toInt())
+                    Log.d("BibleStats", "Sesión de lectura: ${sessionDuration} minutos")
+                }
+            }
         }
     }
 
