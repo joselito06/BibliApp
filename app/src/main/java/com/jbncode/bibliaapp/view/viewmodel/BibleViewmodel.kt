@@ -418,6 +418,9 @@ class BibleViewmodel @Inject constructor(
             val locale = when (language) {
                 AppLanguage.SPANISH -> Locale("es", "ES")
                 AppLanguage.ENGLISH -> Locale("en", "US")
+                AppLanguage.FRENCH -> Locale("fr", "FR")
+                AppLanguage.PORTUGUESE -> Locale("pt", "PT")
+                AppLanguage.ROMANIAN -> Locale("ro", "RO")
                 // Si tienes más idiomas en tu enum, agrégalos aquí
             }
 

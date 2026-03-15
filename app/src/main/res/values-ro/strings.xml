@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- HomeScreen - Greeting -->
+    <string name="greeting_morning">Bună dimineața!</string>
+    <string name="greeting_afternoon">Bună ziua!</string>
+    <string name="greeting_evening">Bună seara!</string>
+    <string name="greeting_message">Să ai o zi binecuvântată</string>
+
+    <!-- HomeScreen - Verse of the Day -->
+    <string name="daily_verse_title">Versetul zilei</string>
+    <string name="daily_verse_loading">Se încarcă versetul…</string>
+    <string name="daily_verse_listen">Ascultă</string>
+    <string name="daily_verse_share">Distribuie</string>
+    <string name="daily_verse_favorite">Favorit</string>
+
+    <!-- HomeScreen - Continue Reading -->
+    <string name="continue_reading_title">Continuă lectura</string>
+    <string name="continue_reading_chapter">%1$s, Capitolul %2$d</string>
+
+    <!-- HomeScreen - Quick Actions -->
+    <string name="quick_actions_title">Acțiuni rapide</string>
+    <string name="quick_action_read">Citește Biblia</string>
+    <string name="quick_action_search">Caută</string>
+    <string name="quick_action_notifications">Mementouri</string>
+    <string name="quick_action_downloads">Descărcări</string>
+
+    <!-- HomeScreen - Reading Progress -->
+    <string name="reading_progress_title">Progresul lecturii</string>
+    <string name="reading_progress_books">Ai citit %1$d din %2$d cărți</string>
+    <string name="reading_progress_chapters">%d capitole finalizate</string>
+    <string name="reading_progress_percent">%d%%</string>
+
+    <!-- HomeScreen - Recommendations -->
+    <string name="recommendations_title">Recomandări pentru tine</string>
+    <string name="recommendations_empty">Progres excelent! Continuă lectura de unde ai rămas.</string>
+
+    <!-- Recommended Books -->
+    <string name="recommendation_psalms_title">Psalmii</string>
+    <string name="recommendation_psalms_desc">Găsește pace și putere spirituală</string>
+    <string name="recommendation_psalms_reason">Popular pentru meditația zilnică</string>
+
+    <string name="recommendation_proverbs_title">Proverbele</string>
+    <string name="recommendation_proverbs_desc">Înțelepciune practică pentru viața de zi cu zi</string>
+    <string name="recommendation_proverbs_reason">Ideal pentru dezvoltarea personală</string>
+
+    <string name="recommendation_matthew_title">Evanghelia după Matei</string>
+    <string name="recommendation_matthew_desc">Viața și învățăturile lui Isus</string>
+    <string name="recommendation_matthew_reason">O introducere excelentă în Noul Testament</string>
+
+    <string name="recommendation_john_title">Evanghelia după Ioan</string>
+    <string name="recommendation_john_desc">Dragostea lui Dumnezeu dezvăluită</string>
+    <string name="recommendation_john_reason">Profund și transformator</string>
+
+    <string name="recommendation_genesis_title">Geneza</string>
+    <string name="recommendation_genesis_desc">Originea tuturor lucrurilor</string>
+    <string name="recommendation_genesis_reason">Fundamental pentru înțelegerea credinței</string>
+
+    <string name="bible_share_title">Partajează versetele cu...</string>
+    <string name="bible_share_more_link">📲 Citește mai mult aici:</string>
+    <string name="bible_copy_toast">Versete copiate în clipboard</string>
+    <string name="bible_copy_label">Text biblic</string>
+    <string name="bible_chapter_label">Capitol</string>
+    <string name="bible_loading">Se încarcă...</string>
+    <string name="bible_action_copy">Copiere</string>
+    <string name="bible_action_share">Partajează</string>
+
+    <!-- HomeScreen - Statistics -->
+    <string name="stats_title">Statisticile tale</string>
+    <string name="stats_streak_label">Zile consecutive</string>
+    <string name="stats_chapters_label">Capitole citite</string>
+    <string name="stats_time_label">Timp total</string>
+    <string name="stats_verses_label">Versete citite</string>
+    <string name="stats_books_label">Cărți finalizate</string>
+
+    <!-- Celebration Messages -->
+    <string name="book_completed_toast">Felicitări! Ai finalizat %s</string>
+    <string name="chapter_completed_toast">Capitol finalizat</string>
+    <string name="streak_milestone">%d zile consecutive de lectură!</string>
+
+    <!-- Share -->
+    <string name="share_verse_title">Distribuie versetul</string>
+    <string name="share_verse_with">Distribuie prin…</string>
+
+    <!-- Errors and Empty States -->
+    <string name="error_loading_data">Eroare la încărcarea datelor</string>
+    <string name="no_data_available">Nu sunt date disponibile</string>
+    <string name="retry">Reîncearcă</string>
+
+    <string name="app_name" translatable="false">BibliApp</string>
+    <string name="config_screen_title">Setări</string>
+    <string name="theme_selection_title">Selectează Tema</string>
+    <string name="theme_light">Luminos</string>
+    <string name="theme_dark">Întunecat</string>
+    <string name="theme_system">Implicit de sistem</string>
+    <string name="theme_high_contrast_light">Contrast ridicat luminos</string>
+    <string name="theme_high_contrast_dark">Contrast ridicat întunecat</string>
+    <string name="theme_medium_contrast_light">Contrast mediu luminos</string>
+    <string name="theme_medium_contrast_dark">Contrast mediu întunecat</string>
+    <string name="theme_setting_title">Tema Aplicației</string>
+    <string name="language_setting_title">Limbă</string>
+    <string name="notification_alerts_title">Alerte Versete</string>
+    <string name="bible_version_title">Versiunea Bibliei</string>
+    <string name="about_app_title">Despre Aplicație</string>
+    <string name="appearance_section_title">Aspect</string>
+
+    <!-- TTS (Text-to-Speech) -->
+    <string name="tts_book_label">Carte</string>
+    <string name="tts_chapter_label">Capitol</string>
+    <string name="tts_verse_label">Verset</string>
+    <string name="unknown_book">Carte necunoscută</string>
+    <string name="tts_not_initialized">Cititorul vocal nu este inițializat</string>
+    <string name="reading_completed">Lectură finalizată</string>
+    <!-- TTS Settings -->
+    <string name="announce_verse_numbers">Anunță numerele versetelor</string>
+    <string name="announce_chapter_titles">Anunță titlurile capitolelor</string>
+    <string name="tts_settings_title">Setări de lectură</string>
+
+    <string name="content_section_title">Conținut</string>
+    <string name="more_info_section_title">Mai multe informații</string>
+
+    <string name="accept_button">ACCEPTĂ</string>
+    <string name="cancel_button">ANULEAZĂ</string>
+
+    <string name="notifications_section_title">Notificări</string>
+    <string name="notifications_status_enabled">Activate</string>
+    <string name="notifications_status_disabled">Dezactivate</string>
+
+    <string name="more_screen_daily_verse_title">Versetul zilei</string>
+    <string name="more_screen_other_bibles_title">Alte Biblii</string>
+    <string name="more_screen_settings_title">Setări</string>
+    <string name="more_screen_share_app_title">Distribuie BibliAPP</string>
+
+    <string name="verses_screen_title">Versete</string>
+    <string name="verses_screen_search_placeholder">Caută în versete…</string>
+
+    <string name="share_screen_title">Distribuie</string>
+    <string name="share_app_message_template">📖 Descoperă *Bibliapp* – aplicația ta gratuită pentru Biblie 📲\n\nStudiază Cuvântul lui Dumnezeu oriunde te-ai afla, offline și cu o interfață frumoasă.\n\n👉 Descarcă de aici: %1$s</string>
+    <string name="share_app_card_title">Distribuie Bibliapp!</string>
+    <string name="share_app_card_subtitle">Ajută-i pe alții să poarte Cuvântul lui Dumnezeu pe mobil 📲🙏</string>
+    <string name="share_app_button_text">Distribuie aplicația</string>
+    <string name="share_app_chooser_title">Distribuie Bibliapp prin…</string>
+    <string name="share_verse_message_template">%1$s\n\n%2$s\n\n📖 Citit în Bibliapp 🙏</string>
+    <string name="share_verse_button_text">Distribuie</string>
+
+    <string name="about_screen_title">Despre Bibliapp</string>
+    <string name="about_screen_description_text">Această aplicație te ajută să primești și să citești versete biblice zilnice, permițându-ți să personalizezi notificările și să selectezi diferite versiuni ale Bibliei.</string>
+    <string name="about_screen_version">Versiune:</string>
+    <string name="about_screen_developer">Dezvoltat de:</string>
+
+    <string name="navigarion_bar_home">Acasă</string>
+    <string name="navigarion_bar_bible">Biblia</string>
+    <string name="navigarion_bar_search">Caută</string>
+    <string name="navigarion_bar_more">Mai mult</string>
+
+    <string name="bible_selection_screen_title">Versiuni ale Bibliei</string>
+    <string name="bible_selection_settings_desc">Setări</string>
+
+    <string name="bible_selection_download_bibles">Descoperă și descarcă Biblii</string>
+    <string name="bible_selection_subtitle_active">Activează o altă Biblie descărcată</string>
+    <string name="bible_selection_empty_downloads">Încă nu ai descărcat alte versiuni ale Bibliei.</string>
+    <string name="bible_selection_loading_details">Se încarcă detaliile…</string>
+    <string name="bible_selection_info_not_available">Informații indisponibile</string>
+    <string name="bible_selection_description_not_available">Descrierea nu este disponibilă.</string>
+    <string name="bible_selection_description_label">Descriere</string>
+
+    <string name="bible_in_use_title">Biblia utilizată</string>
+    <string name="selected_bible_prefix">Selectată:</string>
+
+    <string name="available_bibles_title">Biblii Disponibile</string>
+    <string name="change_to_other_available_bible">Schimbă cu o altă Biblie disponibilă</string>
+
+    <string name="download_more_bibles_button">Descarcă mai multe Biblii</string>
+
+    <string name="language_english">Engleză</string>
+    <string name="language_spanish">Spaniolă</string>
+    <string name="language_french">Franceză</string>
+    <string name="language_portuguese">Portugheză</string>
+    <string name="language_romanian">Română</string>
+</resources>

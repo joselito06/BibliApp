@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import kotlinx.coroutines.delay
+import com.jbncode.bibliaapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,7 +206,7 @@ fun BibleSelectionScreen(
                         scrollBehavior = scrollBehavior,
                         icon = Icons.Default.CollectionsBookmark,
                         iconContentDescription = "VersionesDeLaBiblia",
-                        titleText = "Versiones de la Biblia"
+                        titleText = stringResource(R.string.bible_selection_screen_title),
                     )
 
                 },
@@ -257,7 +259,7 @@ fun BibleSelectionScreen(
                 if (downloadedBibles.isNotEmpty()) {
                     item {
                         Text(
-                            text = "Activar otra Biblia descargada", // "Activar otra Biblia descargada"
+                            text = stringResource(R.string.bible_selection_subtitle_active), // "Activar otra Biblia descargada"
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                         )
@@ -279,7 +281,7 @@ fun BibleSelectionScreen(
                 } else {
                     item {
                         Text(
-                            "Aún no has descargado otras versiones de la Biblia.",
+                            stringResource(R.string.bible_selection_empty_downloads),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(vertical = 20.dp)
                         )
@@ -311,7 +313,7 @@ private fun CurrentBibleInUseCard(selectedBibleName: BibleVersionInfo?) {
                 CircularProgressIndicator(modifier = Modifier.size(32.dp))
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (selectedBibleName == null) "Cargando detalles..." else "Información no disponible",
+                    text = if (selectedBibleName == null) stringResource(R.string.bible_selection_loading_details) else stringResource(R.string.bible_selection_info_not_available),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                 )
@@ -372,14 +374,14 @@ private fun CurrentBibleInUseCard(selectedBibleName: BibleVersionInfo?) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Descripcion", // "Descripción:"
+                    text = stringResource(R.string.bible_selection_description_label), // "Descripción:"
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = selectedBibleName.description.ifEmpty { "Descripción no disponible." },
+                    text = selectedBibleName.description.ifEmpty { stringResource(R.string.bible_selection_description_not_available)},
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                     maxLines = 4, // Limitar para que no sea demasiado larga
@@ -400,7 +402,7 @@ private fun ButtonToDownloadScreen(onNavigate: () -> Unit) {
     ) {
         Icon(Icons.Filled.CloudDownload, contentDescription = null, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(12.dp))
-        Text("Descubrir y descargar Biblias", fontWeight = FontWeight.Medium) // "Descubrir y descargar Biblias"
+        Text(stringResource(R.string.bible_selection_download_bibles), fontWeight = FontWeight.Medium) // "Descubrir y descargar Biblias"
     }
 }
 
@@ -469,11 +471,21 @@ private fun DownloadedBibleItem(
 // Necesitarás una implementación más robusta o usar una librería si quieres muchas banderas
 fun getFlagEmoji(countryCode: String): String {
     return when (countryCode.uppercase()) {
-        "MEX" -> "🇲🇽"
-        "USA", "NA" -> "🇺🇸" // NA (North America) podría ser USA o Canadá
-        "ESP" -> "🇪🇸"
-        "GBR", "ENG" -> "🇬🇧" // Para inglés si no tienes un país específico
-        // Añade más códigos de país según tu JSON
+        // Códigos presentes en tu JSON
+        "MEX" -> "🇲🇽" // México
+        "NA"  -> "🇺🇸" // North America (Usado para biblias en inglés)
+        "USA" -> "🇺🇸" // Estados Unidos
+
+        // Códigos para los nuevos idiomas que estás agregando
+        "FRA" -> "🇫🇷" // Francia (Francés)
+        "ROU" -> "🇷🇴" // Rumania (Rumano)
+        "BRA" -> "🇧🇷" // Brasil (Portugués - muy común en biblias)
+        "PRT" -> "🇵🇹" // Portugal (Portugués)
+
+        // Otros códigos comunes
+        "ESP" -> "🇪🇸" // España
+        "GBR", "ENG" -> "🇬🇧" // Reino Unido / Inglés
+        "ITA" -> "🇮🇹" // Italia
         else -> "🏳️" // Bandera blanca por defecto
     }
 }

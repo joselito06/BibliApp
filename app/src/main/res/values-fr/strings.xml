@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- HomeScreen - Greeting -->
+    <string name="greeting_morning">Bonjour !</string>
+    <string name="greeting_afternoon">Bon après-midi !</string>
+    <string name="greeting_evening">Bonsoir !</string>
+    <string name="greeting_message">Passez une journée bénie</string>
+
+    <!-- HomeScreen - Verse of the Day -->
+    <string name="daily_verse_title">Verset du jour</string>
+    <string name="daily_verse_loading">Chargement du verset…</string>
+    <string name="daily_verse_listen">Écouter</string>
+    <string name="daily_verse_share">Partager</string>
+    <string name="daily_verse_favorite">Favori</string>
+
+    <!-- HomeScreen - Continue Reading -->
+    <string name="continue_reading_title">Continuer la lecture</string>
+    <string name="continue_reading_chapter">%1$s, Chapitre %2$d</string>
+
+    <!-- HomeScreen - Quick Actions -->
+    <string name="quick_actions_title">Actions rapides</string>
+    <string name="quick_action_read">Lire la Bible</string>
+    <string name="quick_action_search">Rechercher</string>
+    <string name="quick_action_notifications">Rappels</string>
+    <string name="quick_action_downloads">Téléchargements</string>
+
+    <!-- HomeScreen - Reading Progress -->
+    <string name="reading_progress_title">Progression de la lecture</string>
+    <string name="reading_progress_books">Vous avez lu %1$d sur %2$d livres</string>
+    <string name="reading_progress_chapters">%d chapitres terminés</string>
+    <string name="reading_progress_percent">%d%%</string>
+
+    <!-- HomeScreen - Recommendations -->
+    <string name="recommendations_title">Recommandations pour vous</string>
+    <string name="recommendations_empty">Excellent progrès ! Continuez votre lecture là où vous vous êtes arrêté.</string>
+
+    <!-- Recommended Books -->
+    <string name="recommendation_psalms_title">Les Psaumes</string>
+    <string name="recommendation_psalms_desc">Trouvez la paix et la force spirituelle</string>
+    <string name="recommendation_psalms_reason">Populaire pour la méditation quotidienne</string>
+
+    <string name="recommendation_proverbs_title">Proverbes</string>
+    <string name="recommendation_proverbs_desc">Sagesse pratique pour la vie quotidienne</string>
+    <string name="recommendation_proverbs_reason">Idéal pour la croissance personnelle</string>
+
+    <string name="recommendation_matthew_title">Évangile selon Matthieu</string>
+    <string name="recommendation_matthew_desc">La vie et les enseignements de Jésus</string>
+    <string name="recommendation_matthew_reason">Excellente introduction au Nouveau Testament</string>
+
+    <string name="recommendation_john_title">Évangile selon Jean</string>
+    <string name="recommendation_john_desc">L\'amour de Dieu révélé</string>
+    <string name="recommendation_john_reason">Profond et transformateur</string>
+
+    <string name="recommendation_genesis_title">Genèse</string>
+    <string name="recommendation_genesis_desc">L\'origine de toutes choses</string>
+    <string name="recommendation_genesis_reason">Fondamental pour comprendre la foi</string>
+
+    <string name="bible_share_title">Partager les versets avec...</string>
+    <string name="bible_share_more_link">📲 Lire la suite ici :</string>
+    <string name="bible_copy_toast">Versets copiés dans le presse-papiers</string>
+    <string name="bible_copy_label">Texte biblique</string>
+    <string name="bible_chapter_label">Chapitre</string>
+    <string name="bible_loading">Chargement...</string>
+    <string name="bible_action_copy">Copier</string>
+    <string name="bible_action_share">Partager</string>
+
+
+    <!-- HomeScreen - Statistics -->
+    <string name="stats_title">Vos statistiques</string>
+    <string name="stats_streak_label">Série de jours</string>
+    <string name="stats_chapters_label">Chapitres lus</string>
+    <string name="stats_time_label">Temps total</string>
+    <string name="stats_verses_label">Versets lus</string>
+    <string name="stats_books_label">Livres terminés</string>
+
+    <!-- Celebration Messages -->
+    <string name="book_completed_toast">Félicitations ! Vous avez terminé %s</string>
+    <string name="chapter_completed_toast">Chapitre terminé</string>
+    <string name="streak_milestone">%d jours de lecture consécutifs !</string>
+
+    <!-- Share -->
+    <string name="share_verse_title">Partager le verset</string>
+    <string name="share_verse_with">Partager avec…</string>
+
+    <!-- Errors and Empty States -->
+    <string name="error_loading_data">Erreur lors du chargement des données</string>
+    <string name="no_data_available">Aucune donnée disponible</string>
+    <string name="retry">Réessayer</string>
+
+    <string name="app_name" translatable="false">BibliApp</string>
+    <string name="config_screen_title">Paramètres</string>
+    <string name="theme_selection_title">Sélectionner le thème</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+    <string name="theme_system">Par défaut du système</string>
+    <string name="theme_high_contrast_light">Contraste élevé clair</string>
+    <string name="theme_high_contrast_dark">Contraste élevé sombre</string>
+    <string name="theme_medium_contrast_light">Contraste moyen clair</string>
+    <string name="theme_medium_contrast_dark">Contraste moyen sombre</string>
+    <string name="theme_setting_title">Thème de l\'application</string>
+    <string name="language_setting_title">Langue</string>
+    <string name="notification_alerts_title">Alertes de versets</string>
+    <string name="bible_version_title">Version de la Bible</string>
+    <string name="about_app_title">À propos de l\'application</string>
+    <string name="appearance_section_title">Apparence</string>
+
+    <!-- TTS (Text-to-Speech) -->
+    <string name="tts_book_label">Livre</string>
+    <string name="tts_chapter_label">Chapitre</string>
+    <string name="tts_verse_label">Verset</string>
+    <string name="unknown_book">Livre inconnu</string>
+    <string name="tts_not_initialized">Le lecteur vocal n\'est pas initialisé</string>
+    <string name="reading_completed">Lecture terminée</string>
+    <!-- TTS Settings -->
+    <string name="announce_verse_numbers">Annoncer les numéros de versets</string>
+    <string name="announce_chapter_titles">Annoncer les titres des chapitres</string>
+    <string name="tts_settings_title">Paramètres de lecture</string>
+
+    <string name="content_section_title">Contenu</string>
+    <string name="more_info_section_title">Plus d\'informations</string>
+
+    <string name="accept_button">ACCEPTER</string>
+    <string name="cancel_button">ANNULER</string>
+
+    <string name="notifications_section_title">Notifications</string>
+    <string name="notifications_status_enabled">Activées</string>
+    <string name="notifications_status_disabled">Désactivées</string>
+
+    <string name="more_screen_daily_verse_title">Verset du jour</string>
+    <string name="more_screen_other_bibles_title">Autres Bibles</string>
+    <string name="more_screen_settings_title">Paramètres</string>
+    <string name="more_screen_share_app_title">Partager BibliAPP</string>
+
+    <string name="verses_screen_title">Versets</string>
+    <string name="verses_screen_search_placeholder">Rechercher dans les versets…</string>
+
+    <string name="share_screen_title">Partager</string>
+    <string name="share_app_message_template">📖 Découvrez *Bibliapp* – votre application biblique gratuite 📲\n\nÉtudiez la Parole de Dieu où que vous soyez, hors ligne et avec une belle interface.\n\n👉 Téléchargez-la ici : %1$s</string>
+    <string name="share_app_card_title">Partagez Bibliapp !</string>
+    <string name="share_app_card_subtitle">Aidez les autres à porter la Parole de Dieu sur leur mobile 📲🙏</string>
+    <string name="share_app_button_text">Partager l\'application</string>
+    <string name="share_app_chooser_title">Partager Bibliapp avec…</string>
+    <string name="share_verse_message_template">%1$s\n\n%2$s\n\n📖 Lu dans Bibliapp 🙏</string>
+    <string name="share_verse_button_text">Partager</string>
+
+    <string name="about_screen_title">À propos de Bibliapp</string>
+    <string name="about_screen_description_text">Cette application vous aide à recevoir et à lire des versets bibliques quotidiens, vous permettant de personnaliser les notifications et de sélectionner différentes versions de la Bible.</string>
+    <string name="about_screen_version">Version :</string>
+    <string name="about_screen_developer">Développé par :</string>
+
+    <string name="navigarion_bar_home">Accueil</string>
+    <string name="navigarion_bar_bible">Bible</string>
+    <string name="navigarion_bar_search">Rechercher</string>
+    <string name="navigarion_bar_more">Plus</string>
+
+    <string name="bible_selection_screen_title">Versions de la Bible</string>
+    <string name="bible_selection_settings_desc">Paramètres</string>
+
+    <string name="bible_selection_download_bibles">Découvrir et télécharger des Bibles</string>
+    <string name="bible_selection_subtitle_active">Activer une autre Bible téléchargée</string>
+    <string name="bible_selection_empty_downloads">Vous n\'avez pas encore téléchargé d\'autres versions de la Bible.</string>
+    <string name="bible_selection_loading_details">Chargement des détails…</string>
+    <string name="bible_selection_info_not_available">Informations non disponibles</string>
+    <string name="bible_selection_description_not_available">Description non disponible.</string>
+    <string name="bible_selection_description_label">Description</string>
+
+    <string name="bible_in_use_title">Bible en cours d\'utilisation</string>
+    <string name="selected_bible_prefix">Sélectionnée :</string>
+
+    <string name="available_bibles_title">Bibles disponibles</string>
+    <string name="change_to_other_available_bible">Changer pour une autre Bible disponible</string>
+
+    <string name="download_more_bibles_button">Télécharger plus de Bibles</string>
+
+    <string name="language_english">Anglais</string>
+    <string name="language_spanish">Espagnol</string>
+    <string name="language_french">Français</string>
+    <string name="language_portuguese">Portugais</string>
+    <string name="language_romanian">Roumain</string>
+</resources>

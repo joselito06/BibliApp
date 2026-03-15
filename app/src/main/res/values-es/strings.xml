@@ -55,6 +55,15 @@
     <string name="recommendation_genesis_desc">El origen de todas las cosas</string>
     <string name="recommendation_genesis_reason">Fundamental para entender la fe</string>
 
+    <string name="bible_share_title">Compartir versículos con...</string>
+    <string name="bible_share_more_link">📲 Lee más aquí:</string>
+    <string name="bible_copy_toast">Versículos copiados al portapapeles</string>
+    <string name="bible_copy_label">Texto bíblico</string>
+    <string name="bible_chapter_label">Capítulo</string>
+    <string name="bible_loading">Cargando...</string>
+    <string name="bible_action_copy">Copiar</string>
+    <string name="bible_action_share">Compartir</string>
+
     <!-- HomeScreen - Estadísticas -->
     <string name="stats_title">Tus estadísticas</string>
     <string name="stats_streak_label">Días seguidos</string>
@@ -146,6 +155,14 @@
     <string name="bible_selection_screen_title">Versiones de la Biblia</string>
     <string name="bible_selection_settings_desc">Configuración</string>
 
+    <string name="bible_selection_download_bibles">Descubrir y descargar Biblias</string>
+    <string name="bible_selection_subtitle_active">Activar otra Biblia descargada</string>
+    <string name="bible_selection_empty_downloads">Aún no has descargado otras versiones de la Biblia.</string>
+    <string name="bible_selection_loading_details">Cargando detalles…</string>
+    <string name="bible_selection_info_not_available">Información no disponible</string>
+    <string name="bible_selection_description_not_available">Descripción no disponible.</string>
+    <string name="bible_selection_description_label">Descripción</string>
+
     <string name="bible_in_use_title">Biblia en uso</string>
     <string name="selected_bible_prefix">Seleccionada:</string>
 
@@ -156,4 +173,7 @@
 
     <string name="language_english">Inglés</string>
     <string name="language_spanish">Español</string>
+    <string name="language_french">Francés</string>
+    <string name="language_portuguese">Portugués</string>
+    <string name="language_romanian">Rumano</string>
 </resources>

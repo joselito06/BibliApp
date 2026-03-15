@@ -79,12 +79,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
+import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.domain.model.Books
 import com.jbncode.bibliaapp.domain.model.Verses
 import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
@@ -173,6 +175,8 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
     }
 
     fun copySelectedText(items: List<Verses>) {
+        val chapterLabel = context.getString(R.string.bible_chapter_label)
+
         val selected = selectedItems.value
             .sorted()
             .mapNotNull { index -> items.getOrNull(index) }
@@ -190,7 +194,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
         for (verse in selected) {
             if (verse.ChapterNum != null && verse.ChapterNum != lastChapter) {
-                sb.append("Capítulo ${verse.ChapterNum}\n\n")
+                sb.append("$chapterLabel ${verse.ChapterNum}\n\n")
                 lastChapter = verse.ChapterNum
 
             }
@@ -202,17 +206,20 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
             sb.append("${verse.Verse}. ${verse.Contenido?.trim()}\n")
         }
 
-        val clip = ClipData.newPlainText("Texto bíblico", sb.toString())
+        val clip = ClipData.newPlainText(context.getString(R.string.bible_copy_label), sb.toString())
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(clip)
 
-        Toast.makeText(context, "Versículos copiados al portapapeles", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.bible_copy_toast), Toast.LENGTH_SHORT).show()
 
         // Limpiar selección si deseas
         // selectedItems.value = emptySet()
     }
 
     fun shareSelectedText(items: List<Verses>) {
+        val chapterLabel = context.getString(R.string.bible_chapter_label)
+        val moreLinkText = context.getString(R.string.bible_share_more_link)
+
         val selected = selectedItems.value
             .sorted()
             .mapNotNull { index -> items.getOrNull(index) }
@@ -241,7 +248,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
 
         for (verse in selected) {
             if (verse.ChapterNum != null && verse.ChapterNum != lastChapter) {
-                sb.append("Capítulo ${verse.ChapterNum}\n\n")
+                sb.append("$chapterLabel ${verse.ChapterNum}\n\n")
                 lastChapter = verse.ChapterNum
 
                 if (!verse.ChapterName.isNullOrEmpty()) {
@@ -252,14 +259,14 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
             sb.append("${verse.Verse}. ${verse.Contenido?.trim()}\n")
         }
 
-        sb.append("\n📲 Lee más aquí: $link")
+        sb.append("\n📲 $moreLinkText $link")
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, sb.toString())
         }
 
-        context.startActivity(Intent.createChooser(intent, "Compartir versículos con..."))
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.bible_share_title)))
     }
 
     // Variables para trackear sesión de lectura
@@ -626,7 +633,7 @@ fun BibleScreen(modifier: Modifier, bibleViewmodel: BibleViewmodel, mainViewmode
                         }
                         Column(modifier = Modifier) {
                             TextButton(onClick = { expanded = true }, modifier = Modifier.padding(2.dp)) {
-                                Text(text = "Capitulo $capitulo")
+                                Text(text = "${stringResource(R.string.bible_chapter_label)} $capitulo")
                             }
                             DropdownMenu(
                                 expanded = expanded,
@@ -748,7 +755,7 @@ fun BottomModalCopyText(items: List<Books>, libro: String, copySelectedText: (Li
             ) {
                 Icon(imageVector = Icons.Rounded.CopyAll, contentDescription = "")
                 Spacer(modifier = Modifier.padding(end = 8.dp))
-                Text("Copiar")
+                Text(stringResource(R.string.bible_action_copy))
             }
 
             Button(
@@ -762,7 +769,7 @@ fun BottomModalCopyText(items: List<Books>, libro: String, copySelectedText: (Li
             ) {
                 Icon(imageVector = Icons.Rounded.Share, contentDescription = "")
                 Spacer(modifier = Modifier.padding(end = 8.dp))
-                Text("Compartir")
+                Text(stringResource(R.string.bible_action_share))
             }
         }
 
