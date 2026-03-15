@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "143260831090",
+    "project_id": "bibliapp-a9e68",
+    "storage_bucket": "bibliapp-a9e68.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143260831090:android:c45d0fb6c0249db7ec61eb",
+        "android_client_info": {
+          "package_name": "com.jbncode.bibliaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPRjdj1jppb77pcMc5TuE8PZDnHNkVGEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

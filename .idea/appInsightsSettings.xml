@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.jbncode.bibliaapp" />
+                  <option name="mobileSdkAppId" value="1:143260831090:android:c45d0fb6c0249db7ec61eb" />
+                  <option name="projectId" value="bibliapp-a9e68" />
+                  <option name="projectNumber" value="143260831090" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
