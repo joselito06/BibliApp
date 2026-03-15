@@ -5,35 +5,36 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
 
-    <!-- Fondo con gradiente de profundidad -->
-    <path android:pathData="M512,512m-512,0a512,512 0,1 1,1024 0a512,512 0,1 1,-1024 0">
+    <!-- SOMBRA PROYECTADA (Como en ic_launcher_foreground) -->
+    <path android:pathData="M230,884 L794,884 L1024,1024 L460,1024 L230,884 Z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:centerX="512"
-                android:centerY="512"
-                android:gradientRadius="600"
-                android:type="radial">
-                <item android:color="#3E2723" android:offset="0.0" /> <!-- Marrón cuero oscuro -->
-                <item android:color="#1B110B" android:offset="1.0" />
+                android:endX="700"
+                android:endY="1024"
+                android:startX="400"
+                android:startY="884"
+                android:type="linear">
+                <item android:color="#44000000" android:offset="0.0" />
+                <item android:color="#00000000" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
     <!-- Silueta de la Biblia (Libro Cerrado Robusto) -->
-    <!-- Tapa trasera/Sombra -->
+    <!-- Tapa trasera/Sombra interna -->
     <path
         android:fillColor="#121212"
-        android:pathData="M260,180 L780,180 Q810,180 810,210 L810,830 Q810,860 780,860 L260,860 Q230,860 230,830 L230,210 Q230,180 260,180 Z" />
+        android:pathData="M230,150 L794,150 Q824,150 824,180 L824,854 Q824,884 794,884 L230,884 Q200,884 200,854 L200,180 Q200,150 230,150 Z" />
 
     <!-- Tapa frontal (Cuero con textura) -->
     <path
-        android:pathData="M280,160 L760,160 Q800,160 800,200 L800,820 Q800,860 760,860 L280,860 Q240,860 240,820 L240,200 Q240,160 280,160 Z">
+        android:pathData="M250,130 L774,130 Q814,130 814,170 L814,844 Q814,884 774,884 L250,884 Q210,884 210,844 L210,170 Q210,130 250,130 Z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:endX="800"
-                android:endY="860"
-                android:startX="240"
-                android:startY="160"
+                android:endX="814"
+                android:endY="884"
+                android:startX="210"
+                android:startY="130"
                 android:type="linear">
                 <item android:color="#4E342E" android:offset="0.0" />
                 <item android:color="#2D1B18" android:offset="1.0" />
@@ -44,39 +45,28 @@
     <!-- Efecto de Lomo Dorado lateral -->
     <path
         android:fillColor="#FFD700"
-        android:pathData="M240,200 L260,200 L260,820 L240,820 Z" />
+        android:pathData="M210,170 L230,170 L230,844 L210,844 Z" />
 
-    <!-- CRUZ GRANDE Y LLAMATIVA (Identificación Inmediata) -->
-    <!-- Sombra de la cruz -->
+    <!-- CRUZ GRANDE Y LLAMATIVA -->
     <path
-        android:fillColor="#1A000000"
-        android:pathData="M495,310 L545,310 L545,710 L495,710 Z M385,440 L655,440 L655,490 L385,490 Z" />
-
-    <!-- Cruz Dorada con Gradiente -->
-    <path
-        android:pathData="M485,300 L539,300 L539,700 L485,700 Z M375,430 L649,430 L649,484 L375,484 Z">
+        android:pathData="M485,270 L539,270 L539,724 L485,724 Z M365,400 L659,400 L659,454 L365,454 Z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:endX="650"
-                android:endY="700"
-                android:startX="375"
-                android:startY="300"
+                android:endX="660"
+                android:endY="724"
+                android:startX="365"
+                android:startY="270"
                 android:type="linear">
-                <item android:color="#FFF176" android:offset="0.0" /> <!-- Oro brillante -->
+                <item android:color="#FFF176" android:offset="0.0" />
                 <item android:color="#FBC02D" android:offset="0.5" />
                 <item android:color="#FF8F00" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Marcador de página (Saliendo por debajo) -->
+    <!-- Marcador de página -->
     <path
         android:fillColor="#D32F2F"
-        android:pathData="M650,830 L700,830 L700,940 L675,910 L650,940 Z" />
-
-    <!-- Texto "HOLY BIBLE" (Opcional, muy sutil en bajorelieve) -->
-    <path
-        android:fillColor="#33FFFFFF"
-        android:pathData="M420,740 L440,740 L440,760 L420,760 Z M460,740 L480,740 L480,760 L460,760 Z M500,740 L520,740 L520,760 L500,760 Z M540,740 L560,740 L560,760 L540,760 Z" />
+        android:pathData="M650,854 L700,854 L700,964 L675,934 L650,964 Z" />
 
 </vector>

@@ -64,6 +64,9 @@
     <string name="bible_action_copy">Copiar</string>
     <string name="bible_action_share">Compartilhar</string>
 
+    <string name="restarting_screen_title">Aplicando as alterações e reiniciando…</string>
+    <string name="restarting_screen_subtitle">Isto levará apenas um momento</string>
+
     <!-- HomeScreen - Statistics -->
     <string name="stats_title">Suas estatísticas</string>
     <string name="stats_streak_label">Sequência de dias</string>

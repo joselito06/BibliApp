@@ -64,6 +64,8 @@
     <string name="bible_action_copy">Copier</string>
     <string name="bible_action_share">Partager</string>
 
+    <string name="restarting_screen_title">Application des changements et redémarrage…</string>
+    <string name="restarting_screen_subtitle">Cela ne prendra qu\'un instant</string>
 
     <!-- HomeScreen - Statistics -->
     <string name="stats_title">Vos statistiques</string>

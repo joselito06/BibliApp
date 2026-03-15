@@ -64,6 +64,9 @@
     <string name="bible_action_copy">Copiere</string>
     <string name="bible_action_share">Partajează</string>
 
+    <string name="restarting_screen_title">Se aplică modificările și se repornește…</string>
+    <string name="restarting_screen_subtitle">Acest lucru va dura doar un moment</string>
+
     <!-- HomeScreen - Statistics -->
     <string name="stats_title">Statisticile tale</string>
     <string name="stats_streak_label">Zile consecutive</string>
