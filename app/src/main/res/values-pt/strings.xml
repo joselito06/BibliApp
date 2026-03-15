@@ -175,6 +175,17 @@
 
     <string name="download_more_bibles_button">Baixar Mais Bíblias</string>
 
+    <string name="bibles_download_filter_label">Filtrar por idioma:</string>
+    <string name="bibles_download_filter_all">Todos</string>
+    <string name="bibles_download_empty_list">Não há Bíblias disponíveis para o idioma \'%1$s\'.</string>
+    <string name="bibles_download_status_downloading">Baixando: %1$d%%</string>
+    <string name="bibles_download_button_downloading">Baixando...</string>
+    <string name="bibles_download_button_activate">Ativar</string>
+    <string name="bibles_download_button_download">Baixar</string>
+    <string name="bibles_download_button_use_default">Usar Padrão</string>
+    <string name="bibles_download_active_label">Ativa</string>
+    <string name="bibles_download_code_label">Código: %1$s</string>
+
     <string name="language_english">Inglês</string>
     <string name="language_spanish">Espanhol</string>
     <string name="language_french">Francês</string>

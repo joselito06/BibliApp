@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +44,7 @@ import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
 import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
+import com.jbncode.bibliaapp.R
 
 @Composable
 @Preview(device = "spec:width=411dp,height=891dp")
@@ -95,14 +97,14 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Filtrar por idioma:", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.bibles_download_filter_label), style = MaterialTheme.typography.titleSmall)
 
             Box { // Box es necesario para anclar correctamente el DropdownMenu
                 OutlinedButton(
                     onClick = { languageFilterExpanded = true },
                     modifier = Modifier.defaultMinSize(minWidth = 120.dp) // Ajusta según necesites
                 ) {
-                    Text(selectedLanguage ?: "Todos") // Muestra el idioma seleccionado o "Todos"
+                    Text(selectedLanguage ?: stringResource(R.string.bibles_download_filter_all)) // Muestra el idioma seleccionado o "Todos"
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = "Seleccionar idioma")
                 }
 
@@ -112,7 +114,7 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
                 ) {
                     availableLanguages.forEach { language ->
                         DropdownMenuItem(
-                            text = { Text(language) },
+                            text = { Text(if(language == "Todos") stringResource(R.string.bibles_download_filter_all) else language) },
                             onClick = {
                                 viewModel.setLanguageFilter(if (language == "Todos") null else language)
                                 languageFilterExpanded = false
@@ -131,7 +133,7 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
 
         if (bibles.isEmpty() && selectedLanguage != "Todos" && selectedLanguage != null) {
             Text(
-                "No hay Biblias disponibles para el idioma '$selectedLanguage'.",
+                stringResource(R.string.bibles_download_empty_list, selectedLanguage?: ""),
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally),
@@ -194,7 +196,7 @@ fun BibleListItem(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Código: ${bibleInfo.code.uppercase()}",
+                text = stringResource(R.string.bibles_download_code_label,bibleInfo.code.uppercase()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -222,7 +224,7 @@ fun BibleListItem(
                         .padding(top = 6.dp)
                 )
                 Text(
-                    "Descargando: ${bibleInfo.downloadProgress}%",
+                    stringResource(R.string.bibles_download_status_downloading,bibleInfo.downloadProgress),
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(top = 2.dp)
                 )
@@ -238,7 +240,7 @@ fun BibleListItem(
                     enabled = false,
                     modifier = Modifier.defaultMinSize(minWidth = 100.dp)
                 ) {
-                    Text("Descargando...")
+                    Text(stringResource(R.string.bibles_download_button_downloading))
                 }
             }
             bibleInfo.isDownloaded -> {
@@ -248,11 +250,11 @@ fun BibleListItem(
                             onClick = onSetAsDefaultClick,
                             modifier = Modifier.defaultMinSize(minWidth = 100.dp)
                         ) {
-                            Text("Usar Default")
+                            Text(stringResource(R.string.bibles_download_button_use_default))
                         }
                     } else {
                         Text(
-                            "Activa",
+                            stringResource(R.string.bibles_download_active_label),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(horizontal = 12.dp)
@@ -263,7 +265,7 @@ fun BibleListItem(
                         onClick = onActivateClick,
                         modifier = Modifier.defaultMinSize(minWidth = 100.dp)
                     ) {
-                        Text("Activar")
+                        Text(stringResource(R.string.bibles_download_button_activate))
                     }
                 }
             }
@@ -272,7 +274,7 @@ fun BibleListItem(
                     onClick = onDownloadClick,
                     modifier = Modifier.defaultMinSize(minWidth = 100.dp)
                 ) {
-                    Text("Descargar")
+                    Text(stringResource(R.string.bibles_download_button_download))
                 }
             }
         }

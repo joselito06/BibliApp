@@ -2,29 +2,83 @@
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+  <group android:scaleX="0.85"
+      android:scaleY="0.85"
+      android:translateX="76.8"
+      android:translateY="76.8">
+
+      <!-- Grupo con escala y traslación para centrar y ajustar el tamaño (zona segura 66%) -->
+      <group
+          android:scaleX="0.65"
+          android:scaleY="0.65"
+          android:translateX="179"
+          android:translateY="179">
+          
+          <!-- SOMBRA PROYECTADA -->
+          <path android:pathData="M230,884 L794,884 L1024,1024 L460,1024 L230,884 Z">
+              <aapt:attr name="android:fillColor">
+                  <gradient
+                      android:endX="700"
+                      android:endY="1024"
+                      android:startX="400"
+                      android:startY="884"
+                      android:type="linear">
+                      <item android:color="#44000000" android:offset="0.0" />
+                      <item android:color="#00000000" android:offset="1.0" />
+                  </gradient>
+              </aapt:attr>
+          </path>
+
+          <!-- Silueta de la Biblia -->
+          <path
+              android:fillColor="#121212"
+              android:pathData="M230,150 L794,150 Q824,150 824,180 L824,854 Q824,884 794,884 L230,884 Q200,884 200,854 L200,180 Q200,150 230,150 Z" />
+
+          <!-- Tapa frontal -->
+          <path
+              android:pathData="M250,130 L774,130 Q814,130 814,170 L814,844 Q814,884 774,884 L250,884 Q210,884 210,844 L210,170 Q210,130 250,130 Z">
+              <aapt:attr name="android:fillColor">
+                  <gradient
+                      android:endX="814"
+                      android:endY="884"
+                      android:startX="210"
+                      android:startY="130"
+                      android:type="linear">
+                      <item android:color="#4E342E" android:offset="0.0" />
+                      <item android:color="#2D1B18" android:offset="1.0" />
+                  </gradient>
+              </aapt:attr>
+          </path>
+
+          <!-- Efecto de Lomo Dorado lateral -->
+          <path
+              android:fillColor="#FFD700"
+              android:pathData="M210,170 L230,170 L230,844 L210,844 Z" />
+
+          <!-- CRUZ -->
+          <path
+              android:pathData="M485,270 L539,270 L539,724 L485,724 Z M365,400 L659,400 L659,454 L365,454 Z">
+              <aapt:attr name="android:fillColor">
+                  <gradient
+                      android:endX="660"
+                      android:endY="724"
+                      android:startX="365"
+                      android:startY="270"
+                      android:type="linear">
+                      <item android:color="#FFF176" android:offset="0.0" />
+                      <item android:color="#FBC02D" android:offset="0.5" />
+                      <item android:color="#FF8F00" android:offset="1.0" />
+                  </gradient>
+              </aapt:attr>
+          </path>
+
+          <!-- Marcador de página -->
+          <path
+              android:fillColor="#D32F2F"
+              android:pathData="M650,854 L700,854 L700,964 L675,934 L650,964 Z" />
+      </group>
+
+  </group>
 </vector>
