@@ -185,6 +185,13 @@
     <string name="bibles_download_active_label">Activă</string>
     <string name="bibles_download_code_label">Cod: %1$s</string>
 
+    <string name="bible_notification_channel_name">Redare Biblie</string>
+    <string name="bible_notification_playing">Se citește Biblia</string>
+    <string name="bible_notification_pause">Pauză</string>
+    <string name="bible_notification_stop">Oprire</string>
+    <string name="bible_notification_play">Ascultă</string>
+    <string name="bible_notification_default_content">Ascultând Cuvântul lui Dumnezeu</string>
+
     <string name="language_english">Engleză</string>
     <string name="language_spanish">Spaniolă</string>
     <string name="language_french">Franceză</string>

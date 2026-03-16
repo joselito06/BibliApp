@@ -185,6 +185,13 @@
     <string name="bibles_download_active_label">Activa</string>
     <string name="bibles_download_code_label">Código: %1$s</string>
 
+    <string name="bible_notification_channel_name">Reproductor de Biblia</string>
+    <string name="bible_notification_playing">Leyendo la Biblia</string>
+    <string name="bible_notification_pause">Pausar</string>
+    <string name="bible_notification_stop">Detener</string>
+    <string name="bible_notification_play">Escuchar</string>
+    <string name="bible_notification_default_content">Escuchando la Palabra de Dios</string>
+
     <string name="language_english">Inglés</string>
     <string name="language_spanish">Español</string>
     <string name="language_french">Francés</string>

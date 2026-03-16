@@ -2,7 +2,10 @@ package com.jbncode.bibliaapp
 
 import android.Manifest
 import android.app.LocaleManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -89,9 +92,35 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel : MainViewmodel by viewModels()
     private var appStartTime: Long = 0
 
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                // ✅ Aquí conectamos con las funciones de tu ViewModel
+                "STOP_TTS" -> bibleViewModel.stopReading()
+                "PAUSE_TTS" -> bibleViewModel.pauseReading()
+                "PLAY_TTS" -> bibleViewModel.resumeReading()
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val filter = IntentFilter().apply {
+            addAction("STOP_TTS")
+            addAction("PAUSE_TTS")
+            addAction("PLAY_TTS")
+        }
+
+
+
+        // Registrar el receptor
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(receiver, filter)
+        }
 
         // ✅ NUEVO: Marcar inicio de sesión
         appStartTime = System.currentTimeMillis()
@@ -378,6 +407,16 @@ class MainActivity : ComponentActivity() {
 
         // ✅ NUEVO: Resetear contador al resumir
         appStartTime = System.currentTimeMillis()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // ✅ PASO C: Muy importante desregistrar para evitar fugas de memoria
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            // Ya estaba desregistrado
+        }
     }
 
     fun scheduleDailyVerseNotification(context: Context) {

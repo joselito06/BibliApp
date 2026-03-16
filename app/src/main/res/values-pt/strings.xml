@@ -186,6 +186,13 @@
     <string name="bibles_download_active_label">Ativa</string>
     <string name="bibles_download_code_label">Código: %1$s</string>
 
+    <string name="bible_notification_channel_name">Reprodutor da Bíblia</string>
+    <string name="bible_notification_playing">Lendo a Bíblia</string>
+    <string name="bible_notification_pause">Pausar</string>
+    <string name="bible_notification_stop">Parar</string>
+    <string name="bible_notification_play">Ouvir</string>
+    <string name="bible_notification_default_content">Ouvindo a Palavra de Deus</string>
+
     <string name="language_english">Inglês</string>
     <string name="language_spanish">Espanhol</string>
     <string name="language_french">Francês</string>

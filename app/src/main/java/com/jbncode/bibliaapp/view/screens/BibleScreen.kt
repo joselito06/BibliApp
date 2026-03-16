@@ -704,11 +704,13 @@ fun TextToSpeechControls(viewModel: BibleViewmodel) {
                 onClick = {
                     if (isSpeaking) {
                         viewModel.stopReading()
+                        viewModel.stopReadingService()
                     } else {
                         if (isPaused) {
                             viewModel.resumeReading()
                         } else {
                             viewModel.speakNextVerse()
+                            viewModel.startReadingService("Biblia", "Leyendo capítulo...")
                         }
                     }
                 }

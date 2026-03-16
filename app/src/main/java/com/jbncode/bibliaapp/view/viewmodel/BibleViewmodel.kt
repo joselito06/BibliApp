@@ -1,6 +1,7 @@
 package com.jbncode.bibliaapp.view.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
@@ -15,6 +16,7 @@ import com.jbncode.bibliaapp.domain.model.AppLanguage
 import com.jbncode.bibliaapp.domain.model.Books
 import com.jbncode.bibliaapp.domain.model.Verses
 import com.jbncode.bibliaapp.domain.usescases.BookUseCase
+import com.jbncode.bibliaapp.service.BibleReadingService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -92,6 +94,7 @@ class BibleViewmodel @Inject constructor(
         loadSavedState() // Cargar el último libro y capítulo al iniciar la app
         // Observar cambios en el idioma desde SharedPreferences
         observeLanguageChanges()
+
     }
 
     private fun observeLanguageChanges() {
@@ -474,6 +477,19 @@ class BibleViewmodel @Inject constructor(
         tts?.stop()
         _isSpeaking.value = false
         _isPaused.value = false
+    }
+
+    fun startReadingService(title: String, verseText: String) {
+        val intent = Intent(context, BibleReadingService::class.java).apply {
+            putExtra("title", title)
+            putExtra("content", verseText)
+        }
+        context.startForegroundService(intent)
+    }
+
+    fun stopReadingService() {
+        val intent = Intent(context, BibleReadingService::class.java)
+        context.stopService(intent)
     }
 
     fun pauseReading() {

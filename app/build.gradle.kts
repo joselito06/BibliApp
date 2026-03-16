@@ -4,6 +4,7 @@ plugins {
     id("com.google.devtools.ksp")
     id ("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -83,7 +84,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0") // para Kotlinx.serialization
 
     implementation("androidx.appcompat:appcompat:1.6.1")
-
+    implementation("androidx.media:media:1.7.0")
 
     //Firebase
     implementation(platform(libs.firebase.bom))

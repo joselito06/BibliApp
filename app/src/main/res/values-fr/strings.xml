@@ -185,6 +185,12 @@
     <string name="bibles_download_active_label">Active</string>
     <string name="bibles_download_code_label">Code : %1$s</string>
 
+    <string name="bible_notification_channel_name">Lecteur de la Bible</string>
+    <string name="bible_notification_playing">Lecture de la Bible</string><string name="bible_notification_pause">Pause</string>
+    <string name="bible_notification_stop">Arrêter</string>
+    <string name="bible_notification_play">Lire</string>
+    <string name="bible_notification_default_content">Écouter la Parole de Dieu</string>
+
     <string name="language_english">Anglais</string>
     <string name="language_spanish">Espagnol</string>
     <string name="language_french">Français</string>
