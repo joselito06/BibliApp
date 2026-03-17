@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.NavHost
@@ -53,7 +54,10 @@ import androidx.work.WorkManager
 import com.jbncode.bibliaapp.di.RoomModule
 import com.jbncode.bibliaapp.ui.theme.AppThemeType
 import com.jbncode.bibliaapp.ui.theme.BibliaAppTheme
+import com.jbncode.bibliaapp.utils.AppOpenManager
+import com.jbncode.bibliaapp.utils.InterstitialAdManager
 import com.jbncode.bibliaapp.view.Routes
+import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.components.NavigationBottomJBN
 import com.jbncode.bibliaapp.view.components.TopAppBarComponent
 import com.jbncode.bibliaapp.view.screens.AboutScreen
@@ -92,6 +96,8 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel : MainViewmodel by viewModels()
     private var appStartTime: Long = 0
 
+    private lateinit var appOpenManager: AppOpenManager
+
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -107,13 +113,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Inicializar Intersticial
+        InterstitialAdManager.load(this)
+
+        // Inicializar y mostrar App Open
+        appOpenManager = AppOpenManager(application as JetpackApp)
+        appOpenManager.loadAd()
+
         val filter = IntentFilter().apply {
             addAction("STOP_TTS")
             addAction("PAUSE_TTS")
             addAction("PLAY_TTS")
         }
-
-
 
         // Registrar el receptor
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -285,6 +296,7 @@ class MainActivity : ComponentActivity() {
                                 ){
                                     NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
                                 }
+                                //BannerAd(stringResource(R.string.banner_ad_id))
                             }else{
                                 NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
                             }
@@ -407,6 +419,8 @@ class MainActivity : ComponentActivity() {
 
         // ✅ NUEVO: Resetear contador al resumir
         appStartTime = System.currentTimeMillis()
+        // Mostrar anuncio al volver a abrir la app si está listo
+        appOpenManager.showAdIfAvailable(this)
     }
 
     override fun onDestroy() {

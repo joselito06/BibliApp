@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.view.components.BannerAd
+import com.jbncode.bibliaapp.view.components.NativeAdWidget
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,6 +140,9 @@ fun AboutScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
 
         ) { innerPadding ->
         val scrollState = rememberScrollState()
@@ -177,6 +182,10 @@ fun AboutScreen(
                     text = stringResource(R.string.about_screen_developer) + " JBN Code",
                     style = MaterialTheme.typography.bodyMedium
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                NativeAdWidget()
             }
         }
     }

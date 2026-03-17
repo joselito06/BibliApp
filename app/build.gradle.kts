@@ -18,6 +18,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
+        resValue("string", "app_version_name", "\"${versionName}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -25,12 +26,26 @@ android {
     }
 
     buildTypes {
+        debug{
+            isMinifyEnabled = false
+            isDebuggable = true
+            manifestPlaceholders["admob_app_id"] = "ca-app-pub-3940256099942544~3347511713"
+            resValue("string", "banner_ad_id", "ca-app-pub-3940256099942544/6300978111")
+            resValue("string", "interstitial_ad_id", "ca-app-pub-3940256099942544/1033173712")
+            resValue("string", "app_loaded_ad_id", "ca-app-pub-3940256099942544/9257395921")
+            resValue("string", "native_ad_id", "ca-app-pub-3940256099942544/9257395921")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            resValue("string", "banner_ad_id", "ca-app-pub-7091067576578095/1400455650")
+            resValue("string", "interstitial_ad_id", "ca-app-pub-7091067576578095/9340358146")
+            resValue("string", "app_loaded_ad_id", "ca-app-pub-7091067576578095/1961760682")
+            resValue("string", "native_ad_id", "ca-app-pub-7091067576578095/2229353991")
+
         }
     }
     compileOptions {
@@ -85,6 +100,8 @@ dependencies {
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.media:media:1.7.0")
+
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
 
     //Firebase
     implementation(platform(libs.firebase.bom))

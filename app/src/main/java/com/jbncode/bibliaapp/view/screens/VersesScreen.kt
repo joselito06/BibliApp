@@ -60,6 +60,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.data.networking.models.VersesDaily
+import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.VersesViewmodel
 
@@ -241,6 +242,9 @@ fun VersesScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
 
     ) { innerPadding ->
         Column(modifier = Modifier

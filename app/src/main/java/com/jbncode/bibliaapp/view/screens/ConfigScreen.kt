@@ -62,6 +62,7 @@ import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.view.Routes
+import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,6 +180,9 @@ fun ConfigScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
 
         ) { innerPadding ->
         Column(

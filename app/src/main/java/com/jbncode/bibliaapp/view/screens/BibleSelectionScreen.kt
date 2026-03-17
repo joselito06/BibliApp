@@ -1,5 +1,6 @@
 package com.jbncode.bibliaapp.view.screens
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +74,8 @@ import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import kotlinx.coroutines.delay
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.utils.InterstitialAdManager
+import com.jbncode.bibliaapp.view.components.BannerAd
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +86,8 @@ fun BibleSelectionScreen(
     bibleManagerViewmodel: BibleManagerViewmodel = hiltViewModel()
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     // --- Define los colores que quieres para esta pantalla ---
     val desiredStatusBarColor = MaterialTheme.colorScheme.primaryContainer // Ejemplo: Negro semi-transparente
@@ -179,6 +185,7 @@ fun BibleSelectionScreen(
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)
         mainViewmodel.showBottomBar(false)
+        InterstitialAdManager.load(context)
     }
 
     Scaffold(
@@ -221,6 +228,10 @@ fun BibleSelectionScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
+
     )
     { innerPadding ->
         PullToRefreshBox(
@@ -251,7 +262,14 @@ fun BibleSelectionScreen(
                 // SECCIÓN 2: ACCIÓN PARA IR A DESCARGAR (si no hay muchas descargadas o como un recordatorio)
                 item {
                     ButtonToDownloadScreen {
-                        navigation.navigate(Routes.BibleDownloadScreen.route) // Navega a la pantalla de descarga
+                        if(activity != null){
+                            InterstitialAdManager.show(activity){
+                                navigation.navigate(Routes.BibleDownloadScreen.route) // Navega a la pantalla de descarga
+                            }
+                        }else{
+                            navigation.navigate(Routes.BibleDownloadScreen.route) // Navega a la pantalla de descarga
+                        }
+
                     }
                 }
 
@@ -272,8 +290,16 @@ fun BibleSelectionScreen(
                             // O si el identificador guardado es null Y esta biblia es la de assets.
                             isSelected = (viewModel.sharedPreferenceBible.getSelectedDatabaseFileName() ?: viewModel.defaultAssetDbIdentifier) == bibleInfo.storageIdentifier,
                             onBibleSelected = {
-                                Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
-                                viewModel.setSelectedBible(bibleInfo)
+                                if(activity != null){
+                                    InterstitialAdManager.show(activity){
+                                        Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
+                                        viewModel.setSelectedBible(bibleInfo)
+                                    }
+                                }else{
+                                    Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
+                                    viewModel.setSelectedBible(bibleInfo)
+                                }
+
                                 // La navegación a RestartingScreen se maneja desde el ViewModel
                             }
                         )

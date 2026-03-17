@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
 // --- FUNCIONES AUXILIARES DEFINIDAS AQUÍ A NIVEL DE ARCHIVO ---
@@ -169,6 +170,9 @@ fun ShareAppScreen(mainViewmodel: MainViewmodel, navigation: NavHostController) 
                 scrollBehavior = scrollBehavior
             )
         },
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
         )
     { innerPadding ->
         val scrollState = rememberScrollState()

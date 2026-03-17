@@ -122,6 +122,8 @@ fun HomeScreen(
             onReadAloudClick = { /* TODO: Implementar TTS para verso del día */ }
         )
 
+        com.jbncode.bibliaapp.view.components.NativeAdCard()
+
         // 3. CONTINUAR LECTURA
         ContinueReadingCard(
             bookName = currentBook,

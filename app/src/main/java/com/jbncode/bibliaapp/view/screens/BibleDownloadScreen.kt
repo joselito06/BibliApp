@@ -1,5 +1,6 @@
 package com.jbncode.bibliaapp.view.screens
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +48,8 @@ import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
 import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.utils.InterstitialAdManager
+import com.jbncode.bibliaapp.view.components.BannerAd
 
 @Composable
 @Preview(device = "spec:width=411dp,height=891dp")
@@ -54,6 +59,8 @@ fun PreviewBibleDownloadScreen(){
 
 @Composable
 fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navController: NavHostController){
+    val context = LocalContext.current
+    val activity = context as? Activity
     val bibles by viewModel.filteredBibleList.collectAsState()
     val availableLanguages by viewModel.availableLanguages.collectAsState()
     val selectedLanguage by viewModel.selectedLanguageFilter.collectAsState()
@@ -149,8 +156,26 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
                     BibleListItem(
                         bibleInfo = bible,
                         isCurrentlyActive = isActive,
-                        onDownloadClick = { viewModel.startDownload(bible) },
-                        onActivateClick = { viewModel.activateDownloadedDatabase(bible.database_name) },
+                        onDownloadClick = {
+                            if(activity != null){
+                                InterstitialAdManager.show(activity){
+                                    viewModel.startDownload(bible)
+                                }
+                            }else{
+                                viewModel.startDownload(bible)
+                            }
+                        },
+                        onActivateClick = {
+                            if(activity != null){
+                                InterstitialAdManager.show(activity){
+                                    viewModel.activateDownloadedDatabase(bible.database_name)
+                                }
+                            }else{
+                                viewModel.activateDownloadedDatabase(bible.database_name)
+                            }
+
+
+                        },
                         onSetAsDefaultClick = if (isActive && !isDefaultAssetBible) {
                             { viewModel.activateDefaultDatabase() }
                         } else null
@@ -163,6 +188,9 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
                 }
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        BannerAd(stringResource(R.string.banner_ad_id))
     }
 
 }
