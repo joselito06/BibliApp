@@ -1,7 +1,10 @@
 package com.jbncode.bibliaapp.view.screens
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,32 +19,30 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.ModeNight
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,7 +64,9 @@ import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.data.networking.models.VersesDaily
 import com.jbncode.bibliaapp.domain.model.BookRecomendation
 import com.jbncode.bibliaapp.domain.model.ReadingStats
+import com.jbncode.bibliaapp.utils.InterstitialAdManager
 import com.jbncode.bibliaapp.view.Routes
+import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.HomeViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
@@ -95,7 +98,6 @@ fun HomeScreen(
     }
 
     homeViewmodel.OnGet()
-    //HomeCard(versesViewmodel)
 
     val scrollState = rememberScrollState()
     val versesDaily by versesViewmodel.verseOfTheDay.collectAsState()
@@ -103,124 +105,78 @@ fun HomeScreen(
     val currentChapter by bibleViewmodel.capitulo.collectAsState()
     val readingStats by homeViewmodel.readingStats.collectAsState()
     val recommendations by homeViewmodel.recommendations.collectAsState()
+
     val context = LocalContext.current
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // 1. SALUDO PERSONALIZADO
-        WelcomeSection()
-
-        // 2. VERSO DEL DÍA MEJORADO
-        DailyVerseCard(
-            verse = versesDaily,
-            onShareClick = { shareVerse(context, versesDaily) },
-            onReadAloudClick = { /* TODO: Implementar TTS para verso del día */ }
-        )
-
-        com.jbncode.bibliaapp.view.components.NativeAdCard()
-
-        // 3. CONTINUAR LECTURA
-        ContinueReadingCard(
-            bookName = currentBook,
-            chapter = currentChapter,
-            onContinueClick = { navigation.navigate(Routes.BibleScreen.route) }
-        )
-
-        // 4. ACCESOS RÁPIDOS
-        QuickActionsGrid(
-            onBibleClick = { navigation.navigate(Routes.BibleScreen.route) },
-            onSearchClick = { /* TODO: Implementar búsqueda */ },
-            onNotificationsClick = { navigation.navigate(Routes.NotificationScreen.route) },
-            onDownloadClick = { navigation.navigate(Routes.BibleDownloadScreen.route) }
-        )
-
-        // 5. PROGRESO DE LECTURA
-        ReadingProgressCard(stats = readingStats)
-
-        // 6. RECOMENDACIONES
-        RecommendationsCard(
-            recommendations = recommendations,
-            onExploreClick = { bookOsis ->
-                bibleViewmodel.getBook(bookOsis)
-                navigation.navigate(Routes.BibleScreen.route) }
-        )
-
-        // 7. ESTADÍSTICAS RÁPIDAS
-        QuickStatsCard(stats = readingStats)
-
-        // Espacio adicional para el bottom navigation
-        Spacer(modifier = Modifier.height(80.dp))
-    }
-
-}
-
-
-@Composable
-fun HomeCard(versesViewmodel: VersesViewmodel){
-    // Scroll state for the scrollable element
-    val versesDaily by versesViewmodel.verseOfTheDay.collectAsState()
-    val scrollState = rememberScrollState()
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxSize()
-            .verticalScroll(scrollState))
-    {
+    val activity = context as? Activity
+    Scaffold(
+        Modifier.fillMaxSize(),
+        bottomBar = {
+            BannerAd(stringResource(R.string.banner_ad_id))
+        }
+    ){ paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-        ){
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                ,
-                elevation = CardDefaults.cardElevation(5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 0.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // 1. SALUDO PERSONALIZADO
+            WelcomeSection()
+
+            // 2. VERSO DEL DÍA MEJORADO
+            DailyVerseCard(
+                verse = versesDaily,
+                onShareClick = { shareVerse(context, versesDaily) },
+                onReadAloudClick = { /* TODO: Implementar TTS para verso del día */ }
             )
-            {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Versiculo del Dia", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    versesDaily.verse_direction?.let { Text(text = it, fontWeight = FontWeight.Medium, fontSize = 16.sp) }
-                    Spacer(modifier = Modifier.padding(16.dp))
-                    versesDaily.verse_content?.let { Text(text = it) }
+
+            com.jbncode.bibliaapp.view.components.NativeAdCard()
+
+            // 3. CONTINUAR LECTURA
+            ContinueReadingCard(
+                bookName = currentBook,
+                chapter = currentChapter,
+                onContinueClick = {
+                    if(activity != null){
+                        InterstitialAdManager.show(activity){
+                            navigation.navigate(Routes.BibleScreen.route)
+                        }
+                    }else{
+                        navigation.navigate(Routes.BibleScreen.route)
+                    }
                 }
+            )
 
-            }
-            Spacer(modifier = Modifier.padding(8.dp))
-            ListVersesToday()
+            // 4. ACCESOS RÁPIDOS
+            QuickActionsGrid(
+                onBibleClick = { navigation.navigate(Routes.BibleScreen.route) },
+                onSearchClick = { /* TODO: Implementar búsqueda */ },
+                onNotificationsClick = { navigation.navigate(Routes.NotificationScreen.route) },
+                onDownloadClick = { navigation.navigate(Routes.BibleDownloadScreen.route) }
+            )
+
+            // 5. PROGRESO DE LECTURA
+            ReadingProgressCard(stats = readingStats)
+
+            // 6. RECOMENDACIONES
+            RecommendationsCard(
+                recommendations = recommendations,
+                onExploreClick = { bookOsis ->
+                    bibleViewmodel.getBook(bookOsis)
+                    navigation.navigate(Routes.BibleScreen.route) }
+            )
+
+            // 7. ESTADÍSTICAS RÁPIDAS
+            QuickStatsCard(stats = readingStats)
+
+            // Espacio adicional para el bottom navigation
+            Spacer(modifier = Modifier.height(80.dp))
         }
-
     }
 
-}
 
-
-@Composable
-fun ListVersesToday(){
-    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(5.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)) {
-        Column(modifier = Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = "Imagenes del Dia", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Rounded.Share, contentDescription = "Share")
-                }
-            }
-            Box(modifier = Modifier.fillMaxWidth()){
-                LazyRow(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)) {
-
-                }
-            }
-        }
-    }
 }
 
 // 1. SECCIÓN DE BIENVENIDA
@@ -345,7 +301,7 @@ private fun DailyVerseCard(
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.VolumeUp,
+                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -400,7 +356,7 @@ private fun ContinueReadingCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.MenuBook,
+                imageVector = Icons.AutoMirrored.Filled.MenuBook,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer
@@ -623,7 +579,7 @@ private fun RecommendationItem(
             imageVector = when (recommendation.priority) {
                 1 -> Icons.Default.Star
                 2 -> Icons.Default.AutoStories
-                else -> Icons.Default.MenuBook
+                else -> Icons.AutoMirrored.Filled.MenuBook
             },
             contentDescription = null,
             modifier = Modifier.size(20.dp),

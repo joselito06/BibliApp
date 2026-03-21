@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
@@ -22,26 +23,44 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.NavHost
@@ -57,7 +76,6 @@ import com.jbncode.bibliaapp.ui.theme.BibliaAppTheme
 import com.jbncode.bibliaapp.utils.AppOpenManager
 import com.jbncode.bibliaapp.utils.InterstitialAdManager
 import com.jbncode.bibliaapp.view.Routes
-import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.components.NavigationBottomJBN
 import com.jbncode.bibliaapp.view.components.TopAppBarComponent
 import com.jbncode.bibliaapp.view.screens.AboutScreen
@@ -140,6 +158,8 @@ class MainActivity : ComponentActivity() {
         RoomModule.forceCloseAllConnections(this)
         enableEdgeToEdge()
         setContent {
+            val versionApp = stringResource(id = R.string.app_version_name)
+            val showUpdate by settingViewmodel.showForceUpdate.collectAsState()
 
             //Notificaciones----------------------------------
             val context = LocalContext.current
@@ -156,6 +176,7 @@ class MainActivity : ComponentActivity() {
             // NUEVO: Trackear apertura de app
             LaunchedEffect(Unit) {
                 // Actualizar racha de lectura al abrir la app
+                settingViewmodel.checkVersion(versionApp)
                 sharedPreferenceBible.markDailyAppOpen()
             }
 
@@ -211,57 +232,76 @@ class MainActivity : ComponentActivity() {
                 currentAppTheme = newTheme
                 sharedPreferenceBible.saveAppTheme(newTheme)
             }*/
-            BibliaAppTheme(
-                selectedTheme = currentAppTheme,
-            ) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        val canPop = navBackStackEntry?.destination?.route != Routes.HomeScreen.route
-                                && navBackStackEntry?.destination?.route != Routes.BibleScreen.route
-                                && navBackStackEntry?.destination?.route != Routes.MoreScreen.route
 
-                        val optionTopApp = if (navBackStackEntry?.destination?.route == Routes.ConfigScreen.route)
-                                            ConfigTopAppBar(
-                                                Title = "Configuración",
-                                                Actions = listOf(
-                                                    ActionTopApp(
-                                                        ImageIconVector = Icons.Rounded.Build,
-                                                        Description = "Configuración",
-                                                        OnClickIconButton = {}
-                                                    ),
-                                                    ActionTopApp(
-                                                        ImageIconVector = Icons.Rounded.Image,
-                                                        Description = "Usuario",
-                                                        OnClickIconButton = {}
-                                                    )
-                                                )
-                                            )
-                                        else if (navBackStackEntry?.destination?.route == Routes.AboutScreen.route)
-                                            ConfigTopAppBar(Title = "Acerca de nosotros" )
-                                        else if (navBackStackEntry?.destination?.route == Routes.NotificationScreen.route)
-                                            ConfigTopAppBar(Title = "Notificaciones" )
-                                        else if (navBackStackEntry?.destination?.route == Routes.VersesScreen.route)
-                                            ConfigTopAppBar(Title = "Versiculos del día" )
-                                        else if (navBackStackEntry?.destination?.route == Routes.BibleSelectionScreen.route)
-                                            ConfigTopAppBar(Title = "Tus biblias" )
-                                        else ConfigTopAppBar(Title = "Busca tu biblia")
+            val isSpeaking by bibleViewModel.isSpeaking.collectAsState()
 
-                        val titleTopAppBar = if (navBackStackEntry?.destination?.route == Routes.ConfigScreen.route) "Configuración"
-                                    else if (navBackStackEntry?.destination?.route == Routes.AboutScreen.route) "Acerca de nosotros"
-                                    else if (navBackStackEntry?.destination?.route == Routes.NotificationScreen.route) "Notificaciones"
-                                    else if (navBackStackEntry?.destination?.route == Routes.VersesScreen.route) "Versiculos del día"
-                                    else if (navBackStackEntry?.destination?.route == Routes.BibleSelectionScreen.route) "Tus biblias"
-                                    else "Busca tu biblia"
+            if (showUpdate) {
+                // Bloqueamos la app mostrando SOLO el diálogo
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ForceUpdateDialog(context)
+                }
+            } else {
+                BibliaAppTheme(
+                    selectedTheme = currentAppTheme,
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = {
+                            val canPop = navBackStackEntry?.destination?.route != Routes.HomeScreen.route
+                                    && navBackStackEntry?.destination?.route != Routes.BibleScreen.route
+                                    && navBackStackEntry?.destination?.route != Routes.MoreScreen.route
+
+                            val optionTopApp = if (navBackStackEntry?.destination?.route == Routes.ConfigScreen.route)
+                                ConfigTopAppBar(
+                                    Title = "Configuración",
+                                    Actions = listOf(
+                                        ActionTopApp(
+                                            ImageIconVector = Icons.Rounded.Build,
+                                            Description = "Configuración",
+                                            OnClickIconButton = {}
+                                        ),
+                                        ActionTopApp(
+                                            ImageIconVector = Icons.Rounded.Image,
+                                            Description = "Usuario",
+                                            OnClickIconButton = {}
+                                        )
+                                    )
+                                )
+                            else if (navBackStackEntry?.destination?.route == Routes.AboutScreen.route)
+                                ConfigTopAppBar(Title = "Acerca de nosotros" )
+                            else if (navBackStackEntry?.destination?.route == Routes.NotificationScreen.route)
+                                ConfigTopAppBar(Title = "Notificaciones" )
+                            else if (navBackStackEntry?.destination?.route == Routes.VersesScreen.route)
+                                ConfigTopAppBar(Title = "Versiculos del día" )
+                            else if (navBackStackEntry?.destination?.route == Routes.BibleSelectionScreen.route)
+                                ConfigTopAppBar(Title = "Tus biblias" )
+                            else ConfigTopAppBar(Title = "Busca tu biblia")
+
+                            val titleTopAppBar = if (navBackStackEntry?.destination?.route == Routes.ConfigScreen.route) "Configuración"
+                            else if (navBackStackEntry?.destination?.route == Routes.AboutScreen.route) "Acerca de nosotros"
+                            else if (navBackStackEntry?.destination?.route == Routes.NotificationScreen.route) "Notificaciones"
+                            else if (navBackStackEntry?.destination?.route == Routes.VersesScreen.route) "Versiculos del día"
+                            else if (navBackStackEntry?.destination?.route == Routes.BibleSelectionScreen.route) "Tus biblias"
+                            else "Busca tu biblia"
 
 
-                        if(isTopAppBarVisible){
-                            if (false){
-                                AnimatedVisibility(
-                                    visible = !isScrollingDown,
-                                    enter = fadeIn() + slideInVertically { -it },
-                                    exit = fadeOut() + slideOutVertically { -it }
-                                ){
+                            if(isTopAppBarVisible){
+                                if (false){
+                                    AnimatedVisibility(
+                                        visible = !isScrollingDown,
+                                        enter = fadeIn() + slideInVertically { -it },
+                                        exit = fadeOut() + slideOutVertically { -it }
+                                    ){
+                                        TopAppBarComponent(
+                                            navigation,
+                                            canPop,
+                                            scrollBehavior,
+                                            optionTopApp,
+                                            currentAppTheme,
+                                            onThemeChange
+                                        )
+                                    }
+                                }else{
                                     TopAppBarComponent(
                                         navigation,
                                         canPop,
@@ -271,135 +311,143 @@ class MainActivity : ComponentActivity() {
                                         onThemeChange
                                     )
                                 }
-                            }else{
-                                TopAppBarComponent(
-                                    navigation,
-                                    canPop,
-                                    scrollBehavior,
-                                    optionTopApp,
-                                    currentAppTheme,
-                                    onThemeChange
-                                )
+
+
                             }
 
-
-                        }
-
-                             },
-                    bottomBar = {
-                        if (isBottomBarVisible){
-                            if (navBackStackEntry?.destination?.route == Routes.BibleScreen.route){
-                                AnimatedVisibility(
-                                    visible = !isScrollingDown,
-                                    enter = fadeIn() + slideInVertically { it },
-                                    exit = fadeOut() + slideOutVertically { it }
-                                ){
-                                    NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
+                        },
+                        bottomBar = {
+                            if (isBottomBarVisible){
+                                if (navBackStackEntry?.destination?.route == Routes.BibleScreen.route){
+                                    AnimatedVisibility(
+                                        visible = !isScrollingDown,
+                                        enter = fadeIn() + slideInVertically { it },
+                                        exit = fadeOut() + slideOutVertically { it }
+                                    ){
+                                        NavigationBottomJBN(
+                                            navigation = navigation,
+                                            isBottomBarVisible = isBottomBarVisible,
+                                            isSpeaking = isSpeaking,
+                                            onStopReading = {
+                                                bibleViewModel.stopReading()
+                                                bibleViewModel.stopReadingService()
+                                            }
+                                        )
+                                    }
+                                    //BannerAd(stringResource(R.string.banner_ad_id))
+                                }else{
+                                    NavigationBottomJBN(
+                                        navigation = navigation,
+                                        isBottomBarVisible = isBottomBarVisible,
+                                        isSpeaking = isSpeaking,
+                                        onStopReading = {
+                                            bibleViewModel.stopReading()
+                                            bibleViewModel.stopReadingService()
+                                        }
+                                    )
                                 }
-                                //BannerAd(stringResource(R.string.banner_ad_id))
-                            }else{
-                                NavigationBottomJBN(navigation = navigation, isBottomBarVisible = isBottomBarVisible)
-                            }
 
-                        }
+                            }
 //                        if (navBackStackEntry?.destination?.route == Routes.HomeScreen.route){
 //                            NavigationBottomJBN(navigation = navigation, isBottomBarVisible = false)
 //                        }
 
-                    },
-                    floatingActionButtonPosition = FabPosition.End,
-                    floatingActionButton = {
-                        if (isFloatingActionButtonVisible){
+                        },
+                        floatingActionButtonPosition = FabPosition.End,
+                        floatingActionButton = {
+                            if (isFloatingActionButtonVisible){
 
-                        }
-                    }
-
-                )
-                { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding))
-                    {
-                        NavHost(navController = navigation, startDestination = Routes.BibleScreen.route){
-                            composable(Routes.HomeScreen.route){
-                                HomeScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    homeViewModel,
-                                    versesViewmodel,
-                                    bibleViewModel,
-                                    mainViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.BibleScreen.route){
-                                BibleScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    bibleViewModel,
-                                    mainViewModel,
-                                    navigation,
-                                    scrollBehavior
-                                )
-                            }
-                            composable(Routes.MoreScreen.route){
-                                MoreScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    moreViewmodel,
-                                    versesViewmodel,
-                                    mainViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.VersesScreen.route){
-                                VersesScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    versesViewmodel,
-                                    mainViewModel,
-                                    navigation,
-                                    scrollBehavior
-                                )
-                            }
-                            composable(Routes.NotificationScreen.route){
-                                NotificationSettingsScreen(
-                                    settingViewmodel,
-                                    mainViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.BibleSelectionScreen.route){
-                                BibleSelectionScreen(
-                                    settingViewmodel,
-                                    mainViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.AboutScreen.route){
-                                AboutScreen(mainViewModel, navigation)
-                            }
-                            composable(Routes.ConfigScreen.route){
-                                ConfigScreen(
-                                    mainViewModel,
-                                    settingViewmodel,
-                                    bibleViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.ShareScreen.route){
-                                ShareAppScreen(
-                                    mainViewModel,
-                                    navigation
-                                )
-                            }
-                            composable(Routes.BibleDownloadScreen.route) {
-                                BibleDownloadScreen(
-                                    navController = navigation,
-                                )
-                            }
-                            composable(Routes.RestartingScreen.route){
-                                RestartingScreen()
                             }
                         }
-                    }
 
+                    )
+                    { innerPadding ->
+                        Column(modifier = Modifier.padding(innerPadding))
+                        {
+                            NavHost(navController = navigation, startDestination = Routes.BibleScreen.route){
+                                composable(Routes.HomeScreen.route){
+                                    HomeScreen(
+                                        modifier = Modifier.padding(innerPadding),
+                                        homeViewModel,
+                                        versesViewmodel,
+                                        bibleViewModel,
+                                        mainViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.BibleScreen.route){
+                                    BibleScreen(
+                                        modifier = Modifier.padding(innerPadding),
+                                        bibleViewModel,
+                                        mainViewModel,
+                                        navigation,
+                                        scrollBehavior
+                                    )
+                                }
+                                composable(Routes.MoreScreen.route){
+                                    MoreScreen(
+                                        modifier = Modifier.padding(innerPadding),
+                                        moreViewmodel,
+                                        versesViewmodel,
+                                        mainViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.VersesScreen.route){
+                                    VersesScreen(
+                                        modifier = Modifier.padding(innerPadding),
+                                        versesViewmodel,
+                                        mainViewModel,
+                                        navigation,
+                                        scrollBehavior
+                                    )
+                                }
+                                composable(Routes.NotificationScreen.route){
+                                    NotificationSettingsScreen(
+                                        settingViewmodel,
+                                        mainViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.BibleSelectionScreen.route){
+                                    BibleSelectionScreen(
+                                        settingViewmodel,
+                                        mainViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.AboutScreen.route){
+                                    AboutScreen(mainViewModel, navigation)
+                                }
+                                composable(Routes.ConfigScreen.route){
+                                    ConfigScreen(
+                                        mainViewModel,
+                                        settingViewmodel,
+                                        bibleViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.ShareScreen.route){
+                                    ShareAppScreen(
+                                        mainViewModel,
+                                        navigation
+                                    )
+                                }
+                                composable(Routes.BibleDownloadScreen.route) {
+                                    BibleDownloadScreen(
+                                        navController = navigation,
+                                    )
+                                }
+                                composable(Routes.RestartingScreen.route){
+                                    RestartingScreen()
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
+
         }
         scheduleDailyVerseNotification(this)
     }
@@ -456,4 +504,122 @@ class MainActivity : ComponentActivity() {
         return nextExecution.timeInMillis - now.timeInMillis
     }
 
+}
+
+@Composable
+fun ForceUpdateDialog(context: Context) {
+    val remoteConfig = com.google.firebase.remoteconfig.FirebaseRemoteConfig.getInstance()
+    // Obtenemos la versión requerida desde Firebase Remote Config
+    val minVersion = remoteConfig.getString("min_version_required")
+    val versionIns = stringResource(id = R.string.app_version_name)
+    val packageName = context.packageName
+
+    AlertDialog(
+        onDismissRequest = { /* No permitir cerrar */ },
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        ),
+        icon = {
+            Icon(
+                Icons.Default.Group,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.bible_force_update_title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(R.string.bible_force_update_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Badge de versión requerida
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = stringResource(R.string.bible_force_update_version_label, minVersion),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.bible_force_update_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    val playStoreUri = Uri.parse("market://details?id=$packageName")
+                    val browserUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+
+                    val intent = Intent(Intent.ACTION_VIEW, playStoreUri)
+                    try {
+                        // Intenta abrir la App de Play Store
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Si no tiene Play Store instalado, abre el navegador
+                        context.startActivity(Intent(Intent.ACTION_VIEW, browserUri))
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.bible_force_update_button_google_play))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    /*val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:soporte.angelito@gmail.com")
+                        putExtra(Intent.EXTRA_SUBJECT, "Problema con actualización - Angelito RD")
+                        putExtra(Intent.EXTRA_TEXT, "Hola, tengo problemas para actualizar a la versión $minVersion. Mi versión actual es ${R.string.app_version_name}.")
+                    }*/
+                    // Codificamos el texto para que Gmail lo reconozca correctamente
+                    val subject = Uri.encode("Problema con actualización - BibliApp")
+                    val body = Uri.encode("Hola, tengo problemas para actualizar a la versión $minVersion.\nMi versión actual es: ${versionIns}")
+
+                    // Construimos la URI completa con el esquema mailto
+                    val uriString = "mailto:soporte.bibliaapp@gmail.com?subject=$subject&body=$body"
+
+                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse(uriString)
+                    }
+                    try {
+                        context.startActivity(emailIntent)
+                    } catch (e: Exception) {
+                        // En caso de que no haya ninguna app de correo instalada
+                        android.widget.Toast.makeText(
+                            context,
+                            context.getString(R.string.bible_force_update_no_email_app),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.bible_force_update_button_support))
+            }
+        }
+    )
 }

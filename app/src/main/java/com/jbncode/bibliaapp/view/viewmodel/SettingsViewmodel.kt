@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jbncode.bibliaapp.SharedPreferenceBible
 import com.jbncode.bibliaapp.data.networking.models.BibleDisplayInfo
 import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
@@ -12,6 +13,7 @@ import com.jbncode.bibliaapp.domain.model.AppLanguage
 import com.jbncode.bibliaapp.domain.usescases.BibleUseCase
 import com.jbncode.bibliaapp.NotificationScheduler
 import com.jbncode.bibliaapp.ui.theme.AppThemeType
+import com.jbncode.bibliaapp.utils.VersionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +47,9 @@ class SettingsViewmodel @Inject constructor(
     // Exponer los StateFlows directamente desde SharedPreferenceBible
     val notificationsEnabled: StateFlow<Boolean> = sharedPreferenceBible.notificationsEnabled
     val selectedTime: StateFlow<LocalTime> = sharedPreferenceBible.selectedTime
+
+    private val _showForceUpdate = MutableStateFlow(false)
+    val showForceUpdate: StateFlow<Boolean> = _showForceUpdate
 
     private val _selectedBibleStorageId = MutableStateFlow<String?>(null) // Almacena el ID de la BD seleccionada
     // Detalle completo de la Biblia activa
@@ -83,6 +88,21 @@ class SettingsViewmodel @Inject constructor(
 
     init {
         initializeBibleData()
+        //checkVersion()
+    }
+
+    fun checkVersion(currentVersion: String) {
+        val remoteConfig = FirebaseRemoteConfig.getInstance()
+
+        // Obtenemos los valores (fetchAndActivate ya se hizo en JetPackApp)
+        val minRequiredVersion = remoteConfig.getString("min_version_required")
+        //val currentVersion = BuildConfig.VERSION_NAME
+
+
+        // Usamos la utilidad que creamos antes
+        if (VersionUtils.isUpdateRequired(currentVersion, minRequiredVersion)) {
+            _showForceUpdate.value = true
+        }
     }
 
     private fun initializeBibleData() {

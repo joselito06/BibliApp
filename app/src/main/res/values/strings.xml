@@ -191,6 +191,21 @@
     <string name="bible_notification_play">Play</string>
     <string name="bible_notification_default_content">Listening to God\'s Word</string>
 
+    <string name="bible_ad_label">Ad</string>
+
+    <string name="bible_force_update_title">Update Required</string>
+    <string name="bible_force_update_message">To continue enjoying BibleApp, you must install the latest version.</string>
+    <string name="bible_force_update_version_label">Required version: %1$s</string>
+    <string name="bible_force_update_help">If you have problems, try uninstalling the current version and installing the new one, or contact support.</string>
+    <string name="bible_force_update_button_google_play">Update on Google Play</string>
+    <string name="bible_force_update_button_support">Contact Support</string>
+    <string name="bible_force_update_no_email_app">No email app found</string>
+
+    <string name="bible_navigation_stop_reading_title">Stop reading?</string>
+    <string name="bible_navigation_stop_reading_message">If you change screens, the current reading will stop. Do you wish to continue?</string>
+    <string name="bible_navigation_stop_reading_confirm">Continue</string>
+    <string name="bible_navigation_stop_reading_cancel">Cancel</string>
+
     <string name="language_english">English</string>
     <string name="language_spanish">Spanish</string>
     <string name="language_french">French</string>
