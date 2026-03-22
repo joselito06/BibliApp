@@ -112,6 +112,12 @@
     <string name="unknown_book">Unknown book</string>
     <string name="tts_not_initialized">Voice reader is not initialized</string>
     <string name="reading_completed">Reading completed</string>
+
+    <string name="tts_error_initialization">Error initializing voice reader</string>
+    <string name="tts_lang_not_supported">Language %1$s is not available for reading, using English</string>
+    <string name="tts_lang_changed">Voice language changed to: %1$s</string>
+    <string name="tts_lang_error_unexpected">Unexpected result when changing voice language</string>
+
     <!-- TTS Settings -->
     <string name="announce_verse_numbers">Announce verse numbers</string>
     <string name="announce_chapter_titles">Announce chapter titles</string>
@@ -124,8 +130,17 @@
     <string name="cancel_button">CANCEL</string>
 
     <string name="notifications_section_title">Notifications</string>
-    <string name="notifications_status_enabled">Enabled</string>
-    <string name="notifications_status_disabled">Disabled</string>
+    <string name="notifications_status_enabled">Notifications Enabled</string>
+    <string name="notifications_status_disabled">Notifications Disabled</string>
+
+    <string name="bible_worker_channel_name">Daily Verse</string>
+    <string name="bible_worker_channel_description">Daily reminder with the verse of the day.</string>
+    <string name="bible_worker_notification_title">📖 Verse of the Day</string>
+
+    <string name="bible_notifications_remind_title">📖 Verse of the Day</string>
+    <string name="bible_notifications_remind_msg">Don’t forget to read your portion for today!</string>
+    <string name="bible_notifications_channel_name">Daily Verse Notifications</string>
+    <string name="bible_notifications_channel_desc">Channel for daily verse reminders.</string>
 
     <string name="more_screen_daily_verse_title">Verse of the Day</string>
     <string name="more_screen_other_bibles_title">Other Bibles</string>
@@ -197,6 +212,15 @@
     <string name="bible_notification_stop">Stop</string>
     <string name="bible_notification_play">Play</string>
     <string name="bible_notification_default_content">Listening to God\'s Word</string>
+    <string name="bible_notifications_edit_time">Select time</string>
+    <string name="bible_notifications_edit_time_desc">What time would you like to receive the verse of the day?</string>
+    <string name="bible_notifications_how_it_works">How it works?</string>
+    <string name="bible_notifications_how_it_works_desc">Every day at the time you choose, you will receive a notification with the verse of the day from your active Bible version. You can change the time at any time.</string>
+    <string name="bible_notifications_action_edit">Edit</string>
+    <string name="bible_notifications_saved_time_label">Scheduled time</string>
+    <string name="bible_notifications_sub_enabled">You will receive the verse of the day</string>
+    <string name="bible_notifications_sub_disabled">Enable them to read every day</string>
+
 
     <string name="bible_ad_label">Ad</string>
 

@@ -253,124 +253,6 @@ fun NotificationSettingsScreen(
                 )
             }
 
-            // ── Tarjeta del selector de hora ─────────────────────────────────
-            /*Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(contentAlpha),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "Selecciona la hora",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    TimePicker(
-                        state = timePickerState,
-                        colors = TimePickerDefaults.colors(
-                            clockDialColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            selectorColor = MaterialTheme.colorScheme.primary,
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            periodSelectorBorderColor = MaterialTheme.colorScheme.outline,
-                            clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
-                            clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
-                        )
-                    )
-
-                    // Botones de acción
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                timeSaved = false
-                                // Resetear al valor guardado actualmente
-                            },
-                            modifier = Modifier.weight(1f),
-                            enabled = notificationsEnabled,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(stringResource(R.string.cancel_button))
-                        }
-
-                        Button(
-                            onClick = {
-                                viewModel.setSelectedTime(
-                                    LocalTime.of(timePickerState.hour, timePickerState.minute)
-                                )
-                                timeSaved = true
-                            },
-                            modifier = Modifier.weight(1f),
-                            enabled = notificationsEnabled,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(R.string.accept_button))
-                        }
-                    }
-
-                    // Feedback de guardado exitoso
-                    AnimatedVisibility(visible = timeSaved && notificationsEnabled) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer)
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = "Hora guardada correctamente",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }*/
-
             // ── Tarjeta informativa ──────────────────────────────────────────
             AnimatedVisibility(
                 visible = notificationsEnabled,
@@ -425,13 +307,13 @@ private fun TimePickerDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = "Selecciona la hora",
+                        text = stringResource(R.string.bible_notifications_edit_time),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "¿A qué hora quieres recibir el versículo del día?",
+                        text = stringResource(R.string.bible_notifications_edit_time_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -626,7 +508,7 @@ private fun NotificationToggleCard(
                 }
                 Column {
                     Text(
-                        text = if (enabled) "Notificaciones activas" else "Notificaciones desactivadas",
+                        text = if (enabled) stringResource(R.string.notifications_status_enabled) else stringResource(R.string.notifications_status_disabled),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = if (enabled)
@@ -635,7 +517,7 @@ private fun NotificationToggleCard(
                             MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (enabled) "Recibirás el versículo del día" else "Actívalas para leer cada día",
+                        text = if (enabled) stringResource(R.string.bible_notifications_sub_enabled) else stringResource(R.string.bible_notifications_sub_disabled),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (enabled)
                             MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
@@ -707,7 +589,7 @@ private fun SavedTimeCard(
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Hora configurada",
+                        text = stringResource(R.string.bible_notifications_saved_time_label),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
@@ -734,7 +616,7 @@ private fun SavedTimeCard(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(Modifier.width(6.dp))
-                Text("Editar", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.bible_notifications_action_edit), style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -766,13 +648,13 @@ private fun NotificationInfoCard() {
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "¿Cómo funcionan?",
+                    text = stringResource(R.string.bible_notifications_how_it_works),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Cada día a la hora que elijas, recibirás una notificación con el versículo del día de tu versión de la Biblia activa. Puedes cambiar la hora en cualquier momento.",
+                    text = stringResource(R.string.bible_notifications_how_it_works_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Start

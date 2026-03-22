@@ -91,6 +91,14 @@ class SettingsViewmodel @Inject constructor(
         //checkVersion()
     }
 
+    fun rescheduleIfEnabled() {
+        if (sharedPreferenceBible.notificationsEnabled.value) {
+            notificationScheduler.scheduleDailyNotification(
+                sharedPreferenceBible.selectedTime.value
+            )
+        }
+    }
+
     fun checkVersion(currentVersion: String) {
         val remoteConfig = FirebaseRemoteConfig.getInstance()
 

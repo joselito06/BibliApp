@@ -178,19 +178,26 @@ class MainActivity : ComponentActivity() {
                 // Actualizar racha de lectura al abrir la app
                 settingViewmodel.checkVersion(versionApp)
                 sharedPreferenceBible.markDailyAppOpen()
+                settingViewmodel.rescheduleIfEnabled()
             }
 
             LaunchedEffect(Unit) {
                 // Cuando habilitas notificaciones o al inicio de la pantalla:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // TIRAMISU es API 33
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                        PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // Permiso ya concedido
-                    } else {
-                        // Solicitar permiso
+                    val granted = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+
+                    if (!granted) {
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
+                }
+                // ✅ Programar notificación si está habilitada
+                // Esto asegura que si el usuario ya tenía notificaciones ON,
+                // se reprograme al abrir la app (por si el dispositivo reinició)
+                if (sharedPreferenceBible.notificationsEnabled.value) {
+                    // Necesitamos inyectar NotificationScheduler en MainActivity
+                    // o llamarlo desde SettingsViewmodel
                 }
                 //------------------------------------------------
             }
@@ -449,7 +456,7 @@ class MainActivity : ComponentActivity() {
             }
 
         }
-        scheduleDailyVerseNotification(this)
+        //scheduleDailyVerseNotification(this)
     }
 
     override fun onPause() {
@@ -481,7 +488,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun scheduleDailyVerseNotification(context: Context) {
+    /*fun scheduleDailyVerseNotification(context: Context) {
         val workRequest = PeriodicWorkRequestBuilder<VerseNotificationWorker>(1, TimeUnit.DAYS)
             .setInitialDelay(getInitialDelay(), TimeUnit.MILLISECONDS)
             .build()
@@ -502,7 +509,7 @@ class MainActivity : ComponentActivity() {
         }
         if (now.after(nextExecution)) nextExecution.add(Calendar.DAY_OF_MONTH, 1) // Si ya pasó, programar para el día siguiente
         return nextExecution.timeInMillis - now.timeInMillis
-    }
+    }*/
 
 }
 

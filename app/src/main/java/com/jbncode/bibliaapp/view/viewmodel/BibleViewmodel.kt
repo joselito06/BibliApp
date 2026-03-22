@@ -7,6 +7,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jbncode.bibliaapp.R
@@ -206,8 +207,8 @@ class BibleViewmodel @Inject constructor(
     // FUNCIONES TTS MEJORADAS CON SOPORTE PARA IDIOMAS
 
     // Función para obtener strings localizados
-    private fun getLocalizedString(resId: Int): String {
-        return context.getString(resId)
+    private fun getLocalizedString(resId: Int, vararg args: Any): String {
+        return context.getString(resId, *args)
     }
 
     // Función para obtener el nombre completo del libro
@@ -230,7 +231,7 @@ class BibleViewmodel @Inject constructor(
                 setupTTSProgressListener(coroutineScope, listState)
             } else {
                 _isTTSInitialized.value = false
-                Toast.makeText(context, "Error al inicializar TextToSpeech", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getLocalizedString(R.string.tts_error_initialization), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -413,9 +414,10 @@ class BibleViewmodel @Inject constructor(
             when (result) {
                 TextToSpeech.LANG_MISSING_DATA, TextToSpeech.LANG_NOT_SUPPORTED -> {
                     Log.w("TTS", "Idioma $languageDisplayName no soportado, usando inglés")
+                    val msg = getLocalizedString(R.string.tts_lang_not_supported, languageDisplayName)
                     Toast.makeText(
                         context,
-                        "Idioma $languageDisplayName no disponible para lectura de voz, usando inglés",
+                        msg,
                         Toast.LENGTH_SHORT
                     ).show()
                     // Fallback a inglés (tu idioma por defecto)
@@ -423,18 +425,20 @@ class BibleViewmodel @Inject constructor(
                 }
                 TextToSpeech.LANG_AVAILABLE, TextToSpeech.LANG_COUNTRY_AVAILABLE, TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> {
                     Log.i("TTS", "Idioma cambiado exitosamente a: $languageDisplayName")
+                    val msg = getLocalizedString(R.string.tts_lang_changed, languageDisplayName)
                     Toast.makeText(
                         context,
-                        "Idioma de voz cambiado a: $languageDisplayName",
+                        msg,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
                 else -> {
                     // Manejar cualquier otro resultado inesperado
                     Log.w("TTS", "Resultado inesperado al cambiar idioma: $result")
+                    val msg = getLocalizedString(R.string.tts_lang_error_unexpected)
                     Toast.makeText(
                         context,
-                        "Resultado inesperado al cambiar idioma TTS",
+                        msg,
                         Toast.LENGTH_SHORT
                     ).show()
                 }

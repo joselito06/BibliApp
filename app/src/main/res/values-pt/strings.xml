@@ -113,6 +113,12 @@
     <string name="unknown_book">Livro desconhecido</string>
     <string name="tts_not_initialized">O leitor de voz não está inicializado</string>
     <string name="reading_completed">Leitura concluída</string>
+
+    <string name="tts_error_initialization">Erro ao inicializar o leitor de voz</string>
+    <string name="tts_lang_not_supported">O idioma %1$s não está disponível para leitura, usando inglês</string>
+    <string name="tts_lang_changed">Idioma de voz alterado para: %1$s</string>
+    <string name="tts_lang_error_unexpected">Resultado inesperado ao alterar o idioma de voz</string>
+
     <!-- TTS Settings -->
     <string name="announce_verse_numbers">Anunciar números dos versículos</string>
     <string name="announce_chapter_titles">Anunciar títulos dos capítulos</string>
@@ -125,8 +131,17 @@
     <string name="cancel_button">CANCELAR</string>
 
     <string name="notifications_section_title">Notificações</string>
-    <string name="notifications_status_enabled">Ativadas</string>
-    <string name="notifications_status_disabled">Desativadas</string>
+    <string name="notifications_status_enabled">Notificações Ativadas</string>
+    <string name="notifications_status_disabled">Notificações Desativadas</string>
+
+    <string name="bible_worker_channel_name">Versículo Diário</string>
+    <string name="bible_worker_channel_description">Lembrete diário com o versículo do dia.</string>
+    <string name="bible_worker_notification_title">📖 Versículo do Dia</string>
+
+    <string name="bible_notifications_remind_title">📖 Versículo do Dia</string>
+    <string name="bible_notifications_remind_msg">Não se esqueça de ler sua porção de hoje!</string>
+    <string name="bible_notifications_channel_name">Notificações Diárias de Versículos</string>
+    <string name="bible_notifications_channel_desc">Canal para lembretes diários de versículos.</string>
 
     <string name="more_screen_daily_verse_title">Versículo do Dia</string>
     <string name="more_screen_other_bibles_title">Outras Bíblias</string>
@@ -199,6 +214,14 @@
     <string name="bible_notification_stop">Parar</string>
     <string name="bible_notification_play">Ouvir</string>
     <string name="bible_notification_default_content">Ouvindo a Palavra de Deus</string>
+    <string name="bible_notifications_edit_time">Sélectionner l\'heure</string>
+    <string name="bible_notifications_edit_time_desc">À quelle heure souhaitez-vous recevoir le verset du jour ?</string>
+    <string name="bible_notifications_how_it_works">Como funciona?</string>
+    <string name="bible_notifications_how_it_works_desc">Todos os dias, na hora que você escolher, você receberá uma notificação com o versículo do dia da sua versão da Bíblia ativa. Você pode alterar a hora a qualquer momento.</string>
+    <string name="bible_notifications_action_edit">Editar</string>
+    <string name="bible_notifications_saved_time_label">Hora configurada</string>
+    <string name="bible_notifications_sub_enabled">Você receberá o versículo do dia</string>
+    <string name="bible_notifications_sub_disabled">Ative para ler todos os dias</string>
 
     <string name="bible_ad_label">Anúncio</string>
 

@@ -76,10 +76,10 @@ class VerseNotificationWorker @AssistedInject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Versículo Diario",
+                applicationContext.getString(R.string.bible_worker_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Recordatorio diario con el versículo del día."
+                description = applicationContext.getString(R.string.bible_worker_channel_description)
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -99,7 +99,7 @@ class VerseNotificationWorker @AssistedInject constructor(
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("📖 Versículo del Día")
+            .setContentTitle(applicationContext.getString(R.string.bible_worker_notification_title))
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             .setContentIntent(pendingIntent)

@@ -113,6 +113,12 @@
     <string name="unknown_book">Carte necunoscută</string>
     <string name="tts_not_initialized">Cititorul vocal nu este inițializat</string>
     <string name="reading_completed">Lectură finalizată</string>
+
+    <string name="tts_error_initialization">Eroare la inițializarea cititorului vocal</string>
+    <string name="tts_lang_not_supported">Limba %1$s nu este disponibilă pentru citire, se folosește engleza</string>
+    <string name="tts_lang_changed">Limba vocală a fost schimbată în: %1$s</string>
+    <string name="tts_lang_error_unexpected">Rezultat neașteptat la schimbarea limbii vocale</string>
+
     <!-- TTS Settings -->
     <string name="announce_verse_numbers">Anunță numerele versetelor</string>
     <string name="announce_chapter_titles">Anunță titlurile capitolelor</string>
@@ -125,8 +131,17 @@
     <string name="cancel_button">ANULEAZĂ</string>
 
     <string name="notifications_section_title">Notificări</string>
-    <string name="notifications_status_enabled">Activate</string>
-    <string name="notifications_status_disabled">Dezactivate</string>
+    <string name="notifications_status_enabled">Notificări Activate</string>
+    <string name="notifications_status_disabled">Notificări Dezactivate</string>
+
+    <string name="bible_worker_channel_name">Versetul Zilnic</string>
+    <string name="bible_worker_channel_description">Memento zilnic cu versetul zilei.</string>
+    <string name="bible_worker_notification_title">📖 Versetul Zilei</string>
+
+    <string name="bible_notifications_remind_title">📖 Versetul zilei</string>
+    <string name="bible_notifications_remind_msg">Nu uita să citești porția de astăzi!</string>
+    <string name="bible_notifications_channel_name">Notificări zilnice pentru versete</string>
+    <string name="bible_notifications_channel_desc">Canal pentru mementouri zilnice de versete.</string>
 
     <string name="more_screen_daily_verse_title">Versetul zilei</string>
     <string name="more_screen_other_bibles_title">Alte Biblii</string>
@@ -198,6 +213,14 @@
     <string name="bible_notification_stop">Oprire</string>
     <string name="bible_notification_play">Ascultă</string>
     <string name="bible_notification_default_content">Ascultând Cuvântul lui Dumnezeu</string>
+    <string name="bible_notifications_edit_time">Selectează ora</string>
+    <string name="bible_notifications_edit_time_desc">La ce oră doriți să primiți versetul zilei?</string>
+    <string name="bible_notifications_how_it_works">Cum funcționează?</string>
+    <string name="bible_notifications_how_it_works_desc">În fiecare zi, la ora pe care o alegeți, veți primi o notificare cu versetul zilei din versiunea dvs. activă a Bibliei. Puteți schimba ora în orice moment.</string>
+    <string name="bible_notifications_action_edit">Editează</string>
+    <string name="bible_notifications_saved_time_label">Ora configurată</string>
+    <string name="bible_notifications_sub_enabled">Vei primi versetul zilei</string>
+    <string name="bible_notifications_sub_disabled">Activează-le pentru a citi zilnic</string>
 
     <string name="bible_ad_label">Anunț</string>
 
