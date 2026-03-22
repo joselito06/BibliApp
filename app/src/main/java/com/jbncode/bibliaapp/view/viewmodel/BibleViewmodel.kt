@@ -97,6 +97,15 @@ class BibleViewmodel @Inject constructor(
 
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        // Liberar el motor de TTS
+        if (tts != null) {
+            tts?.stop()
+            tts?.shutdown()
+        }
+    }
+
     private fun observeLanguageChanges() {
         viewModelScope.launch {
             // Observar cambios en el idioma de la app usando tu StateFlow existente
@@ -211,7 +220,7 @@ class BibleViewmodel @Inject constructor(
         // Detener TTS anterior si existe
         tts?.shutdown()
 
-        tts = TextToSpeech(context) { status ->
+        tts = TextToSpeech(context.applicationContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 _isTTSInitialized.value = true
                 // Configurar el idioma inicial
@@ -227,36 +236,7 @@ class BibleViewmodel @Inject constructor(
     }
 
     private fun setupTTSProgressListener(coroutineScope: CoroutineScope, listState: LazyListState) {
-        /*tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {
-                _currentVerseIndex.value = utteranceId?.toInt() ?: 0
-                coroutineScope.launch {
-                    listState.animateScrollToItem(utteranceId?.toInt() ?: 0)
-                }
-            }
 
-            override fun onDone(utteranceId: String?) {
-                val nextIndex = (utteranceId?.toInt() ?: 0) + 1
-
-                if (nextIndex >= _getAllBiblia.value.first().Verse.size) {
-                    val nextChapter = capitulo.value + 1
-                    if (nextChapter < _getAllBiblia.value.first().Chapters) {
-                        val textoIntro = "${_getAllBiblia.value.first().Human}, Capítulo $nextChapter"
-                        tts?.speak(textoIntro, TextToSpeech.QUEUE_FLUSH, null, "chapter_intro")
-                        tts?.speak(_getAllBiblia.value.first().Verse[0].Contenido, TextToSpeech.QUEUE_ADD, null, "0")
-                        setCapitulo(nextChapter)
-                    } else {
-                        _isSpeaking.value = false
-                    }
-                } else {
-                    tts?.speak(_getAllBiblia.value.first().Verse[nextIndex].Contenido, TextToSpeech.QUEUE_FLUSH, null, nextIndex.toString())
-                }
-            }
-
-            override fun onError(utteranceId: String?) {
-                Log.e("TTS", "Error en utterance: $utteranceId")
-            }
-        })*/
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             private var startTime: Long = 0
 

@@ -2,14 +2,25 @@ package com.jbncode.bibliaapp
 
 import android.app.Application
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
-class JetpackApp : Application() {
+class JetpackApp : Application(), Configuration.Provider {
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    // Este getter es el que WorkManager usa para construir Workers
+    override fun getWorkManagerConfiguration(): Configuration =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
@@ -45,4 +56,6 @@ class JetpackApp : Application() {
         // Cargar los valores desde la nube
         remoteConfig.fetchAndActivate()
     }
+
+
 }

@@ -144,6 +144,13 @@
     <string name="share_app_chooser_title">Partager Bibliapp avec…</string>
     <string name="share_verse_message_template">%1$s\n\n%2$s\n\n📖 Lu dans Bibliapp 🙏</string>
     <string name="share_verse_button_text">Partager</string>
+    <string name="share_app_hero_title">Partagez la Parole</string>
+    <string name="share_app_hero_subtitle">Aidez les autres à porter la Bible dans leur poche et à fortifier leur foi quotidiennement.</string>
+    <string name="share_app_options_title">Partager via</string>
+    <string name="share_app_rate_title">Aimez-vous l\'application ?</string>
+    <string name="share_app_rate_message">Votre note nous aide à toucher plus de personnes. Cela ne prend qu\'une seconde !</string>
+    <string name="share_app_rate_button">Noter sur Play Store</string>
+    <string name="share_app_closing_text">"Allez par tout le monde, et prêchez la bonne nouvelle à toute la création." – Marc 16:15</string>
 
     <string name="about_screen_title">À propos de Bibliapp</string>
     <string name="about_screen_description_text">Cette application vous aide à recevoir et à lire des versets bibliques quotidiens, vous permettant de personnaliser les notifications et de sélectionner différentes versions de la Bible.</string>

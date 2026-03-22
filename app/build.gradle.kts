@@ -41,6 +41,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["admob_app_id"] = "ca-app-pub-7091067576578095~4026618996"
             resValue("string", "banner_ad_id", "ca-app-pub-7091067576578095/1400455650")
             resValue("string", "interstitial_ad_id", "ca-app-pub-7091067576578095/9340358146")
             resValue("string", "app_loaded_ad_id", "ca-app-pub-7091067576578095/1961760682")
@@ -84,6 +85,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48")
     ksp("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-work:1.1.0")
+    ksp("androidx.hilt:hilt-compiler:1.1.0")
 
     //Lyfecycle
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
