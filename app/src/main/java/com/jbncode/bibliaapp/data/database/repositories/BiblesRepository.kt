@@ -28,7 +28,11 @@ class BiblesRepository @Inject constructor(@ApplicationContext private val conte
 
     private fun parseJson(jsonString: String): List<BibleVersionInfo> {
         val gson = Gson()
-        val listUserType = object : TypeToken<List<BibleVersionInfo>>() {}.type
-        return gson.fromJson(jsonString, listUserType)
+        //val listUserType = object : TypeToken<List<BibleVersionInfo>>() {}.type
+        //return gson.fromJson(jsonString, listUserType)
+        // ✅ TypeToken.getParameterized NO usa clases anónimas,
+        //    sobrevive a R8/ProGuard sin reglas adicionales
+        val type = TypeToken.getParameterized(List::class.java, BibleVersionInfo::class.java).type
+        return gson.fromJson(jsonString, type)
     }
 }

@@ -1,5 +1,8 @@
 package com.jbncode.bibliaapp.data.networking.models
 
+import androidx.annotation.Keep
+
+@Keep
 data class BibleVersionInfo(
     val id: Int,
     val langCode: String,

@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "com.jbncode.bibliaapp"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.jbncode.bibliaapp"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.0.2"
 
         resValue("string", "app_version_name", "\"${versionName}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -28,6 +28,7 @@ android {
     buildTypes {
         debug{
             isMinifyEnabled = false
+            isShrinkResources = false
             isDebuggable = true
             manifestPlaceholders["admob_app_id"] = "ca-app-pub-3940256099942544~3347511713"
             resValue("string", "banner_ad_id", "ca-app-pub-3940256099942544/6300978111")
@@ -36,7 +37,8 @@ android {
             resValue("string", "native_ad_id", "ca-app-pub-3940256099942544/9257395921")
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

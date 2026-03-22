@@ -1,5 +1,8 @@
 package com.jbncode.bibliaapp.data.networking.models
 
+import androidx.annotation.Keep
+
+@Keep
 data class BibleDisplayInfo(
     val id: Int,
     val displayName: String, // "Reina-Valera 1960"

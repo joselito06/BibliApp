@@ -66,7 +66,7 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
 
     private val _selectedTime = MutableStateFlow(
         LocalTime.of(
-            storage.getInt(PREF_SELECTED_HOUR, 12), // Leer desde 'storage', Hora por defecto: 12
+            storage.getInt(PREF_SELECTED_HOUR, 9), // Leer desde 'storage', Hora por defecto: 09
             storage.getInt(PREF_SELECTED_MINUTE, 0)  // Leer desde 'storage', Minuto por defecto: 00
         )
     )

@@ -27,8 +27,11 @@ class VersesDailyRepository @Inject constructor(@ApplicationContext private val 
 
     private fun parseJson(jsonString: String): List<VersesDaily> {
         val gson = Gson()
-        val listUserType = object : TypeToken<List<VersesDaily>>() {}.type
-        return gson.fromJson(jsonString, listUserType)
+        //val listUserType = object : TypeToken<List<VersesDaily>>() {}.type
+        //return gson.fromJson(jsonString, listUserType)
+        // ✅ Mismo fix que BiblesRepository
+        val type = TypeToken.getParameterized(List::class.java, VersesDaily::class.java).type
+        return gson.fromJson(jsonString, type)
     }
 
 }
