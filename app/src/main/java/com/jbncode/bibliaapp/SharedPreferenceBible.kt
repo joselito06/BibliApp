@@ -40,6 +40,8 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
 
         private const val KEY_DAILY_APP_OPENS = "daily_app_opens"
         private const val KEY_LAST_APP_OPEN_DATE = "last_app_open_date"
+
+        private const val KEY_FIRST_LAUNCH = "is_first_launch"
     }
 
     private val SHARED_APP_THEME = "app_theme"
@@ -324,5 +326,13 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
         storage.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { storage.unregisterOnSharedPreferenceChangeListener(listener) }
     }.conflate() // conflate() es útil para no perder actualizaciones si el colector es lento
+
+    fun isFirstLaunch(): Boolean {
+        return storage.getBoolean(KEY_FIRST_LAUNCH, true)
+    }
+
+    fun markFirstLaunchDone() {
+        storage.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
+    }
 
 }

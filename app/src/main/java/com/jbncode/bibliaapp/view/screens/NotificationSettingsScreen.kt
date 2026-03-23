@@ -1,9 +1,13 @@
 package com.jbncode.bibliaapp.view.screens
 
 
+import android.app.AlarmManager
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -35,6 +39,8 @@ import androidx.compose.material.icons.filled.NotificationAdd
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,14 +73,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -92,6 +99,11 @@ import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import java.time.LocalTime
+
+// Colores semánticos para el estado de las notificaciones
+private val GreenActive    = Color(0xFF2E7D32)
+private val GreenContainer = Color(0xFFE8F5E9)
+private val GreenOnContainer = Color(0xFF1B5E20)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,11 +159,18 @@ fun NotificationSettingsScreen(
     // Estado local para saber si el usuario guardó la hora (muestra el check)
     //var timeSaved by remember { mutableStateOf(false) }
 
-    val timePickerState = rememberTimePickerState(
-        initialHour = selectedTime.hour,
-        initialMinute = selectedTime.minute,
-        is24Hour = false
-    )
+    val context = LocalContext.current
+
+    // ── Estado del permiso de alarma exacta ────────────────────────────────
+    // Se recalcula cada vez que la pantalla vuelve al foco (el usuario
+    // puede volver de Ajustes después de concederlo)
+    var canScheduleExact by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
+        } else true
+    }
+
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val scrollState = scrollBehavior.state
     // Consideramos "expandido" si la fracción colapsada es muy pequeña (cercana a 0)
@@ -160,13 +179,6 @@ fun NotificationSettingsScreen(
     val topAppBarShape = if (isExpanded)
         RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp) // Solo esquinas inferiores redondeadas
     else RectangleShape // Forma rectangular normal cuando está colapsada o en transición
-
-    // Animación de alpha para el bloque del TimePicker
-    /*val contentAlpha by animateFloatAsState(
-        targetValue = if (notificationsEnabled) 1f else 0.4f,
-        animationSpec = tween(300),
-        label = "contentAlpha"
-    )*/
 
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)
@@ -241,6 +253,36 @@ fun NotificationSettingsScreen(
                 onToggle = { viewModel.setNotificationsEnabled(it) }
             )
 
+            // ── 2. Aviso de permiso SCHEDULE_EXACT_ALARM ─────────────────────
+            // Rojo si falta el permiso, verde si ya está concedido.
+            // Solo visible si las notificaciones están activas.
+            AnimatedVisibility(
+                visible = notificationsEnabled,
+                enter   = fadeIn(tween(300)) + expandVertically(tween(300)),
+                exit    = fadeOut(tween(200)) + shrinkVertically(tween(200))
+            ) {
+                ExactAlarmPermissionCard(
+                    granted = canScheduleExact,
+                    onGrantClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            context.startActivity(
+                                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                    data = Uri.parse("package:${context.packageName}")
+                                }
+                            )
+                        }
+                    },
+                    onRevokeClick = {
+                        // Llevar al usuario a ajustes de la app para que lo revoque
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                        )
+                    }
+                )
+            }
+
             // ── Tarjeta de hora actualmente guardada ─────────────────────────
             AnimatedVisibility(
                 visible = notificationsEnabled,
@@ -266,6 +308,105 @@ fun NotificationSettingsScreen(
         }
     }
 
+}
+
+// ── Tarjeta de permiso de alarma exacta ──────────────────────────────────────
+// Verde = concedido, Rojo = falta conceder
+@Composable
+private fun ExactAlarmPermissionCard(
+    granted: Boolean,
+    onGrantClick: () -> Unit,
+    onRevokeClick: () -> Unit
+) {
+    val containerColor = if (granted) GreenContainer
+    else MaterialTheme.colorScheme.errorContainer
+
+    val contentColor = if (granted) GreenOnContainer
+    else MaterialTheme.colorScheme.onErrorContainer
+
+    val iconTint = if (granted) GreenActive
+    else MaterialTheme.colorScheme.error
+
+    val icon = if (granted) Icons.Default.CheckCircle else Icons.Default.Warning
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icono de estado
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(iconTint.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector    = icon,
+                    contentDescription = null,
+                    tint           = iconTint,
+                    modifier       = Modifier.size(24.dp)
+                )
+            }
+
+            // Texto
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text       = if (granted) stringResource(R.string.bible_notifications_exact_alarm_title)
+                    else stringResource(R.string.bible_notifications_exact_alarm_required),
+                    style      = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color      = contentColor
+                )
+                Text(
+                    text  = if (granted)
+                        stringResource(R.string.bible_notifications_exact_alarm_desc_granted)
+                    else
+                        stringResource(R.string.bible_notifications_exact_alarm_desc_denied),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor.copy(alpha = 0.8f)
+                )
+            }
+
+            // Botón de acción
+            if (granted) {
+                // Verde — opción de desactivar
+                OutlinedButton(
+                    onClick = onRevokeClick,
+                    shape  = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = GreenActive
+                    )
+                ) {
+                    Text(stringResource(R.string.bible_notifications_action_disable), style = MaterialTheme.typography.labelMedium)
+                }
+            } else {
+                // Rojo — botón para conceder
+                FilledTonalButton(
+                    onClick = onGrantClick,
+                    shape   = RoundedCornerShape(10.dp),
+                    colors  = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor   = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text(stringResource(R.string.bible_notifications_action_enable), style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+    }
 }
 
 // ── Dialog del TimePicker ─────────────────────────────────────────────────────

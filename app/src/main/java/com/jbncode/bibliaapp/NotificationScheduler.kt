@@ -30,14 +30,6 @@ class NotificationScheduler @Inject constructor(
     }
 
     fun scheduleDailyNotification(time: LocalTime) {
-        // ✅ Verificar si podemos programar alarmas exactas antes de intentarlo
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                // No tenemos permiso: usar alarma inexacta como fallback
-                scheduleInexactNotification(time)
-                return
-            }
-        }
 
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, time.hour)
@@ -51,34 +43,38 @@ class NotificationScheduler @Inject constructor(
             }
         }
 
-        try {
-            // Para alarmas exactas (necesita permiso SCHEDULE_EXACT_ALARM en Android 12+)
-            // Si no puedes/quieres usar alarmas exactas, puedes usar setInexactRepeating o setWindow.
-            alarmManager.setExactAndAllowWhileIdle( // Permite que se dispare incluso en modo Doze
-                AlarmManager.RTC_WAKEUP, // Despierta el dispositivo para disparar la alarma
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                // Tiene permiso → alarma exacta
+                try {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        createPendingIntent()
+                    )
+                } catch (e: SecurityException) {
+                    scheduleInexactNotification(calendar)
+                }
+            } else {
+                // No tiene permiso → fallback inexacta (±15 min)
+                // Opcionalmente puedes llevar al usuario a ajustes:
+                // Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                scheduleInexactNotification(calendar)
+            }
+        } else {
+            // Android 11 y menos → siempre exacta sin necesitar permiso
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
                 createPendingIntent()
             )
-        } catch (se: SecurityException) {
-            // Manejar el caso donde no tienes el permiso SCHEDULE_EXACT_ALARM
-            // Podrías pedir al usuario que lo active o usar una alarma no exacta.
-            scheduleInexactNotification(time)
-            se.printStackTrace()
         }
     }
 
     // Fallback: alarma inexacta (puede llegar con hasta 15 min de retraso,
     // pero SIEMPRE funciona sin permisos especiales)
-    private fun scheduleInexactNotification(time: LocalTime) {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, time.hour)
-            set(Calendar.MINUTE, time.minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            if (before(Calendar.getInstance())) {
-                add(Calendar.DATE, 1)
-            }
-        }
+    private fun scheduleInexactNotification(calendar: Calendar) {
+
         // setWindow da una ventana de 10 minutos — más exacto que setInexactRepeating
         alarmManager.setWindow(
             AlarmManager.RTC_WAKEUP,

@@ -221,6 +221,12 @@
     <string name="bible_notifications_saved_time_label">Ora configurată</string>
     <string name="bible_notifications_sub_enabled">Vei primi versetul zilei</string>
     <string name="bible_notifications_sub_disabled">Activează-le pentru a citi zilnic</string>
+    <string name="bible_notifications_exact_alarm_title">Alarme exacte active</string>
+    <string name="bible_notifications_exact_alarm_required">Permisiune necesară</string>
+    <string name="bible_notifications_exact_alarm_desc_granted">Notificările vor sosi exact la ora aleasă.</string>
+    <string name="bible_notifications_exact_alarm_desc_denied">Activează alarmele exacte pentru a primi versetul la ora exactă.</string>
+    <string name="bible_notifications_action_enable">Activare</string>
+    <string name="bible_notifications_action_disable">Dezactivare</string>
 
     <string name="bible_ad_label">Anunț</string>
 

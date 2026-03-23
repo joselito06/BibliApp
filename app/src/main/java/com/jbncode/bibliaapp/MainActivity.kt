@@ -158,6 +158,7 @@ class MainActivity : ComponentActivity() {
         RoomModule.forceCloseAllConnections(this)
         enableEdgeToEdge()
         setContent {
+            val navigation = rememberNavController()
             val versionApp = stringResource(id = R.string.app_version_name)
             val showUpdate by settingViewmodel.showForceUpdate.collectAsState()
 
@@ -178,6 +179,15 @@ class MainActivity : ComponentActivity() {
                 // Actualizar racha de lectura al abrir la app
                 settingViewmodel.checkVersion(versionApp)
                 sharedPreferenceBible.markDailyAppOpen()
+
+                // ── Redirigir a NotificationScreen en el primer lanzamiento ──────────
+                if (sharedPreferenceBible.isFirstLaunch()) {
+                    sharedPreferenceBible.markFirstLaunchDone()
+                    // Pequeño delay para que la navegación tenga el grafo listo
+                    kotlinx.coroutines.delay(300)
+                    navigation.navigate(Routes.NotificationScreen.route)
+                }
+
                 settingViewmodel.rescheduleIfEnabled()
             }
 
@@ -213,7 +223,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            val navigation = rememberNavController()
+
             // Estado para rastrear la posición del scroll
             val scrollState = rememberScrollState()
             // Estado para rastrear si la TopAppBar y la NavigationBar están visibles

@@ -220,6 +220,12 @@
     <string name="bible_notifications_saved_time_label">Scheduled time</string>
     <string name="bible_notifications_sub_enabled">You will receive the verse of the day</string>
     <string name="bible_notifications_sub_disabled">Enable them to read every day</string>
+    <string name="bible_notifications_exact_alarm_title">Exact alarms active</string>
+    <string name="bible_notifications_exact_alarm_required">Permission required</string>
+    <string name="bible_notifications_exact_alarm_desc_granted">Notifications will arrive exactly at the chosen time.</string>
+    <string name="bible_notifications_exact_alarm_desc_denied">Enable exact alarms to receive the verse at the exact time.</string>
+    <string name="bible_notifications_action_enable">Enable</string>
+    <string name="bible_notifications_action_disable">Disable</string>
 
 
     <string name="bible_ad_label">Ad</string>

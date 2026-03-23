@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.jbncode.bibliaapp"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.jbncode.bibliaapp"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 3
         versionName = "1.0.2"
 
