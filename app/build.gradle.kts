@@ -1,3 +1,6 @@
+import java.util.Properties
+import kotlin.apply
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -9,14 +12,14 @@ plugins {
 
 android {
     namespace = "com.jbncode.bibliaapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.jbncode.bibliaapp"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.2"
+        targetSdk = 36
+        versionCode = 5
+        versionName = "1.0.4"
 
         resValue("string", "app_version_name", "\"${versionName}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -24,6 +27,13 @@ android {
             useSupportLibrary = true
         }
     }
+
+    val localProps = Properties().apply {
+        val f = rootProject.file("local.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    fun secret(key: String, fallback: String) =
+        localProps.getProperty(key) ?: System.getenv(key) ?: fallback
 
     buildTypes {
         debug{
@@ -43,11 +53,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            manifestPlaceholders["admob_app_id"] = "ca-app-pub-7091067576578095~4026618996"
-            resValue("string", "banner_ad_id", "ca-app-pub-7091067576578095/1400455650")
-            resValue("string", "interstitial_ad_id", "ca-app-pub-7091067576578095/9340358146")
-            resValue("string", "app_loaded_ad_id", "ca-app-pub-7091067576578095/1961760682")
-            resValue("string", "native_ad_id", "ca-app-pub-7091067576578095/2229353991")
+            manifestPlaceholders["admob_app_id"] = secret("ADMOB_APP_ID","ca-app-pub-3940256099942544~3347511713")
+            resValue("string", "banner_ad_id", secret("ADMOB_BANNER", "ca-app-pub-3940256099942544/6300978111"))
+            resValue("string", "interstitial_ad_id", secret("ADMOB_INTERSTITIAL","ca-app-pub-3940256099942544/1033173712"))
+            resValue("string", "app_loaded_ad_id", secret("ADMOB_APP_OPEN","ca-app-pub-3940256099942544/9257395921"))
+            resValue("string", "native_ad_id", secret("ADMOB_NATIVE","ca-app-pub-3940256099942544/9257395921"))
 
         }
     }
