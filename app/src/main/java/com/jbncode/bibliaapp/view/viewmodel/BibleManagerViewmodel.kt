@@ -103,34 +103,52 @@ class BibleManagerViewmodel @Inject constructor(
         // Marcar como descargando y reiniciar progreso para la UI
         updateBibleItemState(bibleToDownload.code) { it.copy(isDownloading = true, downloadProgress = 0, isDownloaded = false) }
 
+        //val baseUrl = bibleToDownload.server_url.trimEnd('/')
         val downloadUrl = "${bibleToDownload.server_url}${bibleToDownload.database_name}"
         // El nombre del archivo local será el mismo que en el servidor (database_name)
         val destinationFileName = bibleToDownload.database_name
+
+        val destinationDir = context.getDatabasePath("any_temp_name.sqlite3").parentFile
+        if (destinationDir != null && !destinationDir.exists()) {
+            destinationDir.mkdirs()
+        }
+        val myLocalFile = File(destinationDir, destinationFileName)
 
         _downloadStatus.postValue("Iniciando descarga de ${bibleToDownload.title}...")
 
         viewModelScope.launch(Dispatchers.IO) { // Usar Dispatchers.IO para operaciones de red/disco
             databaseDownloader.downloadDatabase(
                 downloadUrl,
-                destinationFileName,
+                myLocalFile,
                 object : DatabaseDownloader.DownloadProgressListener {
                     override fun onProgress(progressPercentage: Int) {
                         Log.d("VM_Downloader", "Progreso ${bibleToDownload.title}: $progressPercentage%")
-                        updateBibleItemState(bibleToDownload.code) { it.copy(downloadProgress = progressPercentage) }
+                        updateBibleItemState(bibleToDownload.code) {
+                            it.copy(downloadProgress = progressPercentage)
+                        }
                     }
 
                     override fun onCompleted(file: File) {
                         Log.i("VM_Downloader", "Descarga completa: ${file.name}")
                         _downloadStatus.postValue("${bibleToDownload.title} descargada exitosamente.")
-                        updateBibleItemState(bibleToDownload.code) { it.copy(isDownloading = false, isDownloaded = true, downloadProgress = 100) }
+                        updateBibleItemState(bibleToDownload.code) {
+                            it.copy(isDownloading = false, isDownloaded = true, downloadProgress = 100)
+                        }
                         // Opcional: ¿Activarla automáticamente o dejar que el usuario lo haga?
                         // Si quieres activarla: activateDownloadedDatabase(file.name) // y manejar reinicio
                     }
 
                     override fun onError(exception: Exception) {
                         Log.e("VM_Downloader", "Error descargando ${bibleToDownload.title}", exception)
+                        // Eliminar archivo parcial si quedó a medias para que no figure como descargado
+                        if (myLocalFile.exists()) {
+                            myLocalFile.delete()
+                        }
+
                         _downloadStatus.postValue("Error al descargar ${bibleToDownload.title}: ${exception.message}")
-                        updateBibleItemState(bibleToDownload.code) { it.copy(isDownloading = false, downloadProgress = 0) }
+                        updateBibleItemState(bibleToDownload.code) {
+                            it.copy(isDownloading = false, downloadProgress = 0)
+                        }
                         // Asegurarse de que el archivo parcial se elimine (ya lo hace el downloader)
                     }
                 }

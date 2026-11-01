@@ -1,18 +1,21 @@
 package com.jbncode.bibliaapp
 
 import android.content.Context
-import android.util.Log
+import com.jbncode.bibliaapp.utils.SecuritySignatureUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import javax.inject.Singleton
 
 @Singleton
-class DatabaseDownloader(@ApplicationContext private val context: Context) {
+class DatabaseDownloader(
+    @ApplicationContext private val context: Context,
+    private val okHttpClient: OkHttpClient
+) {
 
     // Callback para informar el progreso (opcional pero muy recomendado para UX)
     interface DownloadProgressListener {
@@ -22,6 +25,89 @@ class DatabaseDownloader(@ApplicationContext private val context: Context) {
     }
 
     suspend fun downloadDatabase(
+        downloadUrl: String,
+        destinationFile: File,
+        listener: DownloadProgressListener
+    ) = withContext(Dispatchers.IO) {
+        try {
+            // 1. Extraer el nombre del archivo (ej: "rv1960.db")
+            val fileName = downloadUrl.substringAfterLast("/")
+
+            // 2. Generar las cabeceras de seguridad firmadas
+            val securityHeaders = SecuritySignatureUtils.generateProtectedHeaders(context, fileName)
+
+            // 3. Construir la petición OkHttp
+            val requestBuilder = Request.Builder()
+                .url(downloadUrl)
+                .removeHeader("User-Agent")
+
+            securityHeaders.forEach { (key, value) ->
+                requestBuilder.addHeader(key, value)
+            }
+
+            val request = requestBuilder.build()
+            val response = okHttpClient.newCall(request).execute()
+
+            if (!response.isSuccessful) {
+                val errorDetail = response.body?.string() ?: "Sin detalle"
+                android.util.Log.e("WORKER_ERROR", "Código ${response.code}: $errorDetail")
+                withContext(Dispatchers.Main) {
+                    listener.onError(Exception("HTTP ${response.code}: $errorDetail"))
+                }
+                return@withContext
+            }
+
+            val body = response.body
+            if (body == null) {
+                listener.onError(Exception("Cuerpo de respuesta vacío"))
+                return@withContext
+            }
+
+            val contentLength = body.contentLength()
+            val inputStream = body.byteStream()
+            val outputStream = FileOutputStream(destinationFile)
+
+            val buffer = ByteArray(8 * 1024) // Buffer de 8 KB
+            var bytesCopied = 0L
+            var lastProgress = -1
+
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    var bytes = input.read(buffer)
+                    while (bytes >= 0) {
+                        output.write(buffer, 0, bytes)
+                        bytesCopied += bytes
+
+                        // Calcular el porcentaje si conocemos el tamaño total del archivo
+                        if (contentLength > 0) {
+                            val progress = ((bytesCopied * 100) / contentLength).toInt()
+                            // Solo notificamos si el porcentaje cambia para evitar saturar el hilo principal
+                            if (progress != lastProgress) {
+                                lastProgress = progress
+                                withContext(Dispatchers.Main) {
+                                    listener.onProgress(progress)
+                                }
+                            }
+                        }
+                        bytes = input.read(buffer)
+                    }
+                }
+            }
+
+            // Descarga finalizada con éxito
+            withContext(Dispatchers.Main) {
+                listener.onCompleted(destinationFile)
+            }
+
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                listener.onError(e)
+            }
+        }
+    }
+
+
+    /*suspend fun downloadDatabase(
         downloadUrl: String, // URL completa del archivo .sqlite3 en el servidor
         destinationFileName: String, // Nombre con el que se guardará localmente (ej: "NVI.sqlite3")
         progressListener: DownloadProgressListener? = null
@@ -94,5 +180,5 @@ class DatabaseDownloader(@ApplicationContext private val context: Context) {
                 Log.e("Downloader", "Error al cerrar streams/conexión", ioe)
             }
         }
-    }
+    }*/
 }

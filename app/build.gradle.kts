@@ -44,7 +44,8 @@ android {
             resValue("string", "banner_ad_id", "ca-app-pub-3940256099942544/6300978111")
             resValue("string", "interstitial_ad_id", "ca-app-pub-3940256099942544/1033173712")
             resValue("string", "app_loaded_ad_id", "ca-app-pub-3940256099942544/9257395921")
-            resValue("string", "native_ad_id", "ca-app-pub-3940256099942544/9257395921")
+            resValue("string", "native_ad_id", "ca-app-pub-3940256099942544/2247696110")
+            resValue("string", "ad_unit_id", "ca-app-pub-3940256099942544/5354046379")
         }
         release {
             isMinifyEnabled = true
@@ -57,7 +58,8 @@ android {
             resValue("string", "banner_ad_id", secret("ADMOB_BANNER", "ca-app-pub-3940256099942544/6300978111"))
             resValue("string", "interstitial_ad_id", secret("ADMOB_INTERSTITIAL","ca-app-pub-3940256099942544/1033173712"))
             resValue("string", "app_loaded_ad_id", secret("ADMOB_APP_OPEN","ca-app-pub-3940256099942544/9257395921"))
-            resValue("string", "native_ad_id", secret("ADMOB_NATIVE","ca-app-pub-3940256099942544/9257395921"))
+            resValue("string", "native_ad_id", secret("ADMOB_NATIVE","ca-app-pub-3940256099942544/2247696110"))
+            resValue("string", "ad_unit_id", secret("AD_UNIT_ID","ca-app-pub-3940256099942544/5354046379"))
 
         }
     }
@@ -117,6 +119,9 @@ dependencies {
     implementation("androidx.media:media:1.7.0")
 
     implementation("com.google.android.gms:play-services-ads:23.0.0")
+
+    // Cliente HTTP OkHttp (para hacer las peticiones y leer por chunks)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     //Firebase
     implementation(platform(libs.firebase.bom))

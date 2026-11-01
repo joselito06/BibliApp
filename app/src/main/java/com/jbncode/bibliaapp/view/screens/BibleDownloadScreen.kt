@@ -49,6 +49,7 @@ import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.utils.InterstitialAdManager
+import com.jbncode.bibliaapp.utils.RewardedDownloadAdManager
 import com.jbncode.bibliaapp.view.components.BannerAd
 
 @Composable
@@ -74,6 +75,7 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
 
     // Configurar el callback en el ViewModel
     LaunchedEffect(viewModel, navController) {
+        RewardedDownloadAdManager.preloadAd(context)
         viewModel.onNavigateToRestartScreen = {
             // Asegúrate de que la navegación se haga de una manera que limpie el backstack
             // si es necesario, o simplemente navega.
@@ -157,24 +159,19 @@ fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navC
                         bibleInfo = bible,
                         isCurrentlyActive = isActive,
                         onDownloadClick = {
-                            if(activity != null){
+                            /*if(activity != null){
                                 InterstitialAdManager.show(activity){
                                     viewModel.startDownload(bible)
                                 }
                             }else{
                                 viewModel.startDownload(bible)
+                            }*/
+                            RewardedDownloadAdManager.showAdThenDownload(context) {
+                                viewModel.startDownload(bible)
                             }
                         },
                         onActivateClick = {
-                            if(activity != null){
-                                InterstitialAdManager.show(activity){
-                                    viewModel.activateDownloadedDatabase(bible.database_name)
-                                }
-                            }else{
-                                viewModel.activateDownloadedDatabase(bible.database_name)
-                            }
-
-
+                            viewModel.activateDownloadedDatabase(bible.database_name)
                         },
                         onSetAsDefaultClick = if (isActive && !isDefaultAssetBible) {
                             { viewModel.activateDefaultDatabase() }

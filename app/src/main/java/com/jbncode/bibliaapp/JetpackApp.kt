@@ -49,7 +49,10 @@ class JetpackApp : Application(), Configuration.Provider {
         // Valores por defecto (coinciden con tu versionName actual)
         val defaultValues = mapOf(
             "min_version_required" to "1.0.0",
-            "latest_version" to "1.0.0"
+            "latest_version" to "1.0.0",
+            "app_open_min_minutes" to 10L,
+            "interstitial_min_interval_seconds" to 180L,
+            "interstitial_every_n" to 2L
         )
         remoteConfig.setDefaultsAsync(defaultValues)
 

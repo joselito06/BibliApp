@@ -290,17 +290,8 @@ fun BibleSelectionScreen(
                             // O si el identificador guardado es null Y esta biblia es la de assets.
                             isSelected = (viewModel.sharedPreferenceBible.getSelectedDatabaseFileName() ?: viewModel.defaultAssetDbIdentifier) == bibleInfo.storageIdentifier,
                             onBibleSelected = {
-                                if(activity != null){
-                                    InterstitialAdManager.show(activity){
-                                        Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
-                                        viewModel.setSelectedBible(bibleInfo)
-                                    }
-                                }else{
-                                    Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
-                                    viewModel.setSelectedBible(bibleInfo)
-                                }
-
-                                // La navegación a RestartingScreen se maneja desde el ViewModel
+                                Log.d("BibleSelection", "Intentando activar: ${bibleInfo.displayName}")
+                                viewModel.setSelectedBible(bibleInfo)
                             }
                         )
                     }

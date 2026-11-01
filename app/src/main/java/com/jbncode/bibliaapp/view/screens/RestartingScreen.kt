@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.utils.AdGate
 import kotlinx.coroutines.delay
 import kotlin.system.exitProcess
 
@@ -38,7 +39,7 @@ fun RestartingScreen(message: String = stringResource(R.string.restarting_screen
 
     LaunchedEffect(Unit) {
         delay(2000)
-
+        AdGate.skipNextAppOpen(context)
         val packageManager = context.packageManager
         val intent = packageManager.getLaunchIntentForPackage(context.packageName)
         val componentName = intent?.component
