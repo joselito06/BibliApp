@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.CollectionsBookmark
+import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
@@ -121,6 +122,12 @@ fun MoreScreen(
                         contentDescription = "Localized description",
                     )
                 }
+            )
+
+            ListItem(
+                modifier = Modifier.clickable { navigation.navigate(Routes.LibraryScreen.route) },
+                headlineContent = { Text(stringResource(R.string.library_title)) },
+                leadingContent = { Icon(Icons.Rounded.EditNote, contentDescription = null) }
             )
 
         }

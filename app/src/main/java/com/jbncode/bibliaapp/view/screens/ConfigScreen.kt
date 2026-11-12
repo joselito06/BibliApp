@@ -61,6 +61,7 @@ import com.jbncode.bibliaapp.ui.theme.AppThemeType
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel
 import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
@@ -70,7 +71,7 @@ import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
 fun ConfigScreen(
     mainViewmodel: MainViewmodel,
     settingsViewmodel: SettingsViewmodel,
-    bibleViewmodel: BibleViewmodel,
+    playbackViewmodel: PlaybackViewModel,
     navigation: NavHostController
 ){
     val view = LocalView.current
@@ -79,8 +80,8 @@ fun ConfigScreen(
     val desiredStatusBarColor = MaterialTheme.colorScheme.primaryContainer // Ejemplo: Negro semi-transparente
     val desiredNavBarColor = MaterialTheme.colorScheme.primaryContainer    // Ejemplo: Un azul oscuro opaco
 
-    val announceVerseNumbers by bibleViewmodel.announceVerseNumbers.collectAsState()
-    val announceChapterTitles by bibleViewmodel.announceChapterTitles.collectAsState()
+    val announceVerseNumbers by playbackViewmodel.announceVerseNumbers.collectAsState()
+    val announceChapterTitles by playbackViewmodel.announceChapterTitles.collectAsState()
 
     if (!view.isInEditMode) {
         val window = view.context.findActivity()?.window
@@ -213,8 +214,8 @@ fun ConfigScreen(
             TTSSettingsSection(
                 announceVerseNumbers = announceVerseNumbers,
                 announceChapterTitles = announceChapterTitles,
-                onAnnounceVerseNumbersChanged = { bibleViewmodel.setAnnounceVerseNumbers(it) },
-                onAnnounceChapterTitlesChanged = { bibleViewmodel.setAnnounceChapterTitles(it) }
+                onAnnounceVerseNumbersChanged = { playbackViewmodel.setAnnounceVerseNumbers(it) },
+                onAnnounceChapterTitlesChanged = { playbackViewmodel.setAnnounceChapterTitles(it) }
             )
 
         }

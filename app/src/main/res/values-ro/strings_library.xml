@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_best_streak">Cel mai bun: %1$d</string>
+    <string name="home_today_done">Ai citit astăzi</string>
+    <string name="home_today_pending">Citește un capitol astăzi ca să-ți menții seria</string>
+    <string name="home_bible_read">Biblie citită</string>
+    <string name="library_title">Biblioteca mea</string>
+    <string name="library_notes">Notițe</string>
+    <string name="library_favorites">Favorite</string>
+    <string name="library_highlights">Evidențieri</string>
+    <string name="library_empty">Nimic aici încă. Selectează un verset în timp ce citești pentru a-l salva.</string>
+    <string name="note_hint">Scrie notița ta…</string>
+    <string name="note_save">Salvează</string>
+    <string name="note_delete">Șterge</string>
+    <string name="action_favorite">Favorit</string>
+    <string name="action_highlight">Evidențiază</string>
+    <string name="action_note">Notiță</string>
+    <string name="action_remove_highlight">Elimină evidențierea</string>
+    <string name="quick_action_library">Bibliotecă</string>
+</resources>

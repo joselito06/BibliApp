@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_best_streak">Best: %1$d</string>
+    <string name="home_today_done">You\'ve read today</string>
+    <string name="home_today_pending">Read a chapter today to keep your streak</string>
+    <string name="home_bible_read">Bible read</string>
+    <string name="library_title">My library</string>
+    <string name="library_notes">Notes</string>
+    <string name="library_favorites">Favorites</string>
+    <string name="library_highlights">Highlights</string>
+    <string name="library_empty">Nothing here yet. Select a verse while reading to save it.</string>
+    <string name="note_hint">Write your note…</string>
+    <string name="note_save">Save</string>
+    <string name="note_delete">Delete</string>
+    <string name="action_favorite">Favorite</string>
+    <string name="action_highlight">Highlight</string>
+    <string name="action_note">Note</string>
+    <string name="action_remove_highlight">Remove highlight</string>
+    <string name="quick_action_library">Library</string>
+</resources>

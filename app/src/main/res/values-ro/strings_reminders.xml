@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminder_channel_name">Mementouri de lectură</string>
+    <string name="reminder_channel_desc">Mementouri discrete pentru a-ți menține seria de lectură.</string>
+    <string name="reminder_streak_text">Astăzi: %1$s. Doar câteva minute.</string>
+    <string name="reminder_continue_title">Continuă de unde ai rămas</string>
+    <string name="reminder_continue_text">%1$s te așteaptă.</string>
+    <string name="reminder_evening_title">Protejează-mi seria</string>
+    <string name="reminder_evening_desc">O notificare discretă seara, doar dacă nu ai citit încă astăzi.</string>
+    <string name="reminder_evening_time">Ora mementoului</string>
+    <plurals name="reminder_streak_title">
+        <item quantity="one">Seria ta de %d zi te așteaptă</item>
+        <item quantity="few">Seria ta de %d zile te așteaptă</item>
+        <item quantity="other">Seria ta de %d de zile te așteaptă</item>
+    </plurals>
+</resources>

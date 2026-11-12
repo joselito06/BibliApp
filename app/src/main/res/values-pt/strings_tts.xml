@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tts_voice_title">Voz e velocidade</string>
+    <string name="tts_speed_label">Velocidade de leitura</string>
+    <string name="tts_voice_pick">Escolher voz</string>
+    <string name="tts_voice_auto">Automática (a melhor para esta Bíblia)</string>
+    <string name="tts_voice_online">online</string>
+    <string name="tts_voice_none">Nenhuma voz instalada para este idioma.</string>
+    <string name="tts_voice_missing">Seu celular não tem voz para %1$s. Instale-a para ouvir.</string>
+</resources>

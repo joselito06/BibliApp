@@ -56,6 +56,8 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     private val KEY_APP_LANGUAGE = "app_language_code"
     private  val SHARED_VERSE_DAILY_INDEX = "VersePrefs"
 
+    private val KEY_ONBOARDING_DONE = "onboarding_done"
+
     private val storage = context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE)
     private val storage2 = context.getSharedPreferences(SHARED_VERSE_DAILY_INDEX, Context.MODE_PRIVATE)
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -334,5 +336,16 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     fun markFirstLaunchDone() {
         storage.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
     }
+
+    fun isOnboardingDone(): Boolean =
+        storage.getBoolean(KEY_ONBOARDING_DONE, !storage.getBoolean(KEY_FIRST_LAUNCH, true))
+
+    fun markOnboardingDone() {
+        storage.edit { putBoolean(KEY_ONBOARDING_DONE, true) }
+    }
+
+    fun getLastReadingDate(): String? = storage.getString(KEY_LAST_READING_DATE, null)
+    fun isStatsMigrated(): Boolean = storage.getBoolean("stats_migrated", false)
+    fun markStatsMigrated() { storage.edit { putBoolean("stats_migrated", true) } }
 
 }

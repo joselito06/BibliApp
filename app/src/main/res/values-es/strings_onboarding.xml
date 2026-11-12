@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_back">Atrás</string>
+    <string name="onboarding_lang_title">Elige tu idioma</string>
+    <string name="onboarding_lang_sub">Detectamos el idioma de tu teléfono. Puedes cambiarlo cuando quieras.</string>
+    <string name="onboarding_detected">Detectado</string>
+    <string name="onboarding_bible_title">Elige tu Biblia</string>
+    <string name="onboarding_bible_sub">Estas versiones están recomendadas para tu idioma. Puedes cambiarla luego en Más → Otras Biblias.</string>
+    <string name="onboarding_recommended">Recomendada</string>
+    <string name="onboarding_included">Incluida, funciona sin conexión</string>
+    <string name="onboarding_to_download">Se descargará</string>
+    <string name="onboarding_downloading">Descargando… %1$d%%</string>
+    <string name="onboarding_error">No se pudo descargar. Revisa tu conexión.</string>
+    <string name="onboarding_retry">Reintentar</string>
+    <string name="onboarding_use_default">Usar la Biblia incluida</string>
+    <string name="onboarding_notif_title">Un versículo cada día</string>
+    <string name="onboarding_notif_body">Te avisamos a la hora que elijas para ayudarte a mantener tu racha. Máximo un aviso al día.</string>
+    <string name="onboarding_notif_enable">Activar recordatorios</string>
+    <string name="onboarding_notif_later">Ahora no</string>
+    <string name="onboarding_guide_title">Así se usa</string>
+    <string name="onboarding_guide_sub">Tres cosas para empezar</string>
+    <string name="onboarding_guide_tap">Toca un versículo para copiarlo, compartirlo o guardarlo.</string>
+    <string name="onboarding_guide_chapter">Cambia de capítulo con las flechas de abajo, o elige un libro arriba.</string>
+    <string name="onboarding_guide_listen">Pulsa reproducir para escuchar el capítulo, incluso con la pantalla apagada.</string>
+    <string name="onboarding_start">Empezar a leer</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminder_channel_name">Reading reminders</string>
+    <string name="reminder_channel_desc">Gentle reminders to keep your reading streak.</string>
+    <string name="reminder_streak_text">Today: %1$s. Just a few minutes.</string>
+    <string name="reminder_continue_title">Pick up where you left off</string>
+    <string name="reminder_continue_text">%1$s is waiting for you.</string>
+    <string name="reminder_evening_title">Protect my streak</string>
+    <string name="reminder_evening_desc">A gentle reminder in the evening, only if you haven\'t read today.</string>
+    <string name="reminder_evening_time">Reminder time</string>
+    <plurals name="reminder_streak_title">
+        <item quantity="one">Your %d-day streak is waiting for you</item>
+        <item quantity="other">Your %d-day streak is waiting for you</item>
+    </plurals>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminder_channel_name">Recordatorios de lectura</string>
+    <string name="reminder_channel_desc">Recordatorios suaves para mantener tu racha de lectura.</string>
+    <string name="reminder_streak_text">Hoy: %1$s. Solo unos minutos.</string>
+    <string name="reminder_continue_title">Sigue donde te quedaste</string>
+    <string name="reminder_continue_text">%1$s te espera.</string>
+    <string name="reminder_evening_title">Proteger mi racha</string>
+    <string name="reminder_evening_desc">Un aviso suave por la noche, solo si aún no has leído hoy.</string>
+    <string name="reminder_evening_time">Hora del recordatorio</string>
+    <plurals name="reminder_streak_title">
+        <item quantity="one">Tu racha de %d día te espera</item>
+        <item quantity="many">Tu racha de %d días te espera</item>
+        <item quantity="other">Tu racha de %d días te espera</item>
+    </plurals>
+</resources>

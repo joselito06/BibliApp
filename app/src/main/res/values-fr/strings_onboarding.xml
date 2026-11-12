@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_continue">Continuer</string>
+    <string name="onboarding_back">Retour</string>
+    <string name="onboarding_lang_title">Choisissez votre langue</string>
+    <string name="onboarding_lang_sub">Nous avons détecté la langue de votre téléphone. Vous pouvez la changer à tout moment.</string>
+    <string name="onboarding_detected">Détectée</string>
+    <string name="onboarding_bible_title">Choisissez votre Bible</string>
+    <string name="onboarding_bible_sub">Ces versions sont recommandées pour votre langue. Vous pourrez en changer dans Plus → Autres Bibles.</string>
+    <string name="onboarding_recommended">Recommandée</string>
+    <string name="onboarding_included">Incluse, fonctionne hors ligne</string>
+    <string name="onboarding_to_download">Sera téléchargée</string>
+    <string name="onboarding_downloading">Téléchargement… %1$d%%</string>
+    <string name="onboarding_error">Échec du téléchargement. Vérifiez votre connexion.</string>
+    <string name="onboarding_retry">Réessayer</string>
+    <string name="onboarding_use_default">Utiliser la Bible incluse</string>
+    <string name="onboarding_notif_title">Un verset chaque jour</string>
+    <string name="onboarding_notif_body">Nous vous rappelons à l\'heure de votre choix pour maintenir votre série. Un seul rappel par jour au maximum.</string>
+    <string name="onboarding_notif_enable">Activer les rappels</string>
+    <string name="onboarding_notif_later">Pas maintenant</string>
+    <string name="onboarding_guide_title">Comment ça marche</string>
+    <string name="onboarding_guide_sub">Trois choses pour commencer</string>
+    <string name="onboarding_guide_tap">Touchez un verset pour le copier, le partager ou l\'enregistrer.</string>
+    <string name="onboarding_guide_chapter">Changez de chapitre avec les flèches en bas, ou choisissez un livre en haut.</string>
+    <string name="onboarding_guide_listen">Appuyez sur lecture pour écouter le chapitre, même écran éteint.</string>
+    <string name="onboarding_start">Commencer à lire</string>
+</resources>

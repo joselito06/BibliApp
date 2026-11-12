@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tts_voice_title">Voce și viteză</string>
+    <string name="tts_speed_label">Viteza de citire</string>
+    <string name="tts_voice_pick">Alege vocea</string>
+    <string name="tts_voice_auto">Automată (cea mai bună pentru această Biblie)</string>
+    <string name="tts_voice_online">online</string>
+    <string name="tts_voice_none">Nu există voci instalate pentru această limbă.</string>
+    <string name="tts_voice_missing">Telefonul tău nu are voce pentru %1$s. Instalează-o pentru a asculta.</string>
+</resources>

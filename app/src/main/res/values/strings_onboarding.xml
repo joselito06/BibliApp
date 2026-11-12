@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_lang_title">Choose your language</string>
+    <string name="onboarding_lang_sub">We detected your phone\'s language. You can change it anytime.</string>
+    <string name="onboarding_detected">Detected</string>
+    <string name="onboarding_bible_title">Choose your Bible</string>
+    <string name="onboarding_bible_sub">These versions are recommended for your language. You can switch later in More → Other Bibles.</string>
+    <string name="onboarding_recommended">Recommended</string>
+    <string name="onboarding_included">Included, works offline</string>
+    <string name="onboarding_to_download">Will be downloaded</string>
+    <string name="onboarding_downloading">Downloading… %1$d%%</string>
+    <string name="onboarding_error">Couldn\'t download. Check your connection.</string>
+    <string name="onboarding_retry">Try again</string>
+    <string name="onboarding_use_default">Use the included Bible</string>
+    <string name="onboarding_notif_title">A verse every day</string>
+    <string name="onboarding_notif_body">We\'ll remind you at the time you choose so you can keep your streak. One notice per day at most.</string>
+    <string name="onboarding_notif_enable">Turn on reminders</string>
+    <string name="onboarding_notif_later">Not now</string>
+    <string name="onboarding_guide_title">How it works</string>
+    <string name="onboarding_guide_sub">Three things to get you started</string>
+    <string name="onboarding_guide_tap">Tap a verse to copy it, share it, or save it.</string>
+    <string name="onboarding_guide_chapter">Change chapter with the arrows below, or pick a book at the top.</string>
+    <string name="onboarding_guide_listen">Press play to listen to the chapter, even with the screen off.</string>
+    <string name="onboarding_start">Start reading</string>
+</resources>

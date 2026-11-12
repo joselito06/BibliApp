@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reader_old_testament">Antiguo Testamento</string>
+    <string name="reader_new_testament">Nuevo Testamento</string>
+    <string name="reader_clear_selection">Quitar selección</string>
+</resources>

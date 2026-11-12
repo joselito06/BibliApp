@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_back">Voltar</string>
+    <string name="onboarding_lang_title">Escolha seu idioma</string>
+    <string name="onboarding_lang_sub">Detectamos o idioma do seu celular. Você pode mudá-lo quando quiser.</string>
+    <string name="onboarding_detected">Detectado</string>
+    <string name="onboarding_bible_title">Escolha sua Bíblia</string>
+    <string name="onboarding_bible_sub">Estas versões são recomendadas para o seu idioma. Você pode trocar depois em Mais → Outras Bíblias.</string>
+    <string name="onboarding_recommended">Recomendada</string>
+    <string name="onboarding_included">Incluída, funciona sem internet</string>
+    <string name="onboarding_to_download">Será baixada</string>
+    <string name="onboarding_downloading">Baixando… %1$d%%</string>
+    <string name="onboarding_error">Não foi possível baixar. Verifique sua conexão.</string>
+    <string name="onboarding_retry">Tentar novamente</string>
+    <string name="onboarding_use_default">Usar a Bíblia incluída</string>
+    <string name="onboarding_notif_title">Um versículo por dia</string>
+    <string name="onboarding_notif_body">Avisamos no horário que você escolher para ajudar a manter sua sequência. No máximo um aviso por dia.</string>
+    <string name="onboarding_notif_enable">Ativar lembretes</string>
+    <string name="onboarding_notif_later">Agora não</string>
+    <string name="onboarding_guide_title">Como usar</string>
+    <string name="onboarding_guide_sub">Três coisas para começar</string>
+    <string name="onboarding_guide_tap">Toque em um versículo para copiar, compartilhar ou salvar.</string>
+    <string name="onboarding_guide_chapter">Mude de capítulo com as setas abaixo ou escolha um livro no topo.</string>
+    <string name="onboarding_guide_listen">Toque em reproduzir para ouvir o capítulo, mesmo com a tela apagada.</string>
+    <string name="onboarding_start">Começar a ler</string>
+</resources>

@@ -12,5 +12,7 @@ sealed class Routes(val route: String) {
     object ShareScreen: Routes("shareScreen")
     object BibleDownloadScreen: Routes("bibleDownloadScreen")
     object RestartingScreen: Routes("restartingScreen")
+    object OnboardingScreen: Routes("onboardingScreen")
+    object LibraryScreen: Routes("libraryScreen")
 
 }

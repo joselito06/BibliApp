@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_continue">Continuă</string>
+    <string name="onboarding_back">Înapoi</string>
+    <string name="onboarding_lang_title">Alege limba</string>
+    <string name="onboarding_lang_sub">Am detectat limba telefonului tău. O poți schimba oricând.</string>
+    <string name="onboarding_detected">Detectată</string>
+    <string name="onboarding_bible_title">Alege Biblia</string>
+    <string name="onboarding_bible_sub">Aceste versiuni sunt recomandate pentru limba ta. O poți schimba mai târziu din Mai mult → Alte Biblii.</string>
+    <string name="onboarding_recommended">Recomandată</string>
+    <string name="onboarding_included">Inclusă, funcționează offline</string>
+    <string name="onboarding_to_download">Va fi descărcată</string>
+    <string name="onboarding_downloading">Se descarcă… %1$d%%</string>
+    <string name="onboarding_error">Descărcarea a eșuat. Verifică conexiunea.</string>
+    <string name="onboarding_retry">Reîncearcă</string>
+    <string name="onboarding_use_default">Folosește Biblia inclusă</string>
+    <string name="onboarding_notif_title">Un verset în fiecare zi</string>
+    <string name="onboarding_notif_body">Te anunțăm la ora aleasă ca să-ți menții seria. Cel mult o notificare pe zi.</string>
+    <string name="onboarding_notif_enable">Activează mementourile</string>
+    <string name="onboarding_notif_later">Nu acum</string>
+    <string name="onboarding_guide_title">Cum funcționează</string>
+    <string name="onboarding_guide_sub">Trei lucruri pentru început</string>
+    <string name="onboarding_guide_tap">Atinge un verset pentru a-l copia, distribui sau salva.</string>
+    <string name="onboarding_guide_chapter">Schimbă capitolul cu săgețile de jos sau alege o carte sus.</string>
+    <string name="onboarding_guide_listen">Apasă redare pentru a asculta capitolul, chiar cu ecranul stins.</string>
+    <string name="onboarding_start">Începe lectura</string>
+</resources>
