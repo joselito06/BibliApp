@@ -22,6 +22,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,6 +75,7 @@ import com.jbncode.bibliaapp.ui.feature.onboarding.OnboardingScreen
 import com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel
 import com.jbncode.bibliaapp.ui.feature.reader.ReaderScreen
 import com.jbncode.bibliaapp.ui.feature.reader.ReaderViewModel
+import com.jbncode.bibliaapp.ui.feature.search.SearchScreen
 import com.jbncode.bibliaapp.ui.theme.BibliaAppTheme
 import com.jbncode.bibliaapp.utils.AppOpenManager
 import com.jbncode.bibliaapp.utils.InterstitialAdManager
@@ -117,7 +124,7 @@ class MainActivity : ComponentActivity() {
 
     companion object { const val EXTRA_DESTINATION = "dest" }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingDestination.value = intent?.getStringExtra(EXTRA_DESTINATION)
@@ -184,7 +191,9 @@ class MainActivity : ComponentActivity() {
             val currentAppTheme by settingViewmodel.appTheme.collectAsState()
             val onThemeChange: (com.jbncode.bibliaapp.ui.theme.AppThemeType) -> Unit = { settingViewmodel.setAppTheme(it) }
 
-            val isSpeaking by playbackViewModel.isSpeaking.collectAsState()
+            // Lector y búsqueda dibujan su propio encabezado bajo la barra de estado.
+            val currentRoute = navBackStackEntry?.destination?.route
+            val fullBleed = currentRoute == Routes.BibleScreen.route || currentRoute == Routes.SearchScreen.route
 
             if (showUpdate) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -194,6 +203,8 @@ class MainActivity : ComponentActivity() {
                 BibliaAppTheme(selectedTheme = currentAppTheme) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
+                        contentWindowInsets = if (fullBleed) WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                        else ScaffoldDefaults.contentWindowInsets,
                         topBar = {
                             val route = navBackStackEntry?.destination?.route
                             val canPop = route != Routes.HomeScreen.route &&
@@ -223,27 +234,14 @@ class MainActivity : ComponentActivity() {
                         },
                         bottomBar = {
                             if (isBottomBarVisible) {
-                                val stopReading = { playbackViewModel.stop() }
                                 if (navBackStackEntry?.destination?.route == Routes.BibleScreen.route) {
                                     AnimatedVisibility(
                                         visible = !isScrollingDown,
                                         enter = fadeIn() + slideInVertically { it },
                                         exit = fadeOut() + slideOutVertically { it }
-                                    ) {
-                                        NavigationBottomJBN(
-                                            navigation = navigation,
-                                            isBottomBarVisible = isBottomBarVisible,
-                                            isSpeaking = isSpeaking,
-                                            onStopReading = stopReading
-                                        )
-                                    }
+                                    ) { NavigationBottomJBN(navigation) }
                                 } else {
-                                    NavigationBottomJBN(
-                                        navigation = navigation,
-                                        isBottomBarVisible = isBottomBarVisible,
-                                        isSpeaking = isSpeaking,
-                                        onStopReading = stopReading
-                                    )
+                                    NavigationBottomJBN(navigation)
                                 }
                             }
                         }
@@ -265,7 +263,10 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 composable(Routes.BibleScreen.route) {
-                                    ReaderScreen(mainViewModel, readerViewModel, playbackViewModel)
+                                    ReaderScreen(mainViewModel, readerViewModel, playbackViewModel, navigation)
+                                }
+                                composable(Routes.SearchScreen.route) {
+                                    SearchScreen(mainViewModel, readerViewModel, navigation)
                                 }
                                 composable(Routes.MoreScreen.route) {
                                     MoreScreen(

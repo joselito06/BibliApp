@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="more_section_space">Your space</string>
+    <string name="more_section_bible">Bible</string>
+    <string name="more_section_app">Application</string>
+    <string name="verses_today_label">Today</string>
+    <string name="about_contact_support">Contact support</string>
+    <string name="reader_resume_from">Resuming from verse %1$d</string>
+</resources>

@@ -255,7 +255,10 @@ class TtsController @Inject constructor(
                 if (g != generation) return@launch
                 val i = tail.toIntOrNull() ?: return@launch
                 index = i
-                verses.getOrNull(i)?.let { v -> _state.update { it.copy(verse = v.verse) } }
+                verses.getOrNull(i)?.let { v ->
+                    _state.update { it.copy(verse = v.verse) }
+                    settings.saveLastPlayback(book, chapter, v.verse)   // para reanudar luego
+                }
             }
         }
         override fun onDone(utteranceId: String?) {

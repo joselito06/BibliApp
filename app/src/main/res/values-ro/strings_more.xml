@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="more_section_space">Spațiul tău</string>
+    <string name="more_section_bible">Biblia</string>
+    <string name="more_section_app">Aplicație</string>
+    <string name="verses_today_label">Astăzi</string>
+    <string name="about_contact_support">Contactează asistența</string>
+    <string name="reader_resume_from">Se reia de la versetul %1$d</string>
+</resources>

@@ -93,6 +93,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.jbncode.bibliaapp.R
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavHostController
+import com.jbncode.bibliaapp.ui.components.ScreenHeader
+import com.jbncode.bibliaapp.view.Routes
+import java.util.Locale
 import com.jbncode.bibliaapp.core.share.ShareLinks
 import com.jbncode.bibliaapp.core.share.VerseTextFormatter
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -111,6 +124,7 @@ fun ReaderScreen(
     mainViewmodel: MainViewmodel,
     reader: ReaderViewModel,
     playback: PlaybackViewModel,
+    navigation: NavHostController,
     annotations: AnnotationsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -125,10 +139,19 @@ fun ReaderScreen(
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var showPicker by remember { mutableStateOf(false) }
     var noteTarget by remember { mutableStateOf<NoteTarget?>(null) }
+    var showVoiceSheet by remember { mutableStateOf(false) }
     val book = books.firstOrNull { it.osis == position.book }
+    val ttsState by playback.state.collectAsState()
+    val rate by playback.speechRate.collectAsState()
+    val chapterVerses by produceState<List<Verse>>(emptyList(), activeFile, position.book, position.chapter) {
+        value = runCatching { reader.loadChapter(position.book, position.chapter) }.getOrDefault(emptyList())
+    }
+    // Progreso dentro del capítulo que se está leyendo.
+    val progress = if (ttsState.chapter == position.chapter && ttsState.verse > 0 && chapterVerses.isNotEmpty())
+        (chapterVerses.indexOfFirst { it.verse == ttsState.verse } + 1).toFloat() / chapterVerses.size else 0f
 
     SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
-    LaunchedEffect(Unit) { mainViewmodel.showTopAppBar(true); mainViewmodel.showBottomBar(true) }
+    LaunchedEffect(Unit) { mainViewmodel.showTopAppBar(false); mainViewmodel.showBottomBar(true) }
     BackHandler(enabled = selected.isNotEmpty()) { selected = emptySet() }
 
     val owner = LocalLifecycleOwner.current
@@ -162,7 +185,12 @@ fun ReaderScreen(
 
     Box(Modifier.fillMaxSize().nestedScroll(scrollWatcher)) {
         Column(Modifier.fillMaxSize()) {
-            BookHeader(book, info.code, position.chapter, reader::previousBook, reader::nextBook) { showPicker = true }
+            ReaderHeader(
+                bookName = book.name, versionTitle = info.title, chapter = position.chapter,
+                onPick = { showPicker = true },
+                onSearch = { navigation.navigate(Routes.SearchScreen.route) },
+                onVersions = { navigation.navigate(Routes.BibleSelectionScreen.route) }
+            )
 
             key(book.osis, activeFile) {
                 val pagerState = rememberPagerState(
@@ -203,20 +231,31 @@ fun ReaderScreen(
                     onClear = { selected = emptySet() }
                 )
             }
-            ReaderControls(
-                chapter = position.chapter, isSpeaking = isSpeaking, isPaused = isPaused,
+            val speakingNow = isSpeaking || isPaused
+            if (speakingNow) {
+                PlayerCard(
+                    title = "${ttsState.bookName.ifBlank { book.name }} ${ttsState.chapter.takeIf { it > 0 } ?: position.chapter}",
+                    verse = ttsState.verse, progress = progress, voiceTag = ttsState.languageTag, rate = rate, paused = isPaused,
+                    onToggle = { if (isPaused) playback.resume() else playback.pause() },
+                    onPrev = { playback.skip(-1) }, onNext = { playback.skip(1) }, onStop = playback::stop,
+                    onSettings = { showVoiceSheet = true }
+                )
+            }
+            ChapterBar(
+                chapter = position.chapter, showPlay = !speakingNow,
                 onPrev = reader::previousChapter, onNext = reader::nextChapter, onPick = { showPicker = true },
-                onPlayStop = {
-                    when {
-                        isSpeaking -> playback.stop()
-                        isPaused -> playback.resume()
-                        else -> playback.play(position.book, position.chapter, selected.minOrNull() ?: 1)
+                onPlay = {
+                    val from = selected.minOrNull() ?: playback.resumeVerse(position.book, position.chapter)
+                    if (selected.isEmpty() && from > 1) {
+                        Toast.makeText(context, context.getString(R.string.reader_resume_from, from), Toast.LENGTH_SHORT).show()
                     }
-                },
-                onPause = playback::pause
+                    playback.play(position.book, position.chapter, from)
+                }
             )
         }
     }
+
+    if (showVoiceSheet) VoiceSettingsSheet(playback) { showVoiceSheet = false }
 
     noteTarget?.let { t ->
         NoteDialog(
@@ -324,23 +363,6 @@ private fun VerseRow(v: Verse, selected: Boolean, speaking: Boolean, highlight: 
     }
 }
 
-@Composable
-private fun BookHeader(book: Book, versionCode: String, chapter: Int, onPrev: () -> Unit, onNext: () -> Unit, onOpen: () -> Unit) {
-    Card(
-        Modifier.fillMaxWidth(), shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onPrev) { Icon(Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null) }
-            Column(Modifier.weight(1f).clickable(onClick = onOpen).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(book.name, style = MaterialTheme.typography.headlineSmall, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold)
-                Text("${stringResource(R.string.bible_chapter_label)} $chapter · ${versionCode.uppercase()}", style = MaterialTheme.typography.labelMedium)
-            }
-            IconButton(onClick = onNext) { Icon(Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null) }
-        }
-    }
-}
-
 private data class NoteTarget(val from: Int, val to: Int, val existing: UserItemEntity?)
 
 private val HIGHLIGHT_COLORS = listOf(0xFFFFF176, 0xFFA5D6A7, 0xFF90CAF9, 0xFFF48FB1).map { it.toInt() }
@@ -402,28 +424,97 @@ private fun NoteDialog(title: String, existing: UserItemEntity?, onSave: (String
 }
 
 @Composable
-private fun ReaderControls(
-    chapter: Int, isSpeaking: Boolean, isPaused: Boolean,
-    onPrev: () -> Unit, onNext: () -> Unit, onPick: () -> Unit, onPlayStop: () -> Unit, onPause: () -> Unit
+private fun ReaderHeader(
+    bookName: String, versionTitle: String, chapter: Int,
+    onPick: () -> Unit, onSearch: () -> Unit, onVersions: () -> Unit
+) {
+    ScreenHeader {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    versionTitle, Modifier.clickable(onClick = onVersions), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    bookName, Modifier.clickable(onClick = onPick), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineMedium, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold
+                )
+            }
+            IconButton(onClick = onSearch) { Icon(Icons.Rounded.Search, stringResource(R.string.navigarion_bar_search)) }
+            AssistChip(
+                onClick = onPick,
+                label = { Text("${stringResource(R.string.bible_chapter_label)} $chapter") },
+                trailingIcon = { Icon(Icons.Rounded.ArrowDropDown, contentDescription = null) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoPill(text: String) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.tertiaryContainer) {
+        Text(text, Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+    }
+}
+
+/** Solo aparece mientras se lee en voz alta. */
+@Composable
+private fun PlayerCard(
+    title: String, verse: Int, progress: Float, voiceTag: String, rate: Float, paused: Boolean,
+    onToggle: () -> Unit, onPrev: () -> Unit, onNext: () -> Unit, onStop: () -> Unit, onSettings: () -> Unit
 ) {
     Card(
-        Modifier.fillMaxWidth(), shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        elevation = CardDefaults.cardElevation(16.dp)
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 8.dp), shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Row(Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-            ElevatedCard(
-                Modifier.weight(3f), shape = RoundedCornerShape(50),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = onPrev) { Icon(Icons.AutoMirrored.Rounded.ArrowBackIos, null) }
-                    TextButton(onClick = onPick) { Text("${stringResource(R.string.bible_chapter_label)} $chapter") }
-                    TextButton(onClick = onNext) { Icon(Icons.AutoMirrored.Rounded.ArrowForwardIos, null) }
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FilledIconButton(onClick = onToggle, modifier = Modifier.size(46.dp)) {
+                    Icon(
+                        if (paused) Icons.Rounded.PlayArrow else Icons.Rounded.Pause,
+                        stringResource(if (paused) R.string.bible_notification_play else R.string.bible_notification_pause)
+                    )
                 }
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                    Text(title, maxLines = 1, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.reader_reading_verse, verse), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                IconButton(onClick = onPrev) { Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.reader_prev_verse)) }
+                IconButton(onClick = onNext) { Icon(Icons.Rounded.SkipNext, stringResource(R.string.reader_next_verse)) }
+                IconButton(onClick = onStop) { Icon(Icons.Rounded.Stop, stringResource(R.string.bible_notification_stop)) }
             }
-            IconButton(onClick = onPlayStop) { Icon(if (isSpeaking) Icons.Rounded.Stop else Icons.Rounded.PlayArrow, contentDescription = null) }
-            IconButton(onClick = onPause, enabled = isSpeaking) { Icon(Icons.Rounded.Pause, contentDescription = null) }
+            Row(
+                Modifier.fillMaxWidth().padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (voiceTag.isNotBlank()) InfoPill(stringResource(R.string.reader_voice_chip, voiceTag))
+                InfoPill(String.format(Locale.US, "%.1fx", rate))
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = onSettings) { Icon(Icons.Rounded.Tune, stringResource(R.string.tts_voice_title)) }
+            }
+            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp))
+        }
+    }
+}
+
+@Composable
+private fun ChapterBar(chapter: Int, showPlay: Boolean, onPrev: () -> Unit, onNext: () -> Unit, onPick: () -> Unit, onPlay: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Surface(Modifier.weight(1f), shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceContainerHigh, shadowElevation = 6.dp) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onPrev) { Icon(Icons.AutoMirrored.Rounded.ArrowBackIos, contentDescription = null) }
+                TextButton(onClick = onPick) { Text("${stringResource(R.string.bible_chapter_label)} $chapter", fontWeight = FontWeight.SemiBold) }
+                IconButton(onClick = onNext) { Icon(Icons.AutoMirrored.Rounded.ArrowForwardIos, contentDescription = null) }
+            }
+        }
+        if (showPlay) {
+            FilledIconButton(onClick = onPlay, modifier = Modifier.size(52.dp)) {
+                Icon(Icons.Rounded.PlayArrow, stringResource(R.string.bible_notification_play))
+            }
         }
     }
 }

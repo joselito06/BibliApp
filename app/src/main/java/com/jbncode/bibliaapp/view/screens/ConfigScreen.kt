@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
@@ -36,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,24 +47,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
-import com.jbncode.bibliaapp.domain.model.AppLanguage
-import com.jbncode.bibliaapp.ui.theme.AppThemeType
-import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
-import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.domain.model.AppLanguage
+import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel
+import com.jbncode.bibliaapp.ui.feature.settings.VoiceSettingsCard
+import com.jbncode.bibliaapp.ui.theme.AppThemeType
 import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.components.BannerAd
-import com.jbncode.bibliaapp.view.viewmodel.BibleViewmodel
+import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
+import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,68 +71,27 @@ fun ConfigScreen(
     settingsViewmodel: SettingsViewmodel,
     playbackViewmodel: PlaybackViewModel,
     navigation: NavHostController
-){
-    val view = LocalView.current
-
-    // --- Define los colores que quieres para esta pantalla ---
-    val desiredStatusBarColor = MaterialTheme.colorScheme.primaryContainer // Ejemplo: Negro semi-transparente
-    val desiredNavBarColor = MaterialTheme.colorScheme.primaryContainer    // Ejemplo: Un azul oscuro opaco
+) {
+    SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
 
     val announceVerseNumbers by playbackViewmodel.announceVerseNumbers.collectAsState()
     val announceChapterTitles by playbackViewmodel.announceChapterTitles.collectAsState()
-
-    if (!view.isInEditMode) {
-        val window = view.context.findActivity()?.window
-        DisposableEffect(key1 = window, key2 = desiredStatusBarColor, key3 = desiredNavBarColor) {
-            window?.let { win ->
-                val originalStatusBarColor = win.statusBarColor
-                val originalNavBarColor = win.navigationBarColor
-                val insetsController = WindowCompat.getInsetsController(win, view)
-                val originalIsLightStatusBar = insetsController.isAppearanceLightStatusBars
-                val originalIsLightNavBar = insetsController.isAppearanceLightNavigationBars
-
-                // Establecer nuevos colores para las barras
-                win.statusBarColor = desiredStatusBarColor.toArgb()
-                win.navigationBarColor = desiredNavBarColor.toArgb()
-
-                // Ajustar el color de los iconos de las barras para contraste
-                // Si la barra es oscura, los iconos deben ser claros (isAppearanceLight... = false)
-                // Si la barra es clara, los iconos deben ser oscuros (isAppearanceLight... = true)
-                insetsController.isAppearanceLightStatusBars = !desiredStatusBarColor.isPerceivedAsDark()
-                insetsController.isAppearanceLightNavigationBars = !desiredNavBarColor.isPerceivedAsDark()
-
-                onDispose {
-                    // Restaurar colores e iconos originales al salir de la pantalla
-                    win.statusBarColor = originalStatusBarColor
-                    win.navigationBarColor = originalNavBarColor
-                    insetsController.isAppearanceLightStatusBars = originalIsLightStatusBar
-                    insetsController.isAppearanceLightNavigationBars = originalIsLightNavBar
-                }
-            } ?: onDispose {} // Si window es null, onDispose no tiene nada que hacer
-        }
-    }
-
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val scrollState = scrollBehavior.state
-    val isExpanded = scrollState.collapsedFraction < 0.05f
-    val topAppBarShape = if (isExpanded) {
-        RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp) // Solo esquinas inferiores redondeadas
-    } else {
-        RectangleShape // Forma rectangular normal cuando está colapsada o en transición
-    }
-    var showThemeDialog by remember { mutableStateOf(false) }
-    val currentAppTheme by settingsViewmodel.appTheme.collectAsState() // O el que prefieras por defecto
-    val onThemeChange: (AppThemeType) -> Unit = { newTheme ->
-        settingsViewmodel.setAppTheme(newTheme)
-    }
+    val currentAppTheme by settingsViewmodel.appTheme.collectAsState()
     val currentAppLanguage by settingsViewmodel.appLanguage.collectAsState()
+
+    var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
-    // Configurar el callback en el ViewModel para la navegación
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val shape = if (scrollBehavior.state.collapsedFraction < 0.05f) {
+        RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
+    } else RectangleShape
+
+    // Cambiar el idioma de la app sigue pasando por la pantalla de reinicio.
     LaunchedEffect(settingsViewmodel, navigation) {
         settingsViewmodel.onNavigateToRestartScreen = {
-            navigation.navigate(Routes.RestartingScreen.route) { // Usa tu constante de ruta
-                popUpTo(navigation.graph.startDestinationId) { inclusive = true } // Limpia backstack
+            navigation.navigate(Routes.RestartingScreen.route) {
+                popUpTo(navigation.graph.startDestinationId) { inclusive = true }
                 launchSingleTop = true
             }
         }
@@ -143,7 +100,6 @@ fun ConfigScreen(
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)
         mainViewmodel.showBottomBar(false)
-
     }
 
     Scaffold(
@@ -154,72 +110,74 @@ fun ConfigScreen(
                     TransformableTopAppBarTitle2(
                         scrollBehavior = scrollBehavior,
                         icon = Icons.Default.Settings,
-                        iconContentDescription = "Config",
+                        iconContentDescription = null,
                         titleText = stringResource(R.string.config_screen_title)
                     )
                 },
-                modifier = Modifier.clip(topAppBarShape),
+                modifier = Modifier.clip(shape),
                 colors = TopAppBarDefaults.largeTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer, // Color para título y TextField
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer, // Color de fondo al desplazar
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 navigationIcon = {
                     IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
-                },
-
-                actions = {
-
                 },
                 scrollBehavior = scrollBehavior
             )
         },
-        bottomBar = {
-            BannerAd(stringResource(R.string.banner_ad_id))
-        }
-
-        ) { innerPadding ->
+        bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
             SettingSectionTitle(stringResource(R.string.appearance_section_title))
-            SettingItem(
-                icon = Icons.Filled.Palette,
-                title = stringResource(R.string.theme_setting_title),
-                subtitle = getThemeDisplayName(currentAppTheme),
-                onClick = { showThemeDialog = true }
-            )
+            SettingsCard {
+                SettingItem(
+                    icon = Icons.Filled.Palette,
+                    title = stringResource(R.string.theme_setting_title),
+                    subtitle = getThemeDisplayName(currentAppTheme),
+                    onClick = { showThemeDialog = true }
+                )
+                HorizontalDivider(Modifier.padding(start = 56.dp))
+                SettingItem(
+                    icon = Icons.Filled.Language,
+                    title = stringResource(R.string.language_setting_title),
+                    subtitle = stringResource(currentAppLanguage.displayNameResId),
+                    onClick = { showLanguageDialog = true }
+                )
+            }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            SettingItem(
-                icon = Icons.Filled.Language, // Necesitarás este icono, por ejemplo, Icons.Default.Language
-                title = stringResource(R.string.language_setting_title),
-                subtitle = stringResource(currentAppLanguage.displayNameResId),
-                onClick = { showLanguageDialog = true }
-            )
+            SettingSectionTitle(stringResource(R.string.tts_settings_title))
+            SettingsCard {
+                SwitchItem(
+                    icon = Icons.AutoMirrored.Filled.VolumeUp,
+                    title = stringResource(R.string.announce_verse_numbers),
+                    checked = announceVerseNumbers,
+                    onChange = { playbackViewmodel.setAnnounceVerseNumbers(it) }
+                )
+                HorizontalDivider(Modifier.padding(start = 56.dp))
+                SwitchItem(
+                    icon = Icons.AutoMirrored.Filled.VolumeUp,
+                    title = stringResource(R.string.announce_chapter_titles),
+                    checked = announceChapterTitles,
+                    onChange = { playbackViewmodel.setAnnounceChapterTitles(it) }
+                )
+            }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            TTSSettingsSection(
-                announceVerseNumbers = announceVerseNumbers,
-                announceChapterTitles = announceChapterTitles,
-                onAnnounceVerseNumbersChanged = { playbackViewmodel.setAnnounceVerseNumbers(it) },
-                onAnnounceChapterTitlesChanged = { playbackViewmodel.setAnnounceChapterTitles(it) }
-            )
+            // Velocidad de lectura y selector de voz
+            VoiceSettingsCard(playbackViewmodel)
 
+            Spacer(Modifier.height(24.dp))
         }
     }
+
     if (showThemeDialog) {
         ThemeSelectionDialog(
             currentTheme = currentAppTheme,
@@ -237,23 +195,31 @@ fun ConfigScreen(
             onDismissRequest = { showLanguageDialog = false },
             onLanguageSelected = { newLanguage ->
                 settingsViewmodel.setAppLanguage(newLanguage)
-                // No es necesario recrear la Activity aquí manualmente,
-                // AppCompatDelegate lo hará al cambiar applicationLocales.
                 showLanguageDialog = false
             }
         )
     }
-
 }
 
 @Composable
 private fun SettingSectionTitle(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleSmall,
+        style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+        modifier = Modifier.padding(start = 8.dp, top = 20.dp, bottom = 8.dp)
     )
+}
+
+@Composable
+private fun SettingsCard(content: @Composable () -> Unit) {
+    Card(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Column { content() }
+    }
 }
 
 @Composable
@@ -261,42 +227,45 @@ private fun SettingItem(
     icon: ImageVector,
     title: String,
     subtitle: String? = null,
-    onClick: () -> Unit,
-    trailingContent: (@Composable () -> Unit)? = null
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp), // Ajuste de padding
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            modifier = Modifier.size(24.dp), // Tamaño estándar para iconos en listas
-            tint = MaterialTheme.colorScheme.secondary // Color más suave para el icono
-        )
+        Icon(icon, contentDescription = null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge) // Estilo de texto principal
+            Text(text = title, style = MaterialTheme.typography.bodyLarge)
             if (subtitle != null) {
-                Spacer(modifier = Modifier.height(2.dp))
                 Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        if (trailingContent != null) {
-            Spacer(modifier = Modifier.width(16.dp))
-            trailingContent()
-        } else {
-            Spacer(modifier = Modifier.width(16.dp))
-            Icon(
-                imageVector = Icons.Filled.ChevronRight,
-                contentDescription = "Ir a $title",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun SwitchItem(
+    icon: ImageVector,
+    title: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onChange(!checked) }
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onChange)
     }
 }
 
@@ -320,30 +289,26 @@ private fun ThemeSelectionDialog(
     onThemeSelected: (AppThemeType) -> Unit
 ) {
     var tempSelectedTheme by remember { mutableStateOf(currentTheme) }
-    val themes = AppThemeType.entries.toTypedArray()
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(R.string.theme_selection_title)) },
         text = {
-            Column(Modifier.selectableGroup()) {
-                themes.forEach { theme ->
+            Column(Modifier.selectableGroup().verticalScroll(rememberScrollState())) {
+                AppThemeType.entries.forEach { theme ->
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .height(56.dp) // Altura estándar para items clickables
+                            .height(52.dp)
                             .selectable(
                                 selected = (theme == tempSelectedTheme),
                                 onClick = { tempSelectedTheme = theme },
                                 role = Role.RadioButton
                             )
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = (theme == tempSelectedTheme),
-                            onClick = null // null recommended for radio buttons in Row clickable
-                        )
+                        RadioButton(selected = (theme == tempSelectedTheme), onClick = null)
                         Text(
                             text = getThemeDisplayName(theme),
                             style = MaterialTheme.typography.bodyLarge,
@@ -354,19 +319,12 @@ private fun ThemeSelectionDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onThemeSelected(tempSelectedTheme)
-                    onDismissRequest() // Cierra el diálogo después de confirmar
-                }
-            ) {
+            TextButton(onClick = { onThemeSelected(tempSelectedTheme) }) {
                 Text(stringResource(R.string.accept_button))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.cancel_button))
-            }
+            TextButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel_button)) }
         }
     )
 }
@@ -378,30 +336,26 @@ private fun LanguageSelectionDialog(
     onLanguageSelected: (AppLanguage) -> Unit
 ) {
     var tempSelectedLanguage by remember { mutableStateOf(currentLanguage) }
-    val languages = AppLanguage.entries.toTypedArray()
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.language_setting_title)) }, // Usar stringResource
+        title = { Text(stringResource(R.string.language_setting_title)) },
         text = {
             Column(Modifier.selectableGroup()) {
-                languages.forEach { lang ->
+                AppLanguage.entries.forEach { lang ->
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
+                            .height(52.dp)
                             .selectable(
                                 selected = (lang == tempSelectedLanguage),
                                 onClick = { tempSelectedLanguage = lang },
                                 role = Role.RadioButton
                             )
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = (lang == tempSelectedLanguage),
-                            onClick = null
-                        )
+                        RadioButton(selected = (lang == tempSelectedLanguage), onClick = null)
                         Text(
                             text = stringResource(lang.displayNameResId),
                             style = MaterialTheme.typography.bodyLarge,
@@ -412,82 +366,12 @@ private fun LanguageSelectionDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onLanguageSelected(tempSelectedLanguage)
-                }
-            ) {
-                Text(stringResource(R.string.accept_button)) // Usar stringResource
+            TextButton(onClick = { onLanguageSelected(tempSelectedLanguage) }) {
+                Text(stringResource(R.string.accept_button))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.cancel_button)) // Usar stringResource
-            }
+            TextButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel_button)) }
         }
     )
 }
-
-// 4. COMPONENTE UI PARA CONFIGURACIONES TTS
-@Composable
-fun TTSSettingsSection(
-    announceVerseNumbers: Boolean,
-    announceChapterTitles: Boolean,
-    onAnnounceVerseNumbersChanged: (Boolean) -> Unit,
-    onAnnounceChapterTitlesChanged: (Boolean) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.tts_settings_title),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAnnounceVerseNumbersChanged(!announceVerseNumbers) },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Switch(
-                    checked = announceVerseNumbers,
-                    onCheckedChange = onAnnounceVerseNumbersChanged,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                Text(
-                    text = stringResource(R.string.announce_verse_numbers),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAnnounceChapterTitlesChanged(!announceChapterTitles) },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Switch(
-                    checked = announceChapterTitles,
-                    onCheckedChange = onAnnounceChapterTitlesChanged,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                Text(
-                    text = stringResource(R.string.announce_chapter_titles),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-

@@ -56,6 +56,11 @@ class PlaybackViewModel @Inject constructor(
     fun pause() = tts.pause()
     fun resume() = tts.resume()
     fun stop() = tts.stop()
+    fun skip(delta: Int) = tts.skipVerse(delta)
+
+    /** Versículo donde reanudar este capítulo (1 si no hay posición guardada aquí). */
+    fun resumeVerse(book: String, chapter: Int): Int =
+        settings.lastPlayback()?.takeIf { it.book == book && it.chapter == chapter }?.verse ?: 1
     fun setSpeechRate(v: Float) = tts.setRate(v)
     fun selectVoice(name: String?) = tts.setVoice(name)
     suspend fun voiceOptions(): List<VoiceOption> = tts.voiceOptions()
