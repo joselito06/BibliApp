@@ -86,6 +86,14 @@ class VersesViewmodel @Inject constructor(
 
     }
 
+    /** Llamar al volver a la app o al pasar la medianoche: si cambió el día, muestra el versículo nuevo. */
+    fun refreshIfNewDay() {
+        val list = _getAllVerses.value
+        if (list.isEmpty()) { onGet(); return }
+        val today = shared.getVerseOfTheDay(list)
+        if (today != _verseOfTheDay.value) _verseOfTheDay.value = today
+    }
+
     private fun loadVerseOfTheDay() {
         if (_getAllVerses.value.isNotEmpty()) _verseOfTheDay.value = shared.getVerseOfTheDay(_getAllVerses.value)
     }

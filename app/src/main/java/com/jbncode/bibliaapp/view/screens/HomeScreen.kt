@@ -49,11 +49,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.jbncode.bibliaapp.ui.components.pressScale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,6 +94,22 @@ fun HomeScreen(
     navigation: NavHostController,
     playbackViewmodel: com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel? = null
 ) {
+    // Al volver a la app (otro día) o al pasar la medianoche, refresca versículo y saludo.
+    var dayTick by androidx.compose.runtime.remember { androidx.compose.runtime.mutableIntStateOf(0) }
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) { versesViewmodel.refreshIfNewDay(); dayTick++ }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(dayTick) {
+        val now = Calendar.getInstance()
+        val next = (now.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1); set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 2) }
+        kotlinx.coroutines.delay(next.timeInMillis - now.timeInMillis)
+        versesViewmodel.refreshIfNewDay(); dayTick++
+    }
     val speakingDaily by (playbackViewmodel?.isSpeakingText ?: kotlinx.coroutines.flow.MutableStateFlow(false)).collectAsState()
     LaunchedEffect(true) { mainViewmodel.showTopAppBar(true); mainViewmodel.showBottomBar(true) }
 
@@ -116,7 +134,7 @@ fun HomeScreen(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            WelcomeSection()
+            WelcomeSection(dayTick)
             StreakCard(stats)
             StatsRow(stats)
             ContinueReadingCard(
@@ -137,7 +155,7 @@ fun HomeScreen(
                 onBibleClick = { navigation.navigate(Routes.BibleScreen.route) },
                 onLibraryClick = { navigation.navigate(Routes.LibraryScreen.route) },
                 onNotificationsClick = { navigation.navigate(Routes.NotificationScreen.route) },
-                onDownloadClick = { navigation.navigate(Routes.BibleDownloadScreen.route) }
+                onDownloadClick = { navigation.navigate(Routes.BibleSelectionScreen.route) }
             )
             RecommendationsCard(recommendations) { osis ->
                 readerViewmodel.open(osis)
@@ -149,8 +167,8 @@ fun HomeScreen(
 }
 
 @Composable
-private fun WelcomeSection() {
-    val hour = remember { Calendar.getInstance().get(Calendar.HOUR_OF_DAY) }
+private fun WelcomeSection(tick: Int) {
+    val hour = remember(tick) { Calendar.getInstance().get(Calendar.HOUR_OF_DAY) }
     val greeting = when (hour) {
         in 5..11 -> stringResource(R.string.greeting_morning)
         in 12..17 -> stringResource(R.string.greeting_afternoon)
@@ -279,37 +297,41 @@ private fun DailyVerseCard(verse: VersesDaily, onShareClick: () -> Unit, speakin
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QuickActionsGrid(onBibleClick: () -> Unit, onLibraryClick: () -> Unit, onNotificationsClick: () -> Unit, onDownloadClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(20.dp)) {
-            Text(stringResource(R.string.quick_actions_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                QuickActionItem(Icons.Default.Book, stringResource(R.string.quick_action_read), onBibleClick)
-                QuickActionItem(Icons.Default.Bookmark, stringResource(R.string.quick_action_library), onLibraryClick)
-                QuickActionItem(Icons.Default.Notifications, stringResource(R.string.quick_action_notifications), onNotificationsClick)
-                QuickActionItem(Icons.Default.Download, stringResource(R.string.quick_action_downloads), onDownloadClick)
-            }
+    val cs = MaterialTheme.colorScheme
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(stringResource(R.string.quick_actions_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            QuickActionItem(Icons.Default.Book, stringResource(R.string.quick_action_read), cs.primary, cs.onPrimary, onBibleClick, Modifier.weight(1f))
+            QuickActionItem(Icons.Default.Bookmark, stringResource(R.string.quick_action_library), cs.tertiaryContainer, cs.onTertiaryContainer, onLibraryClick, Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            QuickActionItem(Icons.Default.Notifications, stringResource(R.string.quick_action_notifications), cs.secondaryContainer, cs.onSecondaryContainer, onNotificationsClick, Modifier.weight(1f))
+            QuickActionItem(Icons.Default.Download, stringResource(R.string.quick_action_downloads), cs.primaryContainer, cs.onPrimaryContainer, onDownloadClick, Modifier.weight(1f))
         }
     }
 }
 
+/** Botón rápido: tarjeta con borde + icono en círculo de color. Se ve bien en todos los temas. */
 @Composable
-private fun QuickActionItem(icon: ImageVector, title: String, onClick: () -> Unit) {
+private fun QuickActionItem(icon: ImageVector, title: String, iconBg: androidx.compose.ui.graphics.Color, iconFg: androidx.compose.ui.graphics.Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         onClick = onClick,
-        modifier = Modifier.width(84.dp).height(100.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        modifier = modifier.height(68.dp).pressScale(0.97f),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(
-            Modifier.padding(10.dp).fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(icon, title, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, maxLines = 2)
+        Row(Modifier.fillMaxSize().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(CircleShape).background(iconBg), contentAlignment = Alignment.Center) {
+                Icon(icon, null, Modifier.size(22.dp), tint = iconFg)
+            }
+            Spacer(Modifier.width(12.dp))
+            Text(
+                title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
