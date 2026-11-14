@@ -86,11 +86,11 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     }
 
     fun getAppTheme(): AppThemeType {
-        val themeName = storage.getString(SHARED_APP_THEME, AppThemeType.SYSTEM_DEFAULT.name)
+        val themeName = storage.getString(SHARED_APP_THEME, AppThemeType.LIGHT.name)
         return try {
-            AppThemeType.valueOf(themeName ?: AppThemeType.SYSTEM_DEFAULT.name)
+            AppThemeType.valueOf(themeName ?: AppThemeType.LIGHT.name)
         } catch (e: IllegalArgumentException) {
-            AppThemeType.SYSTEM_DEFAULT // Fallback por si el valor guardado es inválido
+            AppThemeType.LIGHT // Fallback por si el valor guardado es inválido
         }
     }
 

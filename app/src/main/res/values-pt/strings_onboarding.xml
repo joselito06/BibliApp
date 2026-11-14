@@ -19,4 +19,6 @@
     <string name="onboarding_notif_enable">Ativar lembretes</string>
     <string name="onboarding_notif_later">Agora não</string>
     <string name="onboarding_start">Começar a ler</string>
+    <string name="onboarding_theme_title">Escolha seu tema</string>
+    <string name="onboarding_theme_sub">Escolha a aparência do app. Você pode mudar quando quiser em Mais → Configurações.</string>
 </resources>

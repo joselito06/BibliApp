@@ -26,7 +26,7 @@ import java.io.File
 import javax.inject.Inject
 
 data class OnboardingUi(
-    val step: Int = 0,                       // 0 idioma · 1 Biblia · 2 avisos · 3 guía
+    val step: Int = 0,                       // 0 idioma · 1 Biblia · 2 tema · 3 avisos · 4 guía
     val language: AppLanguage = AppLanguage.ENGLISH,
     val detected: AppLanguage = AppLanguage.ENGLISH,
     val catalogLoaded: Boolean = false,
@@ -76,7 +76,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun selectLanguage(l: AppLanguage) = _ui.update { it.withOptions(l) }
     fun selectBible(code: String) = _ui.update { it.copy(selectedCode = code, error = false) }
-    fun next() = _ui.update { it.copy(step = (it.step + 1).coerceAtMost(3)) }
+    fun next() = _ui.update { it.copy(step = (it.step + 1).coerceAtMost(4)) }
     fun back() = _ui.update { it.copy(step = (it.step - 1).coerceAtLeast(0), error = false) }
 
     /** Guardar el idioma aplica el locale (la actividad se recrea; el estado vive aquí). */

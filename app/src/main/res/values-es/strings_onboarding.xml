@@ -19,4 +19,6 @@
     <string name="onboarding_notif_enable">Activar recordatorios</string>
     <string name="onboarding_notif_later">Ahora no</string>
     <string name="onboarding_start">Empezar a leer</string>
+    <string name="onboarding_theme_title">Elige tu tema</string>
+    <string name="onboarding_theme_sub">Elige cómo se ve la app. Puedes cambiarlo cuando quieras en Más → Configuración.</string>
 </resources>

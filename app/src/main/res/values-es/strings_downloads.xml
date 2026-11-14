@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dl_msg_started">Descargando %1$s…</string>
+    <string name="dl_msg_done">%1$s está lista y es tu Biblia actual.</string>
+    <string name="dl_msg_no_internet">Sin conexión a internet. Conéctate a Wi‑Fi o datos móviles e inténtalo de nuevo.</string>
+    <string name="dl_msg_timeout">Tu conexión es muy lenta. Inténtalo de nuevo.</string>
+    <string name="dl_msg_server">Esta Biblia no está disponible en este momento. Inténtalo más tarde.</string>
+    <string name="dl_msg_storage">No hay suficiente espacio en tu teléfono.</string>
+    <string name="dl_msg_invalid">El archivo descargado está dañado. Descárgalo de nuevo.</string>
+    <string name="dl_msg_failed">No pudimos descargar %1$s. Inténtalo de nuevo.</string>
+    <string name="dl_msg_in_progress">%1$s ya se está descargando.</string>
+    <string name="dl_retry">Reintentar</string>
+</resources>

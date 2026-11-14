@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dl_msg_started">Se descarcă %1$s…</string>
+    <string name="dl_msg_done">%1$s este gata și este Biblia ta curentă.</string>
+    <string name="dl_msg_no_internet">Fără conexiune la internet. Conectează-te la Wi‑Fi sau la date mobile și încearcă din nou.</string>
+    <string name="dl_msg_timeout">Conexiunea ta este prea lentă. Încearcă din nou.</string>
+    <string name="dl_msg_server">Această Biblie nu este disponibilă acum. Încearcă mai târziu.</string>
+    <string name="dl_msg_storage">Nu există suficient spațiu pe telefon.</string>
+    <string name="dl_msg_invalid">Fișierul descărcat este deteriorat. Descarcă-l din nou.</string>
+    <string name="dl_msg_failed">Nu am putut descărca %1$s. Încearcă din nou.</string>
+    <string name="dl_msg_in_progress">%1$s se descarcă deja.</string>
+    <string name="dl_retry">Reîncearcă</string>
+</resources>

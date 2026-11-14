@@ -8,7 +8,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -322,12 +321,12 @@ enum class AppThemeType {
 
 @Composable
 fun BibliaAppTheme(
-    selectedTheme: AppThemeType = AppThemeType.SYSTEM_DEFAULT,
+    selectedTheme: AppThemeType = AppThemeType.LIGHT,
     // Dynamic color is available on Android 12+
     // dynamicColor parameter is kept for potential future use or specific overrides,
     // but primary theme selection is now through selectedTheme.
     dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val darkTheme = when (selectedTheme) {
         AppThemeType.DARK, AppThemeType.CLASSIC_DARK, AppThemeType.MEDIUM_CONTRAST_DARK, AppThemeType.HIGH_CONTRAST_DARK -> true

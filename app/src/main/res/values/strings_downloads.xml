@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dl_msg_started">Downloading %1$s…</string>
+    <string name="dl_msg_done">%1$s is ready and set as your Bible.</string>
+    <string name="dl_msg_no_internet">No internet connection. Connect to Wi‑Fi or mobile data and try again.</string>
+    <string name="dl_msg_timeout">Your connection is too slow. Please try again.</string>
+    <string name="dl_msg_server">This Bible isn\'t available right now. Please try again later.</string>
+    <string name="dl_msg_storage">Not enough storage space on your phone.</string>
+    <string name="dl_msg_invalid">The downloaded file is damaged. Please download it again.</string>
+    <string name="dl_msg_failed">We couldn\'t download %1$s. Please try again.</string>
+    <string name="dl_msg_in_progress">%1$s is already downloading.</string>
+    <string name="dl_retry">Retry</string>
+</resources>

@@ -359,7 +359,7 @@ class MainActivity : ComponentActivity() {
                                     RestartingScreen()
                                 }
                                 composable(Routes.OnboardingScreen.route) {
-                                    OnboardingScreen(mainViewModel, onFinished = { restart ->
+                                    OnboardingScreen(mainViewModel, currentTheme = currentAppTheme, onThemeSelected = settingViewmodel::setAppTheme, onFinished = { restart ->
                                         navigation.navigate(
                                             if (restart) Routes.RestartingScreen.route else Routes.BibleScreen.route
                                         ) {

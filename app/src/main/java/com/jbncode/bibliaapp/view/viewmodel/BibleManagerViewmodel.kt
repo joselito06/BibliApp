@@ -2,8 +2,6 @@ package com.jbncode.bibliaapp.view.viewmodel
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jbncode.bibliaapp.DatabaseDownloader
@@ -51,8 +49,31 @@ class BibleManagerViewmodel @Inject constructor(
             if (lang == null || lang == "Todos") list else list.filter { it.lang == lang }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _downloadStatus = MutableLiveData<String>()
-    val downloadStatus: LiveData<String> = _downloadStatus
+    /** Mensajes para el usuario: la pantalla los traduce a su idioma (sin detalles técnicos). */
+    enum class DownloadMsg { STARTED, DONE, NO_INTERNET, TIMEOUT, SERVER, STORAGE, INVALID, FAILED, IN_PROGRESS }
+    data class DownloadEvent(val msg: DownloadMsg, val bible: BibleVersionInfo? = null)
+
+    private val _events = kotlinx.coroutines.flow.MutableSharedFlow<DownloadEvent>(extraBufferCapacity = 8)
+    val events: kotlinx.coroutines.flow.SharedFlow<DownloadEvent> = _events
+
+    private fun emit(msg: DownloadMsg, bible: BibleVersionInfo? = null) { _events.tryEmit(DownloadEvent(msg, bible)) }
+
+    private fun hasInternet(): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return true
+        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+        return caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun classify(e: Exception): DownloadMsg {
+        val m = e.message.orEmpty()
+        return when {
+            e is java.net.UnknownHostException || e is java.net.ConnectException || e is java.net.NoRouteToHostException -> DownloadMsg.NO_INTERNET
+            e is java.net.SocketTimeoutException -> DownloadMsg.TIMEOUT
+            m.contains("ENOSPC", true) || m.contains("No space", true) -> DownloadMsg.STORAGE
+            m.startsWith("HTTP ") || m.startsWith("Error del servidor") -> DownloadMsg.SERVER
+            else -> DownloadMsg.FAILED
+        }
+    }
 
     init { loadBibleList() }
 
@@ -80,9 +101,11 @@ class BibleManagerViewmodel @Inject constructor(
 
     fun startDownload(bibleToDownload: BibleVersionInfo) {
         if (bibleToDownload.isDownloading) {
-            _downloadStatus.postValue("Descarga ya en progreso para ${bibleToDownload.title}")
+            emit(DownloadMsg.IN_PROGRESS, bibleToDownload)
             return
         }
+
+        if (!hasInternet()) { emit(DownloadMsg.NO_INTERNET, bibleToDownload); return }
 
         // Clave por archivo (no por code): en el catálogo hay 'code' repetidos.
         updateBibleItemState(bibleToDownload.database_name) {
@@ -94,7 +117,7 @@ class BibleManagerViewmodel @Inject constructor(
         if (destinationDir != null && !destinationDir.exists()) destinationDir.mkdirs()
         val myLocalFile = File(destinationDir, bibleToDownload.database_name)
 
-        _downloadStatus.postValue("Iniciando descarga de ${bibleToDownload.title}...")
+        emit(DownloadMsg.STARTED, bibleToDownload)
 
         viewModelScope.launch(Dispatchers.IO) {
             databaseDownloader.downloadDatabase(
@@ -114,13 +137,13 @@ class BibleManagerViewmodel @Inject constructor(
                         }
                         // Recién descargada → queda como Biblia activa al instante.
                         activateDownloadedDatabase(file.name)
-                        _downloadStatus.postValue("${bibleToDownload.title} descargada y activada.")
+                        emit(DownloadMsg.DONE, bibleToDownload)
                     }
 
                     override fun onError(exception: Exception) {
                         Log.e("VM_Downloader", "Error descargando ${bibleToDownload.title}", exception)
                         if (myLocalFile.exists()) myLocalFile.delete()
-                        _downloadStatus.postValue("Error al descargar ${bibleToDownload.title}: ${exception.message}")
+                        emit(classify(exception), bibleToDownload)
                         updateBibleItemState(bibleToDownload.database_name) {
                             it.copy(isDownloading = false, downloadProgress = 0)
                         }
@@ -140,7 +163,7 @@ class BibleManagerViewmodel @Inject constructor(
     fun activateDownloadedDatabase(downloadedDbFileName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             if (!DbValidator.isValid(context.getDatabasePath(downloadedDbFileName))) {
-                _downloadStatus.postValue("Error: '$downloadedDbFileName' no es válida.")
+                emit(DownloadMsg.INVALID, _originalBibleList.value.firstOrNull { it.database_name == downloadedDbFileName })
                 return@launch
             }
             sharedPreferenceBible.saveSelectedDatabaseFileName(downloadedDbFileName)

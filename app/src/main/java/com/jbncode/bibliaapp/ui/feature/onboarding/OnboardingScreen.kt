@@ -66,11 +66,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.ui.components.appearOnce
 import com.jbncode.bibliaapp.domain.model.AppLanguage
+import com.jbncode.bibliaapp.ui.theme.AppThemeType
+import com.jbncode.bibliaapp.view.screens.getThemeDisplayName
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
 @Composable
 fun OnboardingScreen(
     mainViewmodel: MainViewmodel,
+    currentTheme: AppThemeType,
+    onThemeSelected: (AppThemeType) -> Unit,
     onFinished: (needsRestart: Boolean) -> Unit,
     vm: OnboardingViewModel = hiltViewModel()
 ) {
@@ -81,11 +85,11 @@ fun OnboardingScreen(
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         vm.onNotificationsResult(it)
     }
-    BackHandler(enabled = ui.step in 1..2 && !ui.downloading) { vm.back() }
+    BackHandler(enabled = ui.step in 1..3 && !ui.downloading) { vm.back() }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            repeat(4) { i ->
+            repeat(5) { i ->
                 Box(
                     Modifier.weight(1f).height(5.dp).clip(RoundedCornerShape(3.dp)).background(
                         if (i <= ui.step) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
@@ -96,7 +100,7 @@ fun OnboardingScreen(
         // Volver al paso anterior (también funciona el gesto/botón atrás del sistema).
         Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
             AnimatedVisibility(
-                visible = ui.step in 1..2 && !ui.downloading,
+                visible = ui.step in 1..3 && !ui.downloading,
                 enter = fadeIn() + slideInHorizontally { -it / 2 },
                 exit = fadeOut() + slideOutHorizontally { -it / 2 }
             ) {
@@ -117,7 +121,8 @@ fun OnboardingScreen(
             when (step) {
                 0 -> LanguageStep(ui, vm::selectLanguage, vm::confirmLanguage)
                 1 -> BibleStep(ui, vm::selectBible, vm::confirmBible, vm::useIncluded)
-                2 -> NotificationsStep(
+                2 -> ThemeStep(currentTheme, onThemeSelected, vm::next)
+                3 -> NotificationsStep(
                     onEnable = {
                         val needsAsk = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
@@ -197,6 +202,26 @@ private fun BibleStep(ui: OnboardingUi, onSelect: (String) -> Unit, onConfirm: (
                 PrimaryButton(stringResource(R.string.onboarding_continue), onConfirm, enabled = !ui.downloading && ui.catalogLoaded)
             }
         }
+    )
+}
+
+@Composable
+private fun ThemeStep(current: AppThemeType, onSelect: (AppThemeType) -> Unit, onConfirm: () -> Unit) {
+    val options = listOf(
+        AppThemeType.SYSTEM_DEFAULT, AppThemeType.LIGHT, AppThemeType.DARK,
+        AppThemeType.CLASSIC_LIGHT, AppThemeType.CLASSIC_DARK
+    )
+    StepLayout(
+        title = stringResource(R.string.onboarding_theme_title),
+        subtitle = stringResource(R.string.onboarding_theme_sub),
+        content = {
+            options.forEach { theme ->
+                OptionCard(selected = theme == current, onClick = { onSelect(theme) }) {
+                    Text(getThemeDisplayName(theme), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                }
+            }
+        },
+        footer = { PrimaryButton(stringResource(R.string.onboarding_continue), onConfirm) }
     )
 }
 

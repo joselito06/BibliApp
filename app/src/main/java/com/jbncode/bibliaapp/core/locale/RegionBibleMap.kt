@@ -3,7 +3,7 @@ package com.jbncode.bibliaapp.core.locale
 /** Biblias recomendadas por idioma (códigos de listaBiblia.json). La primera es la sugerida. */
 object RegionBibleMap {
     private val byLanguage = mapOf(
-        "es" to listOf("rvr60", "ntv", "tla"),
+        "es" to listOf("tla", "rvr60", "ntv"),   // tla viene incluida (sin descarga),
         "en" to listOf("niv1984", "kjv", "gnt"),
         "fr" to listOf("lsg", "bds"),
         "pt" to listOf("arc09", "nvipt"),

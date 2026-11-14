@@ -19,4 +19,6 @@
     <string name="onboarding_notif_enable">Activează mementourile</string>
     <string name="onboarding_notif_later">Nu acum</string>
     <string name="onboarding_start">Începe lectura</string>
+    <string name="onboarding_theme_title">Alege tema</string>
+    <string name="onboarding_theme_sub">Alege cum arată aplicația. O poți schimba oricând din Mai multe → Setări.</string>
 </resources>

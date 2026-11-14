@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +67,8 @@ fun BibleDownloadScreen(
     val bibles by viewModel.filteredBibleList.collectAsState()
     val availableLanguages by viewModel.availableLanguages.collectAsState()
     val selectedLanguage by viewModel.selectedLanguageFilter.collectAsState()
-    val statusMessage by viewModel.downloadStatus.observeAsState(initial = "")
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
     val selectedDbName by viewModel.sharedPreferenceBible.getSelectedDatabaseFileNameFlow()
         .collectAsState(initial = viewModel.sharedPreferenceBible.getSelectedDatabaseFileName())
 
@@ -78,6 +80,36 @@ fun BibleDownloadScreen(
         RewardedDownloadAdManager.preloadAd(context)
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { ev ->
+            if (ev.msg == BibleManagerViewmodel.DownloadMsg.STARTED) return@collect   // el progreso ya se ve en la tarjeta
+            val title = ev.bible?.title.orEmpty()
+            val id = when (ev.msg) {
+                BibleManagerViewmodel.DownloadMsg.STARTED -> R.string.dl_msg_started
+                BibleManagerViewmodel.DownloadMsg.DONE -> R.string.dl_msg_done
+                BibleManagerViewmodel.DownloadMsg.NO_INTERNET -> R.string.dl_msg_no_internet
+                BibleManagerViewmodel.DownloadMsg.TIMEOUT -> R.string.dl_msg_timeout
+                BibleManagerViewmodel.DownloadMsg.SERVER -> R.string.dl_msg_server
+                BibleManagerViewmodel.DownloadMsg.STORAGE -> R.string.dl_msg_storage
+                BibleManagerViewmodel.DownloadMsg.INVALID -> R.string.dl_msg_invalid
+                BibleManagerViewmodel.DownloadMsg.FAILED -> R.string.dl_msg_failed
+                BibleManagerViewmodel.DownloadMsg.IN_PROGRESS -> R.string.dl_msg_in_progress
+            }
+            val canRetry = ev.bible != null && ev.msg !in listOf(
+                BibleManagerViewmodel.DownloadMsg.STARTED, BibleManagerViewmodel.DownloadMsg.DONE, BibleManagerViewmodel.DownloadMsg.IN_PROGRESS
+            )
+            snackbar.currentSnackbarData?.dismiss()
+            scope.launch {
+            val res = snackbar.showSnackbar(
+                message = context.getString(id, title),
+                actionLabel = if (canRetry) context.getString(R.string.dl_retry) else null,
+                duration = if (canRetry) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short
+            )
+            if (res == androidx.compose.material3.SnackbarResult.ActionPerformed) ev.bible?.let { viewModel.startDownload(it) }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -86,18 +118,10 @@ fun BibleDownloadScreen(
                 onBack = { navController.popBackStack() }
             )
         },
+        snackbarHost = { androidx.compose.material3.SnackbarHost(snackbar) },
         bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            if (statusMessage.isNotBlank()) {
-                Text(
-                    statusMessage,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp)
-                )
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,

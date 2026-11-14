@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dl_msg_started">Téléchargement de %1$s…</string>
+    <string name="dl_msg_done">%1$s est prête et devient votre Bible.</string>
+    <string name="dl_msg_no_internet">Pas de connexion internet. Connectez-vous au Wi‑Fi ou aux données mobiles et réessayez.</string>
+    <string name="dl_msg_timeout">Votre connexion est trop lente. Réessayez.</string>
+    <string name="dl_msg_server">Cette Bible n\'est pas disponible pour le moment. Réessayez plus tard.</string>
+    <string name="dl_msg_storage">Espace de stockage insuffisant sur votre téléphone.</string>
+    <string name="dl_msg_invalid">Le fichier téléchargé est endommagé. Téléchargez-le à nouveau.</string>
+    <string name="dl_msg_failed">Impossible de télécharger %1$s. Réessayez.</string>
+    <string name="dl_msg_in_progress">%1$s est déjà en cours de téléchargement.</string>
+    <string name="dl_retry">Réessayer</string>
+</resources>
