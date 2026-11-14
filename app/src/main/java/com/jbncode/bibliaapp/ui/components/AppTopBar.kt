@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +38,9 @@ fun AppTopBar(
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
-        modifier = Modifier.clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)),
+        modifier = Modifier
+            .shadow(6.dp, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp), clip = false)
+            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)),
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,

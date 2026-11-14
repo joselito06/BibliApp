@@ -20,7 +20,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import com.jbncode.bibliaapp.ui.components.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem

@@ -18,10 +18,5 @@
     <string name="onboarding_notif_body">Te anunțăm la ora aleasă ca să-ți menții seria. Cel mult o notificare pe zi.</string>
     <string name="onboarding_notif_enable">Activează mementourile</string>
     <string name="onboarding_notif_later">Nu acum</string>
-    <string name="onboarding_guide_title">Cum funcționează</string>
-    <string name="onboarding_guide_sub">Trei lucruri pentru început</string>
-    <string name="onboarding_guide_tap">Atinge un verset pentru a-l copia, distribui sau salva.</string>
-    <string name="onboarding_guide_chapter">Schimbă capitolul cu săgețile de jos sau alege o carte sus.</string>
-    <string name="onboarding_guide_listen">Apasă redare pentru a asculta capitolul, chiar cu ecranul stins.</string>
     <string name="onboarding_start">Începe lectura</string>
 </resources>

@@ -18,10 +18,5 @@
     <string name="onboarding_notif_body">Avisamos no horário que você escolher para ajudar a manter sua sequência. No máximo um aviso por dia.</string>
     <string name="onboarding_notif_enable">Ativar lembretes</string>
     <string name="onboarding_notif_later">Agora não</string>
-    <string name="onboarding_guide_title">Como usar</string>
-    <string name="onboarding_guide_sub">Três coisas para começar</string>
-    <string name="onboarding_guide_tap">Toque em um versículo para copiar, compartilhar ou salvar.</string>
-    <string name="onboarding_guide_chapter">Mude de capítulo com as setas abaixo ou escolha um livro no topo.</string>
-    <string name="onboarding_guide_listen">Toque em reproduzir para ouvir o capítulo, mesmo com a tela apagada.</string>
     <string name="onboarding_start">Começar a ler</string>
 </resources>

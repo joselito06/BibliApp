@@ -2,8 +2,6 @@
 <resources>
     <string name="tutorials_title">Cum folosești BibliApp</string>
     <string name="tutorials_done">Gata</string>
-    <string name="onboarding_guide_fav">Marchează versete ca favorite cu steluța, evidențiază-le cu culori sau adaugă o notă.</string>
-    <string name="onboarding_guide_search">Găsește orice cuvânt sau verset cu căutarea. Mai multe sfaturi în Mai mult → Cum folosești BibliApp.</string>
     <string name="tut_read_title">Citește și navighează</string>
     <string name="tut_read_body">Glisează la stânga sau la dreapta pentru a schimba capitolul. Atinge numele cărții de sus pentru alta și numărul capitolului pentru a sări la orice capitol.</string>
     <string name="tut_select_title">Selectează versete</string>

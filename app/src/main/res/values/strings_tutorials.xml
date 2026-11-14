@@ -2,8 +2,6 @@
 <resources>
     <string name="tutorials_title">How to use BibliApp</string>
     <string name="tutorials_done">Done</string>
-    <string name="onboarding_guide_fav">Mark verses as favorites with the star, highlight them in colors, or add a note.</string>
-    <string name="onboarding_guide_search">Find any word or verse with search. More tips in More → How to use BibliApp.</string>
     <string name="tut_read_title">Read and move around</string>
     <string name="tut_read_body">Swipe left or right to change chapter. Tap the book name at the top to pick another book, and tap the chapter number to jump to any chapter.</string>
     <string name="tut_select_title">Select verses</string>

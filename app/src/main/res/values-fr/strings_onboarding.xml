@@ -18,10 +18,5 @@
     <string name="onboarding_notif_body">Nous vous rappelons à l\'heure de votre choix pour maintenir votre série. Un seul rappel par jour au maximum.</string>
     <string name="onboarding_notif_enable">Activer les rappels</string>
     <string name="onboarding_notif_later">Pas maintenant</string>
-    <string name="onboarding_guide_title">Comment ça marche</string>
-    <string name="onboarding_guide_sub">Trois choses pour commencer</string>
-    <string name="onboarding_guide_tap">Touchez un verset pour le copier, le partager ou l\'enregistrer.</string>
-    <string name="onboarding_guide_chapter">Changez de chapitre avec les flèches en bas, ou choisissez un livre en haut.</string>
-    <string name="onboarding_guide_listen">Appuyez sur lecture pour écouter le chapitre, même écran éteint.</string>
     <string name="onboarding_start">Commencer à lire</string>
 </resources>

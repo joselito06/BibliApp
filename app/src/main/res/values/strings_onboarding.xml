@@ -18,10 +18,5 @@
     <string name="onboarding_notif_body">We\'ll remind you at the time you choose so you can keep your streak. One notice per day at most.</string>
     <string name="onboarding_notif_enable">Turn on reminders</string>
     <string name="onboarding_notif_later">Not now</string>
-    <string name="onboarding_guide_title">How it works</string>
-    <string name="onboarding_guide_sub">Three things to get you started</string>
-    <string name="onboarding_guide_tap">Tap a verse to copy it, share it, or save it.</string>
-    <string name="onboarding_guide_chapter">Change chapter with the arrows below, or pick a book at the top.</string>
-    <string name="onboarding_guide_listen">Press play to listen to the chapter, even with the screen off.</string>
     <string name="onboarding_start">Start reading</string>
 </resources>

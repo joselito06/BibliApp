@@ -43,7 +43,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import com.jbncode.bibliaapp.ui.components.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -476,88 +476,6 @@ private fun TimePickerDialog(
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TransformableTopAppBarTitle2(
-    scrollBehavior: TopAppBarScrollBehavior,
-    icon: ImageVector,
-    iconContentDescription: String?,
-    titleText: String,
-    modifier: Modifier = Modifier
-) {
-    val collapsedFraction = scrollBehavior.state.collapsedFraction
-
-    val expandedTextStyle = MaterialTheme.typography.headlineMedium
-    val collapsedTextStyle = MaterialTheme.typography.titleLarge
-    val expandedIconSizeDp = 42.dp
-    val collapsedIconSizeDp = 32.dp
-
-    val currentIconSize = lerp(expandedIconSizeDp, collapsedIconSizeDp, collapsedFraction)
-    val currentTextStyle = lerpTextStyle(expandedTextStyle, collapsedTextStyle, collapsedFraction)
-
-    // Icon alpha: Fades out as it collapses.
-    // Multiplicar por 1.5f (o 2f) y coerceAtMost(1f) hace que el alpha llegue a 0
-    // antes de que collapsedFraction llegue a 1.0, para que desaparezca limpiamente.
-    val iconAlpha = lerp(1f, 0f, (collapsedFraction * 1.5f).coerceAtMost(1f))
-
-    Layout(
-        content = {
-            Icon(
-                imageVector = icon,
-                contentDescription = iconContentDescription,
-                modifier = Modifier
-                    .size(currentIconSize)
-                    .graphicsLayer { alpha = iconAlpha } // Aplicar alpha para desvanecer
-
-            )
-            Text(
-                text = titleText,
-                style = currentTextStyle,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        modifier = modifier.fillMaxWidth()
-    ) { measurables, constraints ->
-        val iconPlaceable = measurables[0].measure(constraints)
-        val textPlaceable = measurables[1].measure(constraints)
-
-        val availableWidth = constraints.maxWidth
-        val availableHeight = constraints.maxHeight
-
-        // EXPANDED state (icon above text, centered)
-        val expandedIconX = (availableWidth - iconPlaceable.width) / 2
-        val expandedContentHeight = iconPlaceable.height + 4.dp.toPx() + textPlaceable.height
-        val expandedIconY = (availableHeight - expandedContentHeight) / 2
-        val expandedTextX = (availableWidth - textPlaceable.width) / 2
-        val expandedTextY = expandedIconY + iconPlaceable.height + 4.dp.toPx()
-
-        // COLLAPSED state (Icon is faded out, text is at the start, vertically centered)
-        // La posición del icono en colapsado no importa tanto visualmente ya que tendrá alpha 0,
-        // pero su trayectoria puede influir en la interpolación.
-        // Lo colocamos donde estaría si estuviera al lado del texto, para una trayectoria suave.
-        val collapsedIconVisualX = 0
-        val collapsedIconVisualY = (availableHeight - iconPlaceable.height) / 2
-
-        // El texto colapsado se alinea al inicio del área del título.
-        val collapsedTextX = 0 // Alineado al inicio del Layout
-        val collapsedTextY = (availableHeight - textPlaceable.height) / 2
-
-        // Interpolar posiciones
-        val currentIconX = lerp(expandedIconX.toFloat(), collapsedIconVisualX.toFloat(), collapsedFraction).toInt()
-        val currentIconY = lerp(expandedIconY.toFloat(), collapsedIconVisualY.toFloat(), collapsedFraction).toInt()
-        val currentTextX = lerp(expandedTextX.toFloat(), collapsedTextX.toFloat(), collapsedFraction).toInt()
-        val currentTextY = lerp(expandedTextY.toFloat(), collapsedTextY.toFloat(), collapsedFraction).toInt()
-
-        layout(availableWidth, availableHeight) {
-            // El icono se coloca, Modifier.graphicsLayer se encarga de su alpha.
-            iconPlaceable.placeRelative(currentIconX, currentIconY)
-            textPlaceable.placeRelative(currentTextX, currentTextY)
         }
     }
 }

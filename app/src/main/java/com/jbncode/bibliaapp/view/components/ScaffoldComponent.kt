@@ -130,7 +130,8 @@ fun NavigationBottomJBN(navigation: NavHostController) {
     Surface(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
-        shadowElevation = 12.dp
+        shadowElevation = 8.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f))
     ) {
         NavigationBar(containerColor = Color.Transparent, tonalElevation = 0.dp) {
             items.forEach { item ->

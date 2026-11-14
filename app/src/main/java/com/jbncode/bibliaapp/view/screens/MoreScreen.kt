@@ -29,7 +29,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Card
+import com.jbncode.bibliaapp.ui.components.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon

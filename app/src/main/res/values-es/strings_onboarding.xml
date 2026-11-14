@@ -18,10 +18,5 @@
     <string name="onboarding_notif_body">Te avisamos a la hora que elijas para ayudarte a mantener tu racha. Máximo un aviso al día.</string>
     <string name="onboarding_notif_enable">Activar recordatorios</string>
     <string name="onboarding_notif_later">Ahora no</string>
-    <string name="onboarding_guide_title">Así se usa</string>
-    <string name="onboarding_guide_sub">Tres cosas para empezar</string>
-    <string name="onboarding_guide_tap">Toca un versículo para copiarlo, compartirlo o guardarlo.</string>
-    <string name="onboarding_guide_chapter">Cambia de capítulo con las flechas de abajo, o elige un libro arriba.</string>
-    <string name="onboarding_guide_listen">Pulsa reproducir para escuchar el capítulo, incluso con la pantalla apagada.</string>
     <string name="onboarding_start">Empezar a leer</string>
 </resources>

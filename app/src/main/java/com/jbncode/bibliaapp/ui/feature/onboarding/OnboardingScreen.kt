@@ -217,22 +217,6 @@ private fun NotificationsStep(onEnable: () -> Unit, onLater: () -> Unit) {
     )
 }
 
-@Composable
-private fun GuideStep(onStart: () -> Unit) {
-    StepLayout(
-        title = stringResource(R.string.onboarding_guide_title),
-        subtitle = stringResource(R.string.onboarding_guide_sub),
-        content = {
-            GuideItem(Icons.Default.TouchApp, stringResource(R.string.onboarding_guide_tap))
-            GuideItem(Icons.Default.SwapHoriz, stringResource(R.string.onboarding_guide_chapter))
-            GuideItem(Icons.AutoMirrored.Filled.VolumeUp, stringResource(R.string.onboarding_guide_listen))
-            GuideItem(Icons.Default.Star, stringResource(R.string.onboarding_guide_fav))
-            GuideItem(Icons.Default.Search, stringResource(R.string.onboarding_guide_search))
-        },
-        footer = { PrimaryButton(stringResource(R.string.onboarding_start), onStart) }
-    )
-}
-
 // ── Piezas ───────────────────────────────────────────────────────────────────
 
 @Composable
@@ -289,14 +273,6 @@ private fun PrimaryButton(text: String, onClick: () -> Unit, enabled: Boolean = 
 private fun IconBubble(icon: ImageVector, size: androidx.compose.ui.unit.Dp) {
     Box(Modifier.size(size).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(size / 2))
-    }
-}
-
-@Composable
-private fun GuideItem(icon: ImageVector, text: String) {
-    Row(Modifier.fillMaxWidth().appearOnce().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        IconBubble(icon, 56.dp)
-        Text(text, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
     }
 }
 

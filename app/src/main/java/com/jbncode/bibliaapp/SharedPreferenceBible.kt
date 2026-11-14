@@ -48,7 +48,6 @@ class SharedPreferenceBible @Inject constructor(@ApplicationContext context: Con
     private val SHARED_NAME = "BibleInit"
     private val SHARED_LIBRO = "libro"
     private val SHARED_CAPITULO = "capitulo"
-    private val SHARED_CURRENT_INDEX = "current_index"
     private val PREF_NOTIFICATIONS_ENABLED = "notifications_enabled"
     private val PREF_SELECTED_HOUR = "selected_hour"
     private val PREF_SELECTED_MINUTE = "selected_minute"

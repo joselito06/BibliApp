@@ -2,8 +2,6 @@
 <resources>
     <string name="tutorials_title">Cómo usar BibliApp</string>
     <string name="tutorials_done">Listo</string>
-    <string name="onboarding_guide_fav">Marca versículos como favoritos con la estrella, resáltalos con colores o agrega una nota.</string>
-    <string name="onboarding_guide_search">Encuentra cualquier palabra o versículo con la búsqueda. Más consejos en Más → Cómo usar BibliApp.</string>
     <string name="tut_read_title">Leer y moverte</string>
     <string name="tut_read_body">Desliza a la izquierda o derecha para cambiar de capítulo. Toca el nombre del libro arriba para elegir otro libro y el número de capítulo para ir a cualquier capítulo.</string>
     <string name="tut_select_title">Seleccionar versículos</string>

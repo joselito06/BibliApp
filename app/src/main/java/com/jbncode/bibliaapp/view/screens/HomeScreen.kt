@@ -40,7 +40,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Card
+import com.jbncode.bibliaapp.ui.components.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -188,7 +188,7 @@ private fun WelcomeSection(tick: Int) {
 private fun StreakCard(stats: HomeStats) {
     val today = LocalDate.now()
     val locale = LocalConfiguration.current.locales[0]
-    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), border = null, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
         Column(Modifier.padding(20.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                 Row(verticalAlignment = Alignment.Bottom) {

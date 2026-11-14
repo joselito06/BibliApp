@@ -44,7 +44,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -70,7 +69,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -98,7 +96,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -169,7 +166,7 @@ fun ReaderScreen(
     val allSelectedFavorite = selected.isNotEmpty() && selected.all { it in favoriteVerses }
     val ttsState by playback.state.collectAsState()
     val rate by playback.speechRate.collectAsState()
-    val chapterVerses by produceState<List<Verse>>(emptyList(), activeFile, position.book, position.chapter) {
+    val chapterVerses by produceState(emptyList(), activeFile, position.book, position.chapter) {
         value = runCatching { reader.loadChapter(position.book, position.chapter) }.getOrDefault(emptyList())
     }
     // Progreso dentro del capítulo que se está leyendo.
@@ -181,7 +178,7 @@ fun ReaderScreen(
     BackHandler(enabled = selected.isNotEmpty()) { selected = emptySet() }
     LaunchedEffect(linkVerse) { linkVerse?.let { selected = setOf(it) } }
 
-    val owner = LocalLifecycleOwner.current
+    val owner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(owner) {
         val observer = LifecycleEventObserver { _, e ->
             when (e) {
@@ -339,7 +336,7 @@ private fun ChapterPage(
     onToggle: (Int) -> Unit
 ) {
     val verses by produceState<List<Verse>?>(null, activeFile, book.osis, chapter) {
-        value = try { reader.loadChapter(book.osis, chapter) } catch (e: Exception) { emptyList() }
+        value = try { reader.loadChapter(book.osis, chapter) } catch (_: Exception) { emptyList() }
     }
     val list = verses
     if (list == null) {

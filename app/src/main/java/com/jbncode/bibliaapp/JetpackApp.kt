@@ -25,6 +25,8 @@ class JetpackApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
+        com.jbncode.bibliaapp.data.bible.LegacyCleanup.run(this)
+
         // Inicializar Firebase
         FirebaseApp.initializeApp(this)
         setupRemoteConfig()

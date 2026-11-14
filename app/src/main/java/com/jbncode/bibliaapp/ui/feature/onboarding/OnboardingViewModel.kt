@@ -11,7 +11,7 @@ import com.jbncode.bibliaapp.core.locale.LocaleDetector
 import com.jbncode.bibliaapp.core.locale.RegionBibleMap
 import com.jbncode.bibliaapp.data.bible.BibleDbFactory
 import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
-import com.jbncode.bibliaapp.di.RoomModule
+import com.jbncode.bibliaapp.data.bible.DbValidator
 import com.jbncode.bibliaapp.domain.model.AppLanguage
 import com.jbncode.bibliaapp.domain.usescases.BibleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,7 +92,7 @@ class OnboardingViewModel @Inject constructor(
         if (bible.database_name == BibleDbFactory.DEFAULT_FILE) { syncLanguage(bible); useIncluded(); return }
 
         val target = context.getDatabasePath(bible.database_name)
-        if (target.exists() && RoomModule.isDatabaseValid(target)) { applyBible(bible); return }
+        if (target.exists() && DbValidator.isValid(target)) { applyBible(bible); return }
 
         _ui.update { it.copy(downloading = true, progress = 0, error = false) }
         val part = File(target.parentFile, bible.database_name + ".part")
@@ -113,7 +113,7 @@ class OnboardingViewModel @Inject constructor(
 
     // Descarga a ".part", valida y solo entonces renombra: nunca queda una Biblia a medias.
     private fun finishDownload(bible: BibleVersionInfo, part: File, target: File) {
-        if (!RoomModule.isDatabaseValid(part)) { part.delete(); fail(); return }
+        if (!DbValidator.isValid(part)) { part.delete(); fail(); return }
         target.delete()
         if (!part.renameTo(target)) { part.delete(); fail(); return }
         applyBible(bible)
