@@ -66,7 +66,28 @@ class TtsController @Inject constructor(
     private val _state = MutableStateFlow(TtsState())
     val state: StateFlow<TtsState> = _state.asStateFlow()
 
+    private val _textPlaying = MutableStateFlow(false)
+    /** true mientras se lee un texto suelto (p. ej. el versículo del día). */
+    val textPlaying: StateFlow<Boolean> = _textPlaying.asStateFlow()
+
     // ── API pública ──────────────────────────────────────────────────────────
+
+    /** Lee un texto corto (versículo del día) con la voz y el idioma de la Biblia activa. */
+    fun speakText(text: String) {
+        if (text.isBlank()) return
+        playJob?.cancel()
+        playJob = scope.launch {
+            if (_state.value.status != TtsStatus.IDLE) stop()   // corta cualquier lectura de capítulo
+            val e = engine() ?: return@launch fail()
+            locale = resolveLocale()
+            if (!applyLocale(e)) { notifyMissingVoice(); return@launch }
+            if (!requestFocus()) return@launch
+            generation++; e.stop()
+            e.setSpeechRate(settings.rate.value)
+            _textPlaying.value = true
+            e.speak(text, TextToSpeech.QUEUE_FLUSH, null, "$generation:text")
+        }
+    }
 
     fun play(book: String, chapter: Int, fromVerse: Int = 1) {
         playJob?.cancel()
@@ -97,6 +118,7 @@ class TtsController @Inject constructor(
 
     fun stop() {
         playJob?.cancel()
+        _textPlaying.value = false
         generation++; tts?.stop()
         abandonFocus(); unregisterNoisy()
         _state.value = TtsState()
@@ -264,13 +286,14 @@ class TtsController @Inject constructor(
         override fun onDone(utteranceId: String?) {
             val (g, tail) = split(utteranceId) ?: return
             scope.launch {
+                if (tail == "text" && g == generation) { _textPlaying.value = false; abandonFocus(); return@launch }
                 if (g == generation && tail.toIntOrNull() == verses.lastIndex) advanceChapter()
             }
         }
         @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String?) {
             val g = split(utteranceId)?.first
-            scope.launch { if (g == null || g == generation) stop() }
+            scope.launch { if (g == null || g == generation) { _textPlaying.value = false; stop() } }
         }
     }
 

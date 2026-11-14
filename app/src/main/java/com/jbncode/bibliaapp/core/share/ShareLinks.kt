@@ -2,9 +2,11 @@ package com.jbncode.bibliaapp.core.share
 
 import com.jbncode.bibliaapp.domain.bible.Verse
 
-/** Un solo lugar para el formato de enlaces. El dominio se confirma en el paso 6. */
+/** Un solo lugar para el formato de enlaces. */
 object ShareLinks {
-    private const val BASE = "https://bibliapp.com/v"
+    private const val BASE = "https://joselito06.github.io/v"
+    const val PLAY_STORE = "https://play.google.com/store/apps/details?id=com.jbncode.bibliaapp"
+
     fun verse(version: String, book: String, chapter: Int, verse: Int) =
         "$BASE/${version.lowercase()}/$book/$chapter/$verse"
 }

@@ -42,6 +42,10 @@ class PlaybackViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** true mientras suena un texto suelto (versículo del día). */
+    val isSpeakingText: StateFlow<Boolean> = tts.textPlaying
+    fun speakText(text: String) = tts.speakText(text)
+
     val speechRate: StateFlow<Float> = settings.rate
 
     private val _announceVerseNumbers = MutableStateFlow(shared.getAnnounceVerseNumbers())

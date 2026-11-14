@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jbncode.bibliaapp.DatabaseDownloader
 import com.jbncode.bibliaapp.NotificationScheduler
 import com.jbncode.bibliaapp.SharedPreferenceBible
+import com.jbncode.bibliaapp.core.locale.BibleLanguage
 import com.jbncode.bibliaapp.core.locale.LocaleDetector
 import com.jbncode.bibliaapp.core.locale.RegionBibleMap
 import com.jbncode.bibliaapp.data.bible.BibleDbFactory
@@ -51,13 +52,15 @@ class OnboardingViewModel @Inject constructor(
 
     private val _ui = MutableStateFlow(
         OnboardingUi(
-            language = AppLanguage.fromCode(prefs.getAppLanguageCode()),
+            language = deviceLocale.language,   // el radio arranca en el idioma detectado del teléfono
             detected = deviceLocale.language
         )
     )
     val ui: StateFlow<OnboardingUi> = _ui.asStateFlow()
 
     init {
+        // Primera vez: la app arranca ya en el idioma del teléfono (el usuario puede cambiarlo en el primer paso).
+        if (prefs.getAppLanguageCode() != deviceLocale.language.code) prefs.saveAppLanguageCode(deviceLocale.language.code)
         viewModelScope.launch {
             catalog = try { bibles() } catch (e: Exception) { emptyList() }
             _ui.update { it.withOptions(it.language, loaded = true) }
@@ -85,7 +88,8 @@ class OnboardingViewModel @Inject constructor(
     fun confirmBible() {
         val s = _ui.value
         val bible = s.options.firstOrNull { it.code == s.selectedCode }
-        if (bible == null || bible.database_name == BibleDbFactory.DEFAULT_FILE) { useIncluded(); return }
+        if (bible == null) { useIncluded(); return }
+        if (bible.database_name == BibleDbFactory.DEFAULT_FILE) { syncLanguage(bible); useIncluded(); return }
 
         val target = context.getDatabasePath(bible.database_name)
         if (target.exists() && RoomModule.isDatabaseValid(target)) { applyBible(bible); return }
@@ -117,8 +121,14 @@ class OnboardingViewModel @Inject constructor(
 
     private fun applyBible(bible: BibleVersionInfo) {
         prefs.saveSelectedDatabaseFileName(bible.database_name)
+        syncLanguage(bible)
         pendingRestart = true   // el lector actual aún lee "biblia_activa"; se reinicia al terminar
         _ui.update { it.copy(downloading = false, progress = 100, step = 2) }
+    }
+
+    /** El idioma de la app pasa a ser el de la Biblia elegida. */
+    private fun syncLanguage(bible: BibleVersionInfo) {
+        BibleLanguage.sync(prefs, bible.langVisualCode)?.let { l -> _ui.update { it.copy(language = l) } }
     }
 
     private fun fail() = _ui.update { it.copy(downloading = false, error = true) }

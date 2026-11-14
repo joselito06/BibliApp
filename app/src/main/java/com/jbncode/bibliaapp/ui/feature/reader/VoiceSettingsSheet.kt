@@ -46,8 +46,14 @@ fun VoiceSettingsSheet(vm: PlaybackViewModel, onDismiss: () -> Unit) {
     val announceVerses by vm.announceVerseNumbers.collectAsState()
     val announceTitles by vm.announceChapterTitles.collectAsState()
     var options by remember { mutableStateOf<List<VoiceOption>?>(null) }
+    // Selección local: el radio cambia al instante, sin esperar a recargar la lista.
+    var chosen by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) { options = vm.voiceOptions() }
+    LaunchedEffect(Unit) {
+        val list = vm.voiceOptions()
+        options = list
+        chosen = list.firstOrNull { it.selected }?.name
+    }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         Column(
@@ -77,16 +83,32 @@ fun VoiceSettingsSheet(vm: PlaybackViewModel, onDismiss: () -> Unit) {
             when {
                 list == null -> Text(stringResource(R.string.bible_selection_loading_details), Modifier.padding(vertical = 10.dp))
                 else -> {
-                    VoiceRow(stringResource(R.string.tts_voice_auto), list.none { it.selected }) { vm.selectVoice(null) }
+                    VoiceRow(
+                        title = stringResource(R.string.tts_voice_auto), subtitle = null,
+                        selected = chosen == null
+                    ) { chosen = null; vm.selectVoice(null) }
                     if (list.isEmpty()) Text(stringResource(R.string.tts_voice_none), Modifier.padding(vertical = 8.dp))
                     list.forEachIndexed { i, o ->
-                        val label = "${i + 1} · ${o.tag}" + if (o.online) " · " + stringResource(R.string.tts_voice_online) else ""
-                        VoiceRow(label, o.selected) { vm.selectVoice(o.name) }
+                        VoiceRow(
+                            title = voiceTitle(i, o),
+                            subtitle = o.name,
+                            selected = chosen == o.name
+                        ) { chosen = o.name; vm.selectVoice(o.name) }
                     }
                 }
             }
         }
     }
+}
+
+/** "Voz 2 · Español (España) · en línea" en lugar del nombre técnico. */
+@Composable
+private fun voiceTitle(index: Int, o: VoiceOption): String {
+    val locale = Locale.forLanguageTag(o.tag)
+    val language = locale.getDisplayName(Locale.getDefault())
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    val online = if (o.online) " · " + stringResource(R.string.tts_voice_online) else ""
+    return stringResource(R.string.tts_voice_item, index + 1) + " · " + language + online
 }
 
 @Composable
@@ -101,12 +123,17 @@ private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 }
 
 @Composable
-private fun VoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
+private fun VoiceRow(title: String, subtitle: String?, selected: Boolean, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 10.dp),
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         RadioButton(selected = selected, onClick = null)
-        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            if (subtitle != null) {
+                Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
     }
 }

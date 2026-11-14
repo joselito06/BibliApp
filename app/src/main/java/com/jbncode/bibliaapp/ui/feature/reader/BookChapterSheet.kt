@@ -35,10 +35,13 @@ fun BookChapterSheet(
     ntStart: Int,
     currentBook: String,
     onPick: (book: String, chapter: Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    initialBookOsis: String? = null   // con un libro: abre directo en sus capítulos
 ) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var chosen by remember { mutableStateOf<Book?>(null) }
+    var chosen by remember(initialBookOsis, books) {
+        mutableStateOf(books.firstOrNull { it.osis == initialBookOsis })
+    }
     var nt by remember { mutableStateOf(books.firstOrNull { it.osis == currentBook }?.let { it.order >= ntStart } ?: false) }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {

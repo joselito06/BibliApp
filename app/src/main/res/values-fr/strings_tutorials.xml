@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorials_title">Comment utiliser BibliApp</string>
+    <string name="tutorials_done">Terminé</string>
+    <string name="onboarding_guide_fav">Ajoutez des versets aux favoris avec l’étoile, surlignez-les en couleur ou ajoutez une note.</string>
+    <string name="onboarding_guide_search">Trouvez un mot ou un verset avec la recherche. Plus de conseils dans Plus → Comment utiliser BibliApp.</string>
+    <string name="tut_read_title">Lire et naviguer</string>
+    <string name="tut_read_body">Glissez à gauche ou à droite pour changer de chapitre. Touchez le nom du livre en haut pour en choisir un autre, et le numéro du chapitre pour y aller directement.</string>
+    <string name="tut_select_title">Sélectionner des versets</string>
+    <string name="tut_select_body">Touchez un verset pour le sélectionner ; touchez-en d’autres pour en choisir plusieurs. Une barre apparaît : favori, surligner, note, copier, partager. Touchez ✕ pour annuler la sélection.</string>
+    <string name="tut_fav_title">Favoris</string>
+    <string name="tut_fav_body">Sélectionnez un ou plusieurs versets et touchez l’étoile. Elle s’illumine avec une petite animation. Retrouvez-les dans Ma bibliothèque → Favoris.</string>
+    <string name="tut_highlight_title">Surligner en couleur</string>
+    <string name="tut_highlight_body">Sélectionnez des versets, touchez le pinceau et choisissez une couleur. Choisissez ✕ dans la palette pour retirer un surlignage.</string>
+    <string name="tut_note_title">Écrire des notes</string>
+    <string name="tut_note_body">Sélectionnez un verset, touchez l’icône de note et écrivez vos pensées. Les versets avec une note affichent ✎. Vous pouvez la modifier ou la supprimer de la même façon.</string>
+    <string name="tut_listen_title">Écouter la Bible</string>
+    <string name="tut_listen_body">Touchez lecture pour écouter le chapitre, même écran éteint. Ouvrez les réglages de voix pour choisir la voix et la vitesse. L’app se souvient de l’endroit où vous vous êtes arrêté.</string>
+    <string name="tut_search_title">Rechercher</string>
+    <string name="tut_search_body">Utilisez la loupe pour chercher des mots ou des phrases. Affinez avec des filtres : Ancien ou Nouveau Testament, ou un livre précis.</string>
+    <string name="tut_bibles_title">Changer de Bible</string>
+    <string name="tut_bibles_body">Allez dans Plus → Autres Bibles pour changer de version ou en télécharger. La langue de l’app suit celle de la Bible choisie.</string>
+    <string name="tut_streak_title">Série et rappels</string>
+    <string name="tut_streak_body">L’accueil affiche votre série de lecture et votre progression. Dans Plus → Notifications, choisissez l’heure du verset du jour et des rappels.</string>
+</resources>

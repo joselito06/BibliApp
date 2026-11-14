@@ -95,6 +95,17 @@ class ReaderViewModel @Inject constructor(
 
     // ── Navegación ───────────────────────────────────────────────────────────
     fun open(book: String, chapter: Int = 1) = setPosition(BibleRef(book, chapter))
+
+    /** Versículo que llegó por un enlace compartido: el lector hace scroll y lo resalta. */
+    val pendingVerse = MutableStateFlow<Int?>(null)
+
+    fun openFromLink(book: String, chapter: Int, verse: Int) {
+        val exists = books.value.isEmpty() || books.value.any { it.osis == book }
+        open(book, chapter)
+        pendingVerse.value = if (exists) verse else null
+    }
+
+    fun consumePendingVerse() { pendingVerse.value = null }
     fun setChapter(chapter: Int) = setPosition(_position.value.copy(chapter = chapter))
 
     fun nextChapter() {

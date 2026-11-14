@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tut_try_select">Essayez : touchez le verset</string>
+    <string name="tut_try_fav">Essayez : touchez l’étoile</string>
+    <string name="tut_try_highlight">Essayez : choisissez une couleur</string>
+    <string name="tut_try_note">Essayez : touchez l’icône de note</string>
+    <string name="tut_try_listen">Essayez : appuyez sur lecture</string>
+    <string name="tut_try_bibles">Essayez : choisissez une Bible</string>
+    <string name="tut_demo_verse">L’Éternel est mon berger : je ne manquerai de rien.</string>
+    <string name="tut_demo_ref">Psaume 23:1</string>
+    <string name="tut_demo_note_text">Dieu prend soin de moi.</string>
+    <string name="tut_demo_search_word">berger</string>
+    <string name="tut_chip_all">Tout</string>
+    <string name="tut_chip_ot">Ancien Testament</string>
+    <string name="tut_chip_nt">Nouveau Testament</string>
+    <string name="tut_demo_days">jours de suite</string>
+    <string name="daily_verse_stop">Arrêter</string>
+</resources>

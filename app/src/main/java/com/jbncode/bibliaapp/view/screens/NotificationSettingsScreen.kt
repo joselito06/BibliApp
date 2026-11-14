@@ -96,6 +96,7 @@ import androidx.core.view.WindowCompat
 import androidx.compose.ui.text.lerp as lerpTextStyle
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import com.jbncode.bibliaapp.view.viewmodel.SettingsViewmodel
 import java.time.LocalTime
@@ -198,43 +199,11 @@ fun NotificationSettingsScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                modifier = Modifier.clip(topAppBarShape),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer, // Color para título y TextField
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer, // Color de fondo al desplazar
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás"
-                        )
-                    }
-                },
-                title = {
-                    TransformableTopAppBarTitle2(
-                        scrollBehavior = scrollBehavior,
-                        icon = Icons.Default.Notifications,
-                        iconContentDescription = "Notificaciones",
-                        titleText = stringResource(R.string.notifications_section_title)
-                    )
-
-                },
-                actions = {
-                    IconButton(onClick = { /* Acción adicional */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.notifications_section_title),
+                icon = Icons.Default.Notifications,
+                onBack = { navigation.popBackStack() }
             )
         },
     ){ innerPadding ->

@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 import androidx.core.net.toUri
@@ -132,7 +133,7 @@ fun ShareAppScreen(mainViewmodel: MainViewmodel, navigation: NavHostController) 
         RectangleShape // Forma rectangular normal cuando está colapsada o en transición
     }
 
-    val shareMessage = stringResource(R.string.share_app_message_template)+ "https://play.google.com/store/apps/details?id=com.jbncode.bibliaapp"
+    val shareMessage = stringResource(R.string.share_app_message_template, com.jbncode.bibliaapp.core.share.ShareLinks.PLAY_STORE)
     .trimIndent()
 
     LaunchedEffect(true) {
@@ -142,43 +143,11 @@ fun ShareAppScreen(mainViewmodel: MainViewmodel, navigation: NavHostController) 
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                modifier = Modifier.clip(topAppBarShape),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer, // Color para título y TextField
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer, // Color de fondo al desplazar
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás"
-                        )
-                    }
-                },
-                title = {
-                    TransformableTopAppBarTitle2(
-                        scrollBehavior = scrollBehavior,
-                        icon = Icons.Default.Share,
-                        iconContentDescription = "Compartir",
-                        titleText = stringResource(R.string.share_screen_title)
-                    )
-
-                },
-                actions = {
-                    IconButton(onClick = { /* Acción adicional */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.share_screen_title),
+                icon = Icons.Default.Share,
+                onBack = { navigation.popBackStack() }
             )
         },
         bottomBar = {

@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
@@ -32,7 +31,6 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,16 +46,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.domain.model.AppLanguage
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel
-import com.jbncode.bibliaapp.ui.feature.settings.VoiceSettingsCard
 import com.jbncode.bibliaapp.ui.theme.AppThemeType
 import com.jbncode.bibliaapp.view.Routes
 import com.jbncode.bibliaapp.view.components.BannerAd
@@ -74,28 +71,11 @@ fun ConfigScreen(
 ) {
     SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
 
-    val announceVerseNumbers by playbackViewmodel.announceVerseNumbers.collectAsState()
-    val announceChapterTitles by playbackViewmodel.announceChapterTitles.collectAsState()
     val currentAppTheme by settingsViewmodel.appTheme.collectAsState()
     val currentAppLanguage by settingsViewmodel.appLanguage.collectAsState()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
-
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val shape = if (scrollBehavior.state.collapsedFraction < 0.05f) {
-        RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
-    } else RectangleShape
-
-    // Cambiar el idioma de la app sigue pasando por la pantalla de reinicio.
-    LaunchedEffect(settingsViewmodel, navigation) {
-        settingsViewmodel.onNavigateToRestartScreen = {
-            navigation.navigate(Routes.RestartingScreen.route) {
-                popUpTo(navigation.graph.startDestinationId) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
 
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)
@@ -103,30 +83,11 @@ fun ConfigScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                title = {
-                    TransformableTopAppBarTitle2(
-                        scrollBehavior = scrollBehavior,
-                        icon = Icons.Default.Settings,
-                        iconContentDescription = null,
-                        titleText = stringResource(R.string.config_screen_title)
-                    )
-                },
-                modifier = Modifier.clip(shape),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.config_screen_title),
+                icon = Icons.Default.Settings,
+                onBack = { navigation.popBackStack() }
             )
         },
         bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
@@ -154,25 +115,6 @@ fun ConfigScreen(
                 )
             }
 
-            SettingSectionTitle(stringResource(R.string.tts_settings_title))
-            SettingsCard {
-                SwitchItem(
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    title = stringResource(R.string.announce_verse_numbers),
-                    checked = announceVerseNumbers,
-                    onChange = { playbackViewmodel.setAnnounceVerseNumbers(it) }
-                )
-                HorizontalDivider(Modifier.padding(start = 56.dp))
-                SwitchItem(
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    title = stringResource(R.string.announce_chapter_titles),
-                    checked = announceChapterTitles,
-                    onChange = { playbackViewmodel.setAnnounceChapterTitles(it) }
-                )
-            }
-
-            // Velocidad de lectura y selector de voz
-            VoiceSettingsCard(playbackViewmodel)
 
             Spacer(Modifier.height(24.dp))
         }
@@ -249,31 +191,12 @@ private fun SettingItem(
 }
 
 @Composable
-private fun SwitchItem(
-    icon: ImageVector,
-    title: String,
-    checked: Boolean,
-    onChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onChange(!checked) }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(icon, contentDescription = null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onChange)
-    }
-}
-
-@Composable
 fun getThemeDisplayName(theme: AppThemeType): String {
     return when (theme) {
-        AppThemeType.LIGHT -> stringResource(R.string.theme_light)
-        AppThemeType.DARK -> stringResource(R.string.theme_dark)
+        AppThemeType.LIGHT -> stringResource(R.string.theme_bibliapp_light)
+        AppThemeType.DARK -> stringResource(R.string.theme_bibliapp_dark)
+        AppThemeType.CLASSIC_LIGHT -> stringResource(R.string.theme_classic_light)
+        AppThemeType.CLASSIC_DARK -> stringResource(R.string.theme_classic_dark)
         AppThemeType.SYSTEM_DEFAULT -> stringResource(R.string.theme_system)
         AppThemeType.HIGH_CONTRAST_LIGHT -> stringResource(R.string.theme_high_contrast_light)
         AppThemeType.HIGH_CONTRAST_DARK -> stringResource(R.string.theme_high_contrast_dark)

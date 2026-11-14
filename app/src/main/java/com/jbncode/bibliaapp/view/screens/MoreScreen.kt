@@ -1,11 +1,14 @@
 package com.jbncode.bibliaapp.view.screens
 
 import androidx.compose.foundation.background
+import com.jbncode.bibliaapp.ui.components.appearOnce
+import com.jbncode.bibliaapp.ui.components.pressScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -65,6 +68,9 @@ fun MoreScreen(
 
     Scaffold(
         Modifier.fillMaxSize(),
+        // Sin esto, el Scaffold interno vuelve a sumar el alto de la barra de estado
+        // y se ve un hueco bajo la barra superior (parecía una segunda barra).
+        contentWindowInsets = WindowInsets(0.dp),
         bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
     ) { paddingValues ->
         Column(
@@ -92,14 +98,14 @@ fun MoreScreen(
                 MoreItem(Icons.Default.CollectionsBookmark, stringResource(R.string.more_screen_other_bibles_title)) {
                     navigation.navigate(Routes.BibleSelectionScreen.route)
                 }
-                HorizontalDivider(Modifier.padding(start = 68.dp))
-                MoreItem(Icons.Default.CloudDownload, stringResource(R.string.bible_selection_download_bibles)) {
-                    navigation.navigate(Routes.BibleDownloadScreen.route)
-                }
             }
 
             SectionLabel(stringResource(R.string.more_section_app))
             SectionCard {
+                MoreItem(Icons.Default.AutoStories, stringResource(R.string.tutorials_title)) {
+                    navigation.navigate(Routes.TutorialsScreen.route)
+                }
+                HorizontalDivider(Modifier.padding(start = 68.dp))
                 MoreItem(Icons.Default.Notifications, stringResource(R.string.notifications_section_title)) {
                     navigation.navigate(Routes.NotificationScreen.route)
                 }
@@ -136,7 +142,7 @@ private fun SectionLabel(text: String) {
 @Composable
 private fun SectionCard(content: @Composable () -> Unit) {
     Card(
-        Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth().appearOnce(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
@@ -149,6 +155,7 @@ private fun MoreItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            .pressScale(0.97f)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically

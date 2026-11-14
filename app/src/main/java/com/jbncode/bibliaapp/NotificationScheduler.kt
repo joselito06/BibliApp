@@ -37,7 +37,7 @@ class NotificationScheduler @Inject constructor(@ApplicationContext private val 
             try {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending(type))
                 return
-            } catch (e: SecurityException) { /* cae a la ventana */ }
+            } catch (_: SecurityException) { /* cae a la ventana */ }
         }
         // Sin permiso de alarma exacta: ventana de 10 min, siempre funciona.
         alarmManager.setWindow(AlarmManager.RTC_WAKEUP, at, 10 * 60 * 1000L, pending(type))

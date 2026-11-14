@@ -7,6 +7,26 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.jbncode.bibliaapp.ui.components.appearOnce
+import com.jbncode.bibliaapp.ui.components.pressScale
+import kotlin.math.cos
+import kotlin.math.sin
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -134,13 +154,19 @@ fun ReaderScreen(
     val activeFile by reader.activeFile.collectAsState()
     val info by reader.info.collectAsState()
     val speaking by playback.speakingRef.collectAsState()
+    val linkVerse by reader.pendingVerse.collectAsState()
     val isSpeaking by playback.isSpeaking.collectAsState()
     val isPaused by playback.isPaused.collectAsState()
     var selected by remember { mutableStateOf(setOf<Int>()) }
     var showPicker by remember { mutableStateOf(false) }
+    var pickerBook by remember { mutableStateOf<String?>(null) }   // null = lista de libros
     var noteTarget by remember { mutableStateOf<NoteTarget?>(null) }
     var showVoiceSheet by remember { mutableStateOf(false) }
     val book = books.firstOrNull { it.osis == position.book }
+    val chapterItems by remember(position.book, position.chapter) { annotations.chapter(position.book, position.chapter) }
+        .collectAsState(initial = emptyList())
+    val favoriteVerses = remember(chapterItems) { chapterItems.filter { it.type == ItemType.FAVORITE }.map { it.verse }.toSet() }
+    val allSelectedFavorite = selected.isNotEmpty() && selected.all { it in favoriteVerses }
     val ttsState by playback.state.collectAsState()
     val rate by playback.speechRate.collectAsState()
     val chapterVerses by produceState<List<Verse>>(emptyList(), activeFile, position.book, position.chapter) {
@@ -153,6 +179,7 @@ fun ReaderScreen(
     SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
     LaunchedEffect(Unit) { mainViewmodel.showTopAppBar(false); mainViewmodel.showBottomBar(true) }
     BackHandler(enabled = selected.isNotEmpty()) { selected = emptySet() }
+    LaunchedEffect(linkVerse) { linkVerse?.let { selected = setOf(it) } }
 
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner) {
@@ -187,7 +214,8 @@ fun ReaderScreen(
         Column(Modifier.fillMaxSize()) {
             ReaderHeader(
                 bookName = book.name, versionTitle = info.title, chapter = position.chapter,
-                onPick = { showPicker = true },
+                onPickBook = { pickerBook = null; showPicker = true },
+                onPickChapter = { pickerBook = position.book; showPicker = true },
                 onSearch = { navigation.navigate(Routes.SearchScreen.route) },
                 onVersions = { navigation.navigate(Routes.BibleSelectionScreen.route) }
             )
@@ -205,7 +233,11 @@ fun ReaderScreen(
                     if (target in 0 until chapters && pagerState.currentPage != target) pagerState.animateScrollToPage(target)
                 }
                 HorizontalPager(state = pagerState, modifier = Modifier.weight(1f).fillMaxWidth(), key = { it }) { page ->
-                    ChapterPage(reader, annotations, book, page + 1, activeFile, selected, speaking) { n ->
+                    ChapterPage(
+                        reader, annotations, book, page + 1, activeFile, selected, speaking,
+                        linkVerse = if (page + 1 == position.chapter) linkVerse else null,
+                        onLinkShown = reader::consumePendingVerse
+                    ) { n ->
                         selected = if (n in selected) selected - n else selected + n
                     }
                 }
@@ -215,9 +247,11 @@ fun ReaderScreen(
         Column(Modifier.align(Alignment.BottomCenter), horizontalAlignment = Alignment.CenterHorizontally) {
             AnimatedVisibility(
                 visible = selected.isNotEmpty(),
-                enter = fadeIn() + slideInVertically { it }, exit = fadeOut() + slideOutVertically { it }
+                enter = fadeIn() + scaleIn(initialScale = 0.85f) + slideInVertically(spring(dampingRatio = 0.7f, stiffness = Spring.StiffnessMediumLow)) { it },
+                exit = fadeOut() + scaleOut(targetScale = 0.9f) + slideOutVertically { it }
             ) {
                 AnnotationBar(
+                    allFavorite = allSelectedFavorite,
                     onFavorite = { annotations.toggleFavorite(book.osis, position.chapter, selected) },
                     onHighlight = { c -> annotations.setHighlight(book.osis, position.chapter, selected, c); selected = emptySet() },
                     onNote = {
@@ -243,7 +277,8 @@ fun ReaderScreen(
             }
             ChapterBar(
                 chapter = position.chapter, showPlay = !speakingNow,
-                onPrev = reader::previousChapter, onNext = reader::nextChapter, onPick = { showPicker = true },
+                onPrev = reader::previousChapter, onNext = reader::nextChapter,
+                onPick = { pickerBook = position.book; showPicker = true },
                 onPlay = {
                     val from = selected.minOrNull() ?: playback.resumeVerse(position.book, position.chapter)
                     if (selected.isEmpty() && from > 1) {
@@ -268,9 +303,12 @@ fun ReaderScreen(
     }
 
     if (showPicker) {
-        BookChapterSheet(books, info.ntStart, position.book,
+        BookChapterSheet(
+            books, info.ntStart, position.book,
             onPick = { b, c -> reader.open(b, c); showPicker = false },
-            onDismiss = { showPicker = false })
+            onDismiss = { showPicker = false },
+            initialBookOsis = pickerBook
+        )
     }
 }
 
@@ -281,7 +319,7 @@ private suspend fun copyOrShare(
     val verses = reader.loadChapter(book.osis, chapter).filter { it.verse in selected }
     if (verses.isEmpty()) return
     val footer = if (share) {
-        context.getString(R.string.bible_share_more_link) + " " + ShareLinks.verse(versionCode, book.osis, chapter, verses.minOf { it.verse })
+        context.getString(R.string.share_open_in_app) + " " + ShareLinks.PLAY_STORE
     } else null
     val text = VerseTextFormatter.format(book.name, chapter, verses, versionCode, footer)
     if (share) {
@@ -297,7 +335,8 @@ private suspend fun copyOrShare(
 @Composable
 private fun ChapterPage(
     reader: ReaderViewModel, annotations: AnnotationsViewModel, book: Book, chapter: Int, activeFile: String,
-    selected: Set<Int>, speaking: Pair<Int, Int>?, onToggle: (Int) -> Unit
+    selected: Set<Int>, speaking: Pair<Int, Int>?, linkVerse: Int? = null, onLinkShown: () -> Unit = {},
+    onToggle: (Int) -> Unit
 ) {
     val verses by produceState<List<Verse>?>(null, activeFile, book.osis, chapter) {
         value = try { reader.loadChapter(book.osis, chapter) } catch (e: Exception) { emptyList() }
@@ -313,6 +352,15 @@ private fun ChapterPage(
     val noted = remember(items) { items.filter { it.type == ItemType.NOTE }.flatMap { it.verse..it.verseEnd }.toSet() }
     val state = rememberLazyListState()
     val speakingVerse = speaking?.takeIf { it.first == chapter }?.second
+    // Un anuncio discreto al final de cada tercer capítulo (nunca interrumpe la lectura).
+    val showAd = remember(book.osis, chapter) { com.jbncode.bibliaapp.utils.AdPacing.shouldShowInline("${book.osis}:$chapter") }
+    LaunchedEffect(linkVerse, list.size) {
+        if (linkVerse != null && list.isNotEmpty()) {
+            val idx = list.indexOfFirst { it.verse == linkVerse }
+            if (idx >= 0) try { state.scrollToItem(idx + 1) } catch (_: Exception) { }
+            onLinkShown()
+        }
+    }
     LaunchedEffect(speakingVerse) {
         if (speakingVerse != null) {
             val idx = list.indexOfFirst { it.verse == speakingVerse }
@@ -329,12 +377,30 @@ private fun ChapterPage(
         itemsIndexed(list, key = { _, v -> v.verse }) { _, v ->
             VerseRow(v, v.verse in selected, v.verse == speakingVerse, highlights[v.verse], v.verse in favorites, v.verse in noted) { onToggle(v.verse) }
         }
+        if (showAd) item(key = "inline-ad") {
+            com.jbncode.bibliaapp.view.components.InlineNativeAd(Modifier.padding(top = 28.dp))
+        }
     }
 }
 
 @Composable
 private fun VerseRow(v: Verse, selected: Boolean, speaking: Boolean, highlight: Int?, favorite: Boolean, hasNote: Boolean, onClick: () -> Unit) {
     val primary = MaterialTheme.colorScheme.primary
+    val bgTarget = when {
+        selected -> MaterialTheme.colorScheme.tertiaryContainer
+        speaking -> primary.copy(alpha = 0.14f)
+        highlight != null -> Color(highlight).copy(alpha = 0.45f)
+        else -> Color.Transparent
+    }
+    val bg by animateColorAsState(bgTarget, tween(220), label = "verseBg")
+    val rowScale by animateFloatAsState(if (selected) 1.012f else 1f, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium), label = "verseScale")
+    // Destello dorado cuando el versículo pasa a ser favorito.
+    val flash = remember { Animatable(0f) }
+    var firstFav by remember { mutableStateOf(true) }
+    LaunchedEffect(favorite) {
+        if (firstFav) { firstFav = false; return@LaunchedEffect }
+        if (favorite) { flash.snapTo(1f); flash.animateTo(0f, tween(900)) }
+    }
     Column(Modifier.fillMaxWidth()) {
         v.heading?.let {
             Text(it, Modifier.padding(top = 16.dp, bottom = 6.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = primary)
@@ -349,15 +415,11 @@ private fun VerseRow(v: Verse, selected: Boolean, speaking: Boolean, highlight: 
             style = TextStyle(fontFamily = FontFamily.Serif, fontSize = 18.sp, lineHeight = 30.sp),
             color = if (speaking) primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (speaking) FontWeight.SemiBold else FontWeight.Normal,
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
-                .background(
-                    when {
-                        selected -> MaterialTheme.colorScheme.tertiaryContainer
-                        speaking -> primary.copy(alpha = 0.14f)
-                        highlight != null -> Color(highlight).copy(alpha = 0.45f)
-                        else -> Color.Transparent
-                    }
-                )
+            modifier = Modifier.fillMaxWidth()
+                .graphicsLayer { scaleX = rowScale; scaleY = rowScale }
+                .clip(RoundedCornerShape(10.dp))
+                .background(bg)
+                .drawBehind { if (flash.value > 0f) drawRect(FAVORITE_GOLD.copy(alpha = 0.35f * flash.value)) }
                 .clickable(onClick = onClick).padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
@@ -369,6 +431,7 @@ private val HIGHLIGHT_COLORS = listOf(0xFFFFF176, 0xFFA5D6A7, 0xFF90CAF9, 0xFFF4
 
 @Composable
 private fun AnnotationBar(
+    allFavorite: Boolean,
     onFavorite: () -> Unit, onHighlight: (Int?) -> Unit, onNote: () -> Unit,
     onCopy: () -> Unit, onShare: () -> Unit, onClear: () -> Unit
 ) {
@@ -376,11 +439,15 @@ private fun AnnotationBar(
     val bg = MaterialTheme.colorScheme.inverseSurface
     val fg = MaterialTheme.colorScheme.inverseOnSurface
     Column(Modifier.padding(bottom = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        AnimatedVisibility(visible = showColors) {
+        AnimatedVisibility(
+            visible = showColors,
+            enter = fadeIn() + expandHorizontally(expandFrom = Alignment.CenterHorizontally) + scaleIn(initialScale = 0.8f),
+            exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.CenterHorizontally)
+        ) {
             Surface(Modifier.padding(bottom = 8.dp), shape = RoundedCornerShape(50), color = bg, contentColor = fg) {
                 Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     HIGHLIGHT_COLORS.forEach { c ->
-                        Box(Modifier.size(32.dp).clip(CircleShape).background(Color(c)).clickable { onHighlight(c); showColors = false })
+                        Box(Modifier.size(32.dp).pressScale(0.85f).clip(CircleShape).background(Color(c)).clickable { onHighlight(c); showColors = false })
                     }
                     IconButton(onClick = { onHighlight(null); showColors = false }, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Rounded.Close, stringResource(R.string.action_remove_highlight))
@@ -390,14 +457,63 @@ private fun AnnotationBar(
         }
         Surface(shape = RoundedCornerShape(50), color = bg, contentColor = fg) {
             Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onFavorite) { Icon(Icons.Rounded.StarBorder, stringResource(R.string.action_favorite)) }
-                IconButton(onClick = { showColors = !showColors }) { Icon(Icons.Rounded.Brush, stringResource(R.string.action_highlight)) }
-                IconButton(onClick = onNote) { Icon(Icons.Rounded.EditNote, stringResource(R.string.action_note)) }
-                IconButton(onClick = onCopy) { Icon(Icons.Rounded.CopyAll, stringResource(R.string.bible_action_copy)) }
-                IconButton(onClick = onShare) { Icon(Icons.Rounded.Share, stringResource(R.string.bible_action_share)) }
-                IconButton(onClick = onClear) { Icon(Icons.Rounded.Close, stringResource(R.string.reader_clear_selection)) }
+                FavoriteButton(allFavorite, onFavorite, Modifier.appearOnce(0, 30))
+                IconButton(onClick = { showColors = !showColors }, Modifier.appearOnce(1, 30)) { Icon(Icons.Rounded.Brush, stringResource(R.string.action_highlight)) }
+                IconButton(onClick = onNote, Modifier.appearOnce(2, 30)) { Icon(Icons.Rounded.EditNote, stringResource(R.string.action_note)) }
+                IconButton(onClick = onCopy, Modifier.appearOnce(3, 30)) { Icon(Icons.Rounded.CopyAll, stringResource(R.string.bible_action_copy)) }
+                IconButton(onClick = onShare, Modifier.appearOnce(4, 30)) { Icon(Icons.Rounded.Share, stringResource(R.string.bible_action_share)) }
+                IconButton(onClick = onClear, Modifier.appearOnce(5, 30)) { Icon(Icons.Rounded.Close, stringResource(R.string.reader_clear_selection)) }
             }
         }
+    }
+}
+
+private val FAVORITE_GOLD = Color(0xFFFFC107)
+
+/** Estrella con rebote, giro, destello de partículas y vibración al marcar como favorito. */
+@Composable
+private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val haptics = LocalHapticFeedback.current
+    val scale = remember { Animatable(1f) }
+    val rotation = remember { Animatable(0f) }
+    val burst = remember { Animatable(0f) }
+    var first by remember { mutableStateOf(true) }
+    LaunchedEffect(isFavorite) {
+        if (first) { first = false; return@LaunchedEffect }
+        if (isFavorite) {
+            launch { burst.snapTo(0f); burst.animateTo(1f, tween(650, easing = FastOutSlowInEasing)) }
+            launch { rotation.snapTo(-40f); rotation.animateTo(0f, spring(dampingRatio = 0.35f, stiffness = Spring.StiffnessLow)) }
+            scale.snapTo(0.4f)
+            scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium))
+        } else {
+            scale.animateTo(0.75f, tween(90))
+            scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+        }
+    }
+    val tint by animateColorAsState(if (isFavorite) FAVORITE_GOLD else LocalContentColor.current, tween(250), label = "favTint")
+    IconButton(
+        onClick = { haptics.performHapticFeedback(HapticFeedbackType.LongPress); onClick() },
+        modifier = modifier.drawBehind {
+            val p = burst.value
+            if (p > 0f && p < 1f) {
+                repeat(8) { i ->
+                    val a = Math.toRadians(i * 45.0)
+                    val r = 14.dp.toPx() + p * 22.dp.toPx()
+                    drawCircle(
+                        FAVORITE_GOLD.copy(alpha = 1f - p),
+                        radius = (4f * (1f - p) + 1f).dp.toPx(),
+                        center = Offset(center.x + cos(a).toFloat() * r, center.y + sin(a).toFloat() * r)
+                    )
+                }
+            }
+        }
+    ) {
+        Icon(
+            if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+            stringResource(R.string.action_favorite),
+            tint = tint,
+            modifier = Modifier.graphicsLayer { scaleX = scale.value; scaleY = scale.value; rotationZ = rotation.value }
+        )
     }
 }
 
@@ -426,7 +542,7 @@ private fun NoteDialog(title: String, existing: UserItemEntity?, onSave: (String
 @Composable
 private fun ReaderHeader(
     bookName: String, versionTitle: String, chapter: Int,
-    onPick: () -> Unit, onSearch: () -> Unit, onVersions: () -> Unit
+    onPickBook: () -> Unit, onPickChapter: () -> Unit, onSearch: () -> Unit, onVersions: () -> Unit
 ) {
     ScreenHeader {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -435,14 +551,21 @@ private fun ReaderHeader(
                     versionTitle, Modifier.clickable(onClick = onVersions), maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold
                 )
-                Text(
-                    bookName, Modifier.clickable(onClick = onPick), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.headlineMedium, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    Modifier.clickable(onClick = onPickBook),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        bookName, Modifier.weight(1f, fill = false), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineMedium, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold
+                    )
+                    // Señal de que el nombre del libro se puede tocar.
+                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
+                }
             }
             IconButton(onClick = onSearch) { Icon(Icons.Rounded.Search, stringResource(R.string.navigarion_bar_search)) }
             AssistChip(
-                onClick = onPick,
+                onClick = onPickChapter,
                 label = { Text("${stringResource(R.string.bible_chapter_label)} $chapter") },
                 trailingIcon = { Icon(Icons.Rounded.ArrowDropDown, contentDescription = null) }
             )

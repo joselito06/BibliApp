@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -51,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
-import com.jbncode.bibliaapp.ui.components.ScreenHeader
 import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.ui.feature.reader.ReaderViewModel
 import com.jbncode.bibliaapp.view.Routes
@@ -66,7 +66,7 @@ fun SearchScreen(
     navigation: NavHostController,
     vm: SearchViewModel = hiltViewModel()
 ) {
-    SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
+    SystemBarsColor(MaterialTheme.colorScheme.background)
     LaunchedEffect(Unit) { mainViewmodel.showTopAppBar(false); mainViewmodel.showBottomBar(true) }
 
     val ui by vm.ui.collectAsState()
@@ -80,7 +80,7 @@ fun SearchScreen(
     LaunchedEffect(ui.query, ui.scope, ui.exact, books, info.ntStart) { delay(300); vm.run(books, info.ntStart) }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        ScreenHeader {
+        Column(Modifier.statusBarsPadding().padding(horizontal = 16.dp).padding(top = 12.dp)) {
             TextField(
                 value = ui.query, onValueChange = vm::setQuery, singleLine = true,
                 placeholder = { Text(stringResource(R.string.search_hint)) },
@@ -89,12 +89,13 @@ fun SearchScreen(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent
                 ),
                 modifier = Modifier.fillMaxWidth().focusRequester(focus)
             )
-            Row(Modifier.padding(top = 12.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.padding(top = 10.dp, bottom = 4.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(ui.scope == SearchScope.ALL, { vm.setScope(SearchScope.ALL) }, { Text(stringResource(R.string.bibles_download_filter_all)) })
                 FilterChip(ui.scope == SearchScope.OT, { vm.setScope(SearchScope.OT) }, { Text(stringResource(R.string.reader_old_testament)) })
                 FilterChip(ui.scope == SearchScope.NT, { vm.setScope(SearchScope.NT) }, { Text(stringResource(R.string.reader_new_testament)) })
@@ -125,6 +126,8 @@ fun SearchScreen(
                         }
                     }
                 }
+                // Anuncio discreto al final de los resultados (solo con resultados abundantes).
+                if (ui.hits.size >= 8) item(key = "ad") { com.jbncode.bibliaapp.view.components.InlineNativeAd() }
             }
         }
     }

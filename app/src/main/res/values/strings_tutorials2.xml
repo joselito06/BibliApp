@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tut_try_select">Try it: tap the verse</string>
+    <string name="tut_try_fav">Try it: tap the star</string>
+    <string name="tut_try_highlight">Try it: pick a color</string>
+    <string name="tut_try_note">Try it: tap the note icon</string>
+    <string name="tut_try_listen">Try it: press play</string>
+    <string name="tut_try_bibles">Try it: choose a Bible</string>
+    <string name="tut_demo_verse">The Lord is my shepherd; I shall not want.</string>
+    <string name="tut_demo_ref">Psalm 23:1</string>
+    <string name="tut_demo_note_text">God takes care of me.</string>
+    <string name="tut_demo_search_word">shepherd</string>
+    <string name="tut_chip_all">All</string>
+    <string name="tut_chip_ot">Old Testament</string>
+    <string name="tut_chip_nt">New Testament</string>
+    <string name="tut_demo_days">days in a row</string>
+    <string name="daily_verse_stop">Stop</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Caută în Biblie…</string>
+    <string name="search_exact">Frază exactă</string>
+    <string name="search_results">Rezultate: %1$d</string>
+    <string name="search_empty">Niciun rezultat pentru „%1$s”</string>
+    <string name="search_type_more">Scrie cel puțin 2 litere</string>
+    <string name="reader_reading_verse">Citind · versetul %1$d</string>
+    <string name="reader_voice_chip">Voce: %1$s</string>
+    <string name="reader_prev_verse">Versetul anterior</string>
+    <string name="reader_next_verse">Versetul următor</string>
+</resources>

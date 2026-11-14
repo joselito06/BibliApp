@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +59,7 @@ import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.data.networking.models.BibleDisplayInfo
 import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.utils.InterstitialAdManager
 import com.jbncode.bibliaapp.view.Routes
@@ -92,11 +92,6 @@ fun BibleSelectionScreen(
     val pullToRefreshState = rememberPullToRefreshState()
     var isRefreshing by remember { mutableStateOf(false) }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val shape = if (scrollBehavior.state.collapsedFraction < 0.05f) {
-        RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
-    } else RectangleShape
-
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) { delay(1500); isRefreshing = false }
     }
@@ -110,28 +105,10 @@ fun BibleSelectionScreen(
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
-                modifier = Modifier.clip(shape),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                title = {
-                    TransformableTopAppBarTitle2(
-                        scrollBehavior = scrollBehavior,
-                        icon = Icons.Default.CollectionsBookmark,
-                        iconContentDescription = null,
-                        titleText = stringResource(R.string.bible_selection_screen_title),
-                    )
-                },
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.bible_selection_screen_title),
+                icon = Icons.Default.CollectionsBookmark,
+                onBack = { navigation.popBackStack() }
             )
         },
         bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
@@ -150,9 +127,7 @@ fun BibleSelectionScreen(
                 .padding(innerPadding)
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

@@ -252,10 +252,80 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+// Claro clásico: blanco puro, texto casi negro, azul vivo. Nítido y de alto contraste.
+private val classicLightScheme = lightColorScheme(
+    primary = Color(0xFF1F5EFF),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFDCE6FF),
+    onPrimaryContainer = Color(0xFF001A4D),
+    secondary = Color(0xFF15803D),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFD9F5E3),
+    onSecondaryContainer = Color(0xFF00391B),
+    tertiary = Color(0xFF6D5BFF),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFE6E2FF),
+    onTertiaryContainer = Color(0xFF1B0F66),
+    error = Color(0xFFD92D20),
+    background = Color(0xFFFFFFFF),
+    onBackground = Color(0xFF0B0D12),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF0B0D12),
+    surfaceVariant = Color(0xFFE9ECF3),
+    onSurfaceVariant = Color(0xFF454B5A),
+    outline = Color(0xFF727888),
+    outlineVariant = Color(0xFFD3D8E2),
+    inverseSurface = Color(0xFF15171E),
+    inverseOnSurface = Color(0xFFF1F3F7),
+    inversePrimary = Color(0xFF9DB9FF),
+    surfaceTint = Color(0xFF1F5EFF),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF7F8FB),
+    surfaceContainer = Color(0xFFF1F3F8),
+    surfaceContainerHigh = Color(0xFFE9ECF3),
+    surfaceContainerHighest = Color(0xFFE1E5EE)
+)
+
+// Oscuro clásico (estilo FinPro): casi negro azulado, tarjetas grafito, azul eléctrico y verde.
+private val classicDarkScheme = darkColorScheme(
+    primary = Color(0xFF2D6CFF),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF14264F),
+    onPrimaryContainer = Color(0xFFD6E2FF),
+    secondary = Color(0xFF22C55E),
+    onSecondary = Color(0xFF00210B),
+    secondaryContainer = Color(0xFF11351F),
+    onSecondaryContainer = Color(0xFFB7F5CB),
+    tertiary = Color(0xFF8B7BFF),
+    onTertiary = Color(0xFF14083F),
+    tertiaryContainer = Color(0xFF2A2563),
+    onTertiaryContainer = Color(0xFFE3DFFF),
+    error = Color(0xFFFF6B6B),
+    background = Color(0xFF0A0B0F),
+    onBackground = Color(0xFFE8EAF0),
+    surface = Color(0xFF0A0B0F),
+    onSurface = Color(0xFFE8EAF0),
+    surfaceVariant = Color(0xFF1C1E26),
+    onSurfaceVariant = Color(0xFF9AA0B2),
+    outline = Color(0xFF3A3F4D),
+    outlineVariant = Color(0xFF24262F),
+    inverseSurface = Color(0xFFE8EAF0),
+    inverseOnSurface = Color(0xFF14161C),
+    inversePrimary = Color(0xFF1D4FD7),
+    surfaceTint = Color(0xFF2D6CFF),
+    surfaceContainerLowest = Color(0xFF06070A),
+    surfaceContainerLow = Color(0xFF101117),
+    surfaceContainer = Color(0xFF15171E),
+    surfaceContainerHigh = Color(0xFF1B1D26),
+    surfaceContainerHighest = Color(0xFF232631)
+)
+
 enum class AppThemeType {
     SYSTEM_DEFAULT,
-    LIGHT,
-    DARK,
+    LIGHT,            // Claro BibliApp (paleta propia)
+    DARK,             // Oscuro BibliApp (paleta propia)
+    CLASSIC_LIGHT,    // Claro clásico de Material Design
+    CLASSIC_DARK,     // Oscuro clásico de Material Design
     MEDIUM_CONTRAST_LIGHT,
     HIGH_CONTRAST_LIGHT,
     MEDIUM_CONTRAST_DARK,
@@ -272,8 +342,8 @@ fun BibliaAppTheme(
     content: @Composable() () -> Unit
 ) {
     val darkTheme = when (selectedTheme) {
-        AppThemeType.DARK, AppThemeType.MEDIUM_CONTRAST_DARK, AppThemeType.HIGH_CONTRAST_DARK -> true
-        AppThemeType.LIGHT, AppThemeType.MEDIUM_CONTRAST_LIGHT, AppThemeType.HIGH_CONTRAST_LIGHT -> false
+        AppThemeType.DARK, AppThemeType.CLASSIC_DARK, AppThemeType.MEDIUM_CONTRAST_DARK, AppThemeType.HIGH_CONTRAST_DARK -> true
+        AppThemeType.LIGHT, AppThemeType.CLASSIC_LIGHT, AppThemeType.MEDIUM_CONTRAST_LIGHT, AppThemeType.HIGH_CONTRAST_LIGHT -> false
         AppThemeType.SYSTEM_DEFAULT -> isSystemInDarkTheme()
     }
 
@@ -288,6 +358,8 @@ fun BibliaAppTheme(
         }
         AppThemeType.LIGHT -> lightScheme
         AppThemeType.DARK -> darkScheme
+        AppThemeType.CLASSIC_LIGHT -> classicLightScheme
+        AppThemeType.CLASSIC_DARK -> classicDarkScheme
         AppThemeType.MEDIUM_CONTRAST_LIGHT -> mediumContrastLightColorScheme
         AppThemeType.HIGH_CONTRAST_LIGHT -> highContrastLightColorScheme
         AppThemeType.MEDIUM_CONTRAST_DARK -> mediumContrastDarkColorScheme

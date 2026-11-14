@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--<uses-permission android:name="android.permission.USE_EXACT_ALARM" /> -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
@@ -41,27 +40,38 @@
             android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Enlaces de versículos: https://joselito06.github.io/v/... -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="joselito06.github.io"
+                    android:pathPrefix="/v/" />
+            </intent-filter>
         </activity>
+
         <service
             android:name=".service.BibleReadingService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false" />
+
         <receiver
             android:name=".notifications.DailyNotificationReceiver"
             android:enabled="true"
             android:exported="false">
-            <!-- Para reprogramar al reiniciar si implementas esa lógica -->
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
             </intent-filter>
         </receiver>
 
-        <!-- Desactiva el inicializador automático de WorkManager
-     para que use nuestra configuración con HiltWorkerFactory -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -74,7 +84,5 @@
         </provider>
 
     </application>
-
-
 
 </manifest>

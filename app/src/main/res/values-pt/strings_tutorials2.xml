@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tut_try_select">Experimente: toque no versículo</string>
+    <string name="tut_try_fav">Experimente: toque na estrela</string>
+    <string name="tut_try_highlight">Experimente: escolha uma cor</string>
+    <string name="tut_try_note">Experimente: toque no ícone de nota</string>
+    <string name="tut_try_listen">Experimente: toque em reproduzir</string>
+    <string name="tut_try_bibles">Experimente: escolha uma Bíblia</string>
+    <string name="tut_demo_verse">O Senhor é o meu pastor; nada me faltará.</string>
+    <string name="tut_demo_ref">Salmo 23:1</string>
+    <string name="tut_demo_note_text">Deus cuida de mim.</string>
+    <string name="tut_demo_search_word">pastor</string>
+    <string name="tut_chip_all">Tudo</string>
+    <string name="tut_chip_ot">Antigo Testamento</string>
+    <string name="tut_chip_nt">Novo Testamento</string>
+    <string name="tut_demo_days">dias seguidos</string>
+    <string name="daily_verse_stop">Parar</string>
+</resources>

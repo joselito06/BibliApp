@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +37,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ModeNight
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
@@ -85,8 +89,10 @@ fun HomeScreen(
     versesViewmodel: VersesViewmodel,
     readerViewmodel: ReaderViewModel,
     mainViewmodel: MainViewmodel,
-    navigation: NavHostController
+    navigation: NavHostController,
+    playbackViewmodel: com.jbncode.bibliaapp.ui.feature.reader.PlaybackViewModel? = null
 ) {
+    val speakingDaily by (playbackViewmodel?.isSpeakingText ?: kotlinx.coroutines.flow.MutableStateFlow(false)).collectAsState()
     LaunchedEffect(true) { mainViewmodel.showTopAppBar(true); mainViewmodel.showBottomBar(true) }
 
     val versesDaily by versesViewmodel.verseOfTheDay.collectAsState()
@@ -101,7 +107,11 @@ fun HomeScreen(
     val bookChapters = book?.chapters ?: 0
     val bookProgress = if (bookChapters > 0) (stats.chaptersByBook[position.book] ?: 0).toFloat() / bookChapters else 0f
 
-    Scaffold(Modifier.fillMaxSize(), bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }) { padding ->
+    Scaffold(
+        Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp),
+        bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
+    ) { padding ->
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -116,7 +126,12 @@ fun HomeScreen(
                     if (activity != null) InterstitialAdManager.show(activity) { go() } else go()
                 }
             )
-            DailyVerseCard(versesDaily, onShareClick = { shareVerse(context, versesDaily) }, onReadAloudClick = { })
+            DailyVerseCard(versesDaily, onShareClick = { shareVerse(context, versesDaily) }, speaking = speakingDaily, onReadAloudClick = {
+                playbackViewmodel?.let { vm ->
+                    if (speakingDaily) vm.stop()
+                    else vm.speakText(listOfNotNull(versesDaily.verse_content, versesDaily.verse_direction).joinToString(". "))
+                }
+            })
             com.jbncode.bibliaapp.view.components.NativeAdCard()
             QuickActionsGrid(
                 onBibleClick = { navigation.navigate(Routes.BibleScreen.route) },
@@ -192,7 +207,8 @@ private fun formatDuration(seconds: Int): String {
 
 @Composable
 private fun StatsRow(stats: HomeStats) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    // height(IntrinsicSize.Min): todas las tarjetas igualan a la más alta.
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         StatTile(Modifier.weight(1f), "${stats.chaptersRead}", stringResource(R.string.stats_chapters_label))
         StatTile(Modifier.weight(1f), formatDuration(stats.totalSeconds), stringResource(R.string.stats_time_label))
         StatTile(Modifier.weight(1f), "${stats.biblePercent}%", stringResource(R.string.home_bible_read))
@@ -201,8 +217,12 @@ private fun StatsRow(stats: HomeStats) {
 
 @Composable
 private fun StatTile(modifier: Modifier, value: String, label: String) {
-    Card(modifier, shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
-        Column(Modifier.padding(14.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Card(modifier.fillMaxHeight(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Column(
+            Modifier.padding(14.dp).fillMaxWidth().fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, maxLines = 1)
             Text(label, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
         }
@@ -229,7 +249,7 @@ private fun ContinueReadingCard(bookName: String, chapter: Int, progress: Float,
 }
 
 @Composable
-private fun DailyVerseCard(verse: VersesDaily, onShareClick: () -> Unit, onReadAloudClick: () -> Unit) {
+private fun DailyVerseCard(verse: VersesDaily, onShareClick: () -> Unit, speaking: Boolean, onReadAloudClick: () -> Unit) {
     Card(Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(6.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
         Column(Modifier.padding(20.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -245,7 +265,8 @@ private fun DailyVerseCard(verse: VersesDaily, onShareClick: () -> Unit, onReadA
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onReadAloudClick, modifier = Modifier.weight(1f)) {
-                        Icon(Icons.AutoMirrored.Filled.VolumeUp, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.daily_verse_listen))
+                        Icon(if (speaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp))
+                        Text(stringResource(if (speaking) R.string.daily_verse_stop else R.string.daily_verse_listen))
                     }
                     OutlinedButton(onClick = onShareClick, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Share, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.daily_verse_share))
@@ -276,11 +297,19 @@ private fun QuickActionsGrid(onBibleClick: () -> Unit, onLibraryClick: () -> Uni
 
 @Composable
 private fun QuickActionItem(icon: ImageVector, title: String, onClick: () -> Unit) {
-    Card(onClick = onClick, modifier = Modifier.width(80.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.width(84.dp).height(100.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
+            Modifier.padding(10.dp).fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Icon(icon, title, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(8.dp))
-            Text(title, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+            Text(title, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, maxLines = 2)
         }
     }
 }
@@ -310,6 +339,6 @@ private fun RecommendationsCard(recommendations: List<BookRecomendation>, onExpl
 }
 
 private fun shareVerse(context: Context, verse: VersesDaily) {
-    val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, "${verse.verse_content}\n\n- ${verse.verse_direction}") }
+    val send = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, "${verse.verse_content}\n\n- ${verse.verse_direction}\n\n" + context.getString(R.string.share_open_in_app) + " " + com.jbncode.bibliaapp.core.share.ShareLinks.PLAY_STORE) }
     context.startActivity(Intent.createChooser(send, context.getString(R.string.share_verse_with)))
 }

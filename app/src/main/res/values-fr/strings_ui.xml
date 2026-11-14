@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Rechercher dans la Bible…</string>
+    <string name="search_exact">Phrase exacte</string>
+    <string name="search_results">Résultats : %1$d</string>
+    <string name="search_empty">Aucun résultat pour « %1$s »</string>
+    <string name="search_type_more">Saisissez au moins 2 lettres</string>
+    <string name="reader_reading_verse">Lecture · verset %1$d</string>
+    <string name="reader_voice_chip">Voix : %1$s</string>
+    <string name="reader_prev_verse">Verset précédent</string>
+    <string name="reader_next_verse">Verset suivant</string>
+</resources>

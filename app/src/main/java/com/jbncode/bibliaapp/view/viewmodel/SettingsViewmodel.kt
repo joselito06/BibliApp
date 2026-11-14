@@ -104,14 +104,16 @@ class SettingsViewmodel @Inject constructor(
     fun setSelectedBible(bible: BibleDisplayInfo) {
         val isDefault = bible.storageIdentifier == defaultAssetDbIdentifier
         sharedPreferenceBible.saveSelectedDatabaseFileName(if (isDefault) null else bible.storageIdentifier)
+        // El idioma de la app sigue al de la Biblia elegida (MainActivity lo aplica en vivo).
+        com.jbncode.bibliaapp.core.locale.BibleLanguage.sync(sharedPreferenceBible, bible.language)?.let { _appLanguage.value = it }
         refreshBibleData()
     }
 
     fun setAppLanguage(language: AppLanguage) {
         viewModelScope.launch {
             sharedPreferenceBible.saveAppLanguageCode(language.code)
+            // El cambio se aplica en vivo: MainActivity observa el idioma y actualiza los locales.
             _appLanguage.value = language
-            onNavigateToRestartScreen?.invoke()
         }
     }
 

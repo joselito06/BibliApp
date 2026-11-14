@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tut_try_select">Încearcă: atinge versetul</string>
+    <string name="tut_try_fav">Încearcă: atinge steluța</string>
+    <string name="tut_try_highlight">Încearcă: alege o culoare</string>
+    <string name="tut_try_note">Încearcă: atinge pictograma de notă</string>
+    <string name="tut_try_listen">Încearcă: apasă redare</string>
+    <string name="tut_try_bibles">Încearcă: alege o Biblie</string>
+    <string name="tut_demo_verse">Domnul este păstorul meu: nu voi duce lipsă de nimic.</string>
+    <string name="tut_demo_ref">Psalmul 23:1</string>
+    <string name="tut_demo_note_text">Dumnezeu are grijă de mine.</string>
+    <string name="tut_demo_search_word">păstor</string>
+    <string name="tut_chip_all">Toate</string>
+    <string name="tut_chip_ot">Vechiul Testament</string>
+    <string name="tut_chip_nt">Noul Testament</string>
+    <string name="tut_demo_days">zile la rând</string>
+    <string name="daily_verse_stop">Oprește</string>
+</resources>

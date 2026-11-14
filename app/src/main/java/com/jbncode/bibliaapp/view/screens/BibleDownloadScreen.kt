@@ -1,32 +1,35 @@
 package com.jbncode.bibliaapp.view.screens
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.Button
-import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,156 +43,129 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
-import com.jbncode.bibliaapp.view.Routes
-import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
 import com.jbncode.bibliaapp.R
-import com.jbncode.bibliaapp.utils.InterstitialAdManager
+import com.jbncode.bibliaapp.data.networking.models.BibleVersionInfo
+import com.jbncode.bibliaapp.ui.components.AppTopBar
+import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.utils.RewardedDownloadAdManager
 import com.jbncode.bibliaapp.view.components.BannerAd
+import com.jbncode.bibliaapp.view.viewmodel.BibleManagerViewmodel
+import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
 @Composable
-@Preview(device = "spec:width=411dp,height=891dp")
-fun PreviewBibleDownloadScreen(){
-    //BibleDownloadScreen()
-}
-
-@Composable
-fun BibleDownloadScreen(viewModel: BibleManagerViewmodel = hiltViewModel(), navController: NavHostController){
+fun BibleDownloadScreen(
+    viewModel: BibleManagerViewmodel = hiltViewModel(),
+    navController: NavHostController,
+    mainViewmodel: MainViewmodel? = null
+) {
+    SystemBarsColor(MaterialTheme.colorScheme.primaryContainer)
     val context = LocalContext.current
-    val activity = context as? Activity
     val bibles by viewModel.filteredBibleList.collectAsState()
     val availableLanguages by viewModel.availableLanguages.collectAsState()
     val selectedLanguage by viewModel.selectedLanguageFilter.collectAsState()
-
     val statusMessage by viewModel.downloadStatus.observeAsState(initial = "")
     val selectedDbName by viewModel.sharedPreferenceBible.getSelectedDatabaseFileNameFlow()
         .collectAsState(initial = viewModel.sharedPreferenceBible.getSelectedDatabaseFileName())
 
-    // Estado para controlar la expansión del DropdownMenu
     var languageFilterExpanded by remember { mutableStateOf(false) }
 
-    // Configurar el callback en el ViewModel
-    LaunchedEffect(viewModel, navController) {
+    LaunchedEffect(Unit) {
+        mainViewmodel?.showTopAppBar(false)
+        mainViewmodel?.showBottomBar(false)
         RewardedDownloadAdManager.preloadAd(context)
-        viewModel.onNavigateToRestartScreen = {
-            // Asegúrate de que la navegación se haga de una manera que limpie el backstack
-            // si es necesario, o simplemente navega.
-            navController.navigate(Routes.RestartingScreen.route) {
-                // Opcional: limpiar backstack hasta la pantalla de inicio si quieres
-                // popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                // launchSingleTop = true // Evita múltiples copias si se presiona rápido
-            }
-        }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) { // Usar fillMaxSize si la lista puede ser larga
-        if (statusMessage.isNotBlank()) {
-            Text(
-                statusMessage,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 8.dp)
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                title = stringResource(R.string.bible_selection_download_bibles),
+                icon = Icons.Filled.CloudDownload,
+                onBack = { navController.popBackStack() }
             )
-        }
+        },
+        bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }
+    ) { innerPadding ->
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            if (statusMessage.isNotBlank()) {
+                Text(
+                    statusMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp)
+                )
+            }
 
-        // Fila para el Filtro de Idioma
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(stringResource(R.string.bibles_download_filter_label), style = MaterialTheme.typography.titleSmall)
-
-            Box { // Box es necesario para anclar correctamente el DropdownMenu
-                OutlinedButton(
-                    onClick = { languageFilterExpanded = true },
-                    modifier = Modifier.defaultMinSize(minWidth = 120.dp) // Ajusta según necesites
-                ) {
-                    Text(selectedLanguage ?: stringResource(R.string.bibles_download_filter_all)) // Muestra el idioma seleccionado o "Todos"
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "Seleccionar idioma")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(stringResource(R.string.bibles_download_filter_label), style = MaterialTheme.typography.titleSmall)
+                Box {
+                    FilledTonalButton(
+                        onClick = { languageFilterExpanded = true },
+                        modifier = Modifier.defaultMinSize(minWidth = 120.dp)
+                    ) {
+                        Text(selectedLanguage ?: stringResource(R.string.bibles_download_filter_all))
+                        Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
+                    }
+                    DropdownMenu(expanded = languageFilterExpanded, onDismissRequest = { languageFilterExpanded = false }) {
+                        availableLanguages.forEach { language ->
+                            DropdownMenuItem(
+                                text = { Text(if (language == "Todos") stringResource(R.string.bibles_download_filter_all) else language) },
+                                onClick = {
+                                    viewModel.setLanguageFilter(if (language == "Todos") null else language)
+                                    languageFilterExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
+            }
 
-                DropdownMenu(
-                    expanded = languageFilterExpanded,
-                    onDismissRequest = { languageFilterExpanded = false }
+            if (bibles.isEmpty() && selectedLanguage != "Todos" && selectedLanguage != null) {
+                Text(
+                    stringResource(R.string.bibles_download_empty_list, selectedLanguage ?: ""),
+                    modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    availableLanguages.forEach { language ->
-                        DropdownMenuItem(
-                            text = { Text(if(language == "Todos") stringResource(R.string.bibles_download_filter_all) else language) },
-                            onClick = {
-                                viewModel.setLanguageFilter(if (language == "Todos") null else language)
-                                languageFilterExpanded = false
-                            }
-                        )
+                    items(bibles, key = { it.id }) { bible ->
+                        val isDefaultAssetBible = bible.database_name == "tla.sqlite3"
+                        val isActive = (selectedDbName == bible.database_name) ||
+                            (selectedDbName == null && isDefaultAssetBible)
+                        Card(
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        ) {
+                            BibleListItem(
+                                bibleInfo = bible,
+                                isCurrentlyActive = isActive,
+                                onDownloadClick = {
+                                    RewardedDownloadAdManager.showAdThenDownload(context) { viewModel.startDownload(bible) }
+                                },
+                                onActivateClick = { viewModel.activateDownloadedDatabase(bible.database_name) },
+                                onSetAsDefaultClick = if (isActive && !isDefaultAssetBible) {
+                                    { viewModel.activateDefaultDatabase() }
+                                } else null
+                            )
+                        }
                     }
                 }
             }
         }
-
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            thickness = DividerDefaults.Thickness,
-            color = DividerDefaults.color
-        )
-
-        if (bibles.isEmpty() && selectedLanguage != "Todos" && selectedLanguage != null) {
-            Text(
-                stringResource(R.string.bibles_download_empty_list, selectedLanguage?: ""),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.CenterHorizontally),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else {
-            LazyColumn(modifier = Modifier.weight(1f)) { // weight(1f) si está dentro de una Column con otros elementos fijos
-                items(bibles, key = { it.id }) { bible -> // Añadir una key es bueno para el rendimiento
-                    val isDefaultAssetBible = bible.database_name == "tla.sqlite3" // Ajusta esto
-                    val isActive = (selectedDbName == bible.database_name) ||
-                            (selectedDbName == null && isDefaultAssetBible)
-
-                    BibleListItem(
-                        bibleInfo = bible,
-                        isCurrentlyActive = isActive,
-                        onDownloadClick = {
-                            /*if(activity != null){
-                                InterstitialAdManager.show(activity){
-                                    viewModel.startDownload(bible)
-                                }
-                            }else{
-                                viewModel.startDownload(bible)
-                            }*/
-                            RewardedDownloadAdManager.showAdThenDownload(context) {
-                                viewModel.startDownload(bible)
-                            }
-                        },
-                        onActivateClick = {
-                            viewModel.activateDownloadedDatabase(bible.database_name)
-                        },
-                        onSetAsDefaultClick = if (isActive && !isDefaultAssetBible) {
-                            { viewModel.activateDefaultDatabase() }
-                        } else null
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        thickness = DividerDefaults.Thickness,
-                        color = DividerDefaults.color
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        BannerAd(stringResource(R.string.banner_ad_id))
     }
-
 }
 
 @Composable

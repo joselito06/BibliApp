@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.view.components.BannerAd
 import com.jbncode.bibliaapp.view.components.NativeAdWidget
@@ -61,11 +62,6 @@ fun AboutScreen(
     val context = LocalContext.current
     val version = stringResource(R.string.app_version_name)
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val shape = if (scrollBehavior.state.collapsedFraction < 0.05f) {
-        RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
-    } else RectangleShape
-
     LaunchedEffect(true) {
         mainViewmodel.showTopAppBar(false)
         mainViewmodel.showBottomBar(false)
@@ -73,28 +69,10 @@ fun AboutScreen(
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
-                title = {
-                    TransformableTopAppBarTitle2(
-                        scrollBehavior = scrollBehavior,
-                        icon = Icons.Default.Info,
-                        iconContentDescription = null,
-                        titleText = stringResource(R.string.about_screen_title)
-                    )
-                },
-                modifier = Modifier.clip(shape),
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.about_screen_title),
+                icon = Icons.Default.Info,
+                onBack = { navigation.popBackStack() }
             )
         },
         bottomBar = { BannerAd(stringResource(R.string.banner_ad_id)) }

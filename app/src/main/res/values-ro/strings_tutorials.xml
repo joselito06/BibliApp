@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorials_title">Cum folosești BibliApp</string>
+    <string name="tutorials_done">Gata</string>
+    <string name="onboarding_guide_fav">Marchează versete ca favorite cu steluța, evidențiază-le cu culori sau adaugă o notă.</string>
+    <string name="onboarding_guide_search">Găsește orice cuvânt sau verset cu căutarea. Mai multe sfaturi în Mai mult → Cum folosești BibliApp.</string>
+    <string name="tut_read_title">Citește și navighează</string>
+    <string name="tut_read_body">Glisează la stânga sau la dreapta pentru a schimba capitolul. Atinge numele cărții de sus pentru alta și numărul capitolului pentru a sări la orice capitol.</string>
+    <string name="tut_select_title">Selectează versete</string>
+    <string name="tut_select_body">Atinge un verset pentru a-l selecta; atinge mai multe pentru a alege mai multe. Apare o bară cu favorit, evidențiere, notă, copiere și partajare. Atinge ✕ pentru a anula selecția.</string>
+    <string name="tut_fav_title">Favorite</string>
+    <string name="tut_fav_body">Selectează unul sau mai multe versete și atinge steluța. Se aprinde cu o mică animație. Le găsești apoi în Biblioteca mea → Favorite.</string>
+    <string name="tut_highlight_title">Evidențiază cu culori</string>
+    <string name="tut_highlight_body">Selectează versete, atinge pensula și alege o culoare. Alege ✕ din paletă pentru a elimina o evidențiere.</string>
+    <string name="tut_note_title">Scrie note</string>
+    <string name="tut_note_body">Selectează un verset, atinge pictograma de notă și scrie ce gândești. Versetele cu notă arată ✎. O poți edita sau șterge la fel.</string>
+    <string name="tut_listen_title">Ascultă Biblia</string>
+    <string name="tut_listen_body">Atinge redare pentru a asculta capitolul, chiar și cu ecranul stins. Deschide setările vocii pentru voce și viteză. Aplicația ține minte unde ai rămas.</string>
+    <string name="tut_search_title">Caută</string>
+    <string name="tut_search_body">Folosește lupa pentru cuvinte sau fraze. Restrânge rezultatele cu filtre precum Vechiul sau Noul Testament sau o carte anume.</string>
+    <string name="tut_bibles_title">Schimbă Biblia</string>
+    <string name="tut_bibles_body">Mergi la Mai mult → Alte Biblii pentru a schimba versiunea sau a descărca altele. Limba aplicației urmează limba Bibliei alese.</string>
+    <string name="tut_streak_title">Serie și mementouri</string>
+    <string name="tut_streak_body">Acasă arată seria ta de citire și progresul. În Mai mult → Notificări alege ora versetului zilnic și a mementourilor.</string>
+</resources>

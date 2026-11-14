@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -30,7 +31,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Button
@@ -60,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jbncode.bibliaapp.R
+import com.jbncode.bibliaapp.ui.components.appearOnce
 import com.jbncode.bibliaapp.domain.model.AppLanguage
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
@@ -76,7 +81,7 @@ fun OnboardingScreen(
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         vm.onNotificationsResult(it)
     }
-    BackHandler(enabled = ui.step > 0 && !ui.downloading) { vm.back() }
+    BackHandler(enabled = ui.step in 1..2 && !ui.downloading) { vm.back() }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -88,7 +93,19 @@ fun OnboardingScreen(
                 )
             }
         }
-        Box(Modifier.height(24.dp))
+        // Volver al paso anterior (también funciona el gesto/botón atrás del sistema).
+        Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
+            AnimatedVisibility(
+                visible = ui.step in 1..2 && !ui.downloading,
+                enter = fadeIn() + slideInHorizontally { -it / 2 },
+                exit = fadeOut() + slideOutHorizontally { -it / 2 }
+            ) {
+                TextButton(onClick = vm::back) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, Modifier.size(20.dp))
+                    Text(stringResource(R.string.onboarding_back), Modifier.padding(start = 6.dp))
+                }
+            }
+        }
         AnimatedContent(
             targetState = ui.step,
             modifier = Modifier.weight(1f),
@@ -110,7 +127,12 @@ fun OnboardingScreen(
                     },
                     onLater = vm::next
                 )
-                else -> GuideStep(onStart = { onFinished(vm.finish()) })
+                else -> com.jbncode.bibliaapp.ui.feature.tutorial.TutorialPager(
+                    finishLabel = R.string.onboarding_start,
+                    onFinish = { onFinished(vm.finish()) },
+                    onBackFromFirst = vm::back,
+                    onSkip = { onFinished(vm.finish()) }
+                )
             }
         }
     }
@@ -204,6 +226,8 @@ private fun GuideStep(onStart: () -> Unit) {
             GuideItem(Icons.Default.TouchApp, stringResource(R.string.onboarding_guide_tap))
             GuideItem(Icons.Default.SwapHoriz, stringResource(R.string.onboarding_guide_chapter))
             GuideItem(Icons.AutoMirrored.Filled.VolumeUp, stringResource(R.string.onboarding_guide_listen))
+            GuideItem(Icons.Default.Star, stringResource(R.string.onboarding_guide_fav))
+            GuideItem(Icons.Default.Search, stringResource(R.string.onboarding_guide_search))
         },
         footer = { PrimaryButton(stringResource(R.string.onboarding_start), onStart) }
     )
@@ -270,7 +294,7 @@ private fun IconBubble(icon: ImageVector, size: androidx.compose.ui.unit.Dp) {
 
 @Composable
 private fun GuideItem(icon: ImageVector, text: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    Row(Modifier.fillMaxWidth().appearOnce().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         IconBubble(icon, 56.dp)
         Text(text, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
     }

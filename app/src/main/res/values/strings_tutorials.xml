@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorials_title">How to use BibliApp</string>
+    <string name="tutorials_done">Done</string>
+    <string name="onboarding_guide_fav">Mark verses as favorites with the star, highlight them in colors, or add a note.</string>
+    <string name="onboarding_guide_search">Find any word or verse with search. More tips in More → How to use BibliApp.</string>
+    <string name="tut_read_title">Read and move around</string>
+    <string name="tut_read_body">Swipe left or right to change chapter. Tap the book name at the top to pick another book, and tap the chapter number to jump to any chapter.</string>
+    <string name="tut_select_title">Select verses</string>
+    <string name="tut_select_body">Tap a verse to select it; tap more to select several. A toolbar appears with favorite, highlight, note, copy and share. Tap ✕ to clear the selection.</string>
+    <string name="tut_fav_title">Favorites</string>
+    <string name="tut_fav_body">Select one or more verses and tap the star. It lights up with a little animation. Find them all later in My Library → Favorites.</string>
+    <string name="tut_highlight_title">Highlight in colors</string>
+    <string name="tut_highlight_body">Select verses, tap the brush and choose a color. Choose the ✕ in the palette to remove a highlight.</string>
+    <string name="tut_note_title">Write notes</string>
+    <string name="tut_note_body">Select a verse, tap the note icon and write your thoughts. Verses with a note show ✎. You can edit or delete it the same way.</string>
+    <string name="tut_listen_title">Listen to the Bible</string>
+    <string name="tut_listen_body">Tap play to hear the chapter, even with the screen off. Open the voice settings to choose the voice and speed. The app remembers where you stopped.</string>
+    <string name="tut_search_title">Search</string>
+    <string name="tut_search_body">Use the magnifier to search words or phrases. Narrow results with filters such as Old or New Testament or a specific book.</string>
+    <string name="tut_bibles_title">Change your Bible</string>
+    <string name="tut_bibles_body">Go to More → Other Bibles to switch version or download new ones. The app language follows the language of the Bible you choose.</string>
+    <string name="tut_streak_title">Streak and reminders</string>
+    <string name="tut_streak_body">Home shows your reading streak and progress. In More → Notifications pick the time for your daily verse and reminders.</string>
+</resources>

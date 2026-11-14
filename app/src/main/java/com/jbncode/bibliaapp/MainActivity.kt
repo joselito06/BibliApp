@@ -19,6 +19,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -68,6 +71,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jbncode.bibliaapp.core.deeplink.DeepLinks
 import com.jbncode.bibliaapp.core.notifications.ReminderScheduler
 import com.jbncode.bibliaapp.core.notifications.ReminderStore
 import com.jbncode.bibliaapp.ui.feature.library.LibraryScreen
@@ -122,12 +126,24 @@ class MainActivity : ComponentActivity() {
     // A dónde llevar al usuario cuando toca una notificación ("home" o "reader").
     private val pendingDestination = mutableStateOf<String?>(null)
 
+    // Versículo que llegó por un enlace compartido.
+    private val pendingLink = mutableStateOf<DeepLinks.VerseLink?>(null)
+
     companion object { const val EXTRA_DESTINATION = "dest" }
+
+    private fun consumeIntent(intent: Intent?) {
+        if (intent == null) return
+        DeepLinks.parse(intent.data)?.let { pendingLink.value = it; intent.data = null }
+        intent.getStringExtra(EXTRA_DESTINATION)?.let {
+            pendingDestination.value = it
+            intent.removeExtra(EXTRA_DESTINATION)   // que no se repita al recrear la Activity
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingDestination.value = intent?.getStringExtra(EXTRA_DESTINATION)
+        consumeIntent(intent)
 
         InterstitialAdManager.load(this)
 
@@ -151,13 +167,34 @@ class MainActivity : ComponentActivity() {
                 reminderScheduler.rescheduleAll()
             }
 
+            // Navegar SIEMPRE limpiando hasta la raíz: si se apila Inicio encima de otra
+            // pestaña, el estado guardado de esa pestaña queda contaminado y la barra
+            // inferior "redirige" mal después (el bug de la notificación).
+            fun goClean(route: String) {
+                navigation.navigate(route) {
+                    popUpTo(navigation.graph.startDestinationId) { saveState = false }
+                    launchSingleTop = true
+                }
+            }
+
             val destination by pendingDestination
             LaunchedEffect(destination) {
                 destination?.let { d ->
                     if (sharedPreferenceBible.isOnboardingDone()) {
-                        navigation.navigate(if (d == "home") Routes.HomeScreen.route else Routes.BibleScreen.route) { launchSingleTop = true }
+                        goClean(if (d == "home") Routes.HomeScreen.route else Routes.BibleScreen.route)
                     }
                     pendingDestination.value = null
+                }
+            }
+
+            val link by pendingLink
+            LaunchedEffect(link) {
+                link?.let { l ->
+                    if (sharedPreferenceBible.isOnboardingDone()) {
+                        readerViewModel.openFromLink(l.book, l.chapter, l.verse)
+                        goClean(Routes.BibleScreen.route)
+                    }
+                    pendingLink.value = null
                 }
             }
 
@@ -191,9 +228,15 @@ class MainActivity : ComponentActivity() {
             val currentAppTheme by settingViewmodel.appTheme.collectAsState()
             val onThemeChange: (com.jbncode.bibliaapp.ui.theme.AppThemeType) -> Unit = { settingViewmodel.setAppTheme(it) }
 
-            // Lector y búsqueda dibujan su propio encabezado bajo la barra de estado.
+            // Toda pantalla con encabezado propio dibuja bajo la barra de estado;
+            // si no, la franja de la barra queda del color del fondo (se veía blanca).
             val currentRoute = navBackStackEntry?.destination?.route
-            val fullBleed = currentRoute == Routes.BibleScreen.route || currentRoute == Routes.SearchScreen.route
+            val fullBleed = currentRoute in setOf(
+                Routes.BibleScreen.route, Routes.SearchScreen.route, Routes.LibraryScreen.route,
+                Routes.VersesScreen.route, Routes.NotificationScreen.route, Routes.BibleSelectionScreen.route,
+                Routes.AboutScreen.route, Routes.ConfigScreen.route, Routes.ShareScreen.route,
+                Routes.BibleDownloadScreen.route, Routes.TutorialsScreen.route
+            )
 
             if (showUpdate) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -251,7 +294,14 @@ class MainActivity : ComponentActivity() {
                                 if (sharedPreferenceBible.isOnboardingDone()) Routes.BibleScreen.route
                                 else Routes.OnboardingScreen.route
                             }
-                            NavHost(navController = navigation, startDestination = startDestination) {
+                            NavHost(
+                                navController = navigation,
+                                startDestination = startDestination,
+                                enterTransition = { fadeIn(tween(260)) + slideInHorizontally(tween(320)) { it / 12 } },
+                                exitTransition = { fadeOut(tween(160)) },
+                                popEnterTransition = { fadeIn(tween(260)) + slideInHorizontally(tween(320)) { -it / 12 } },
+                                popExitTransition = { fadeOut(tween(160)) + slideOutHorizontally(tween(260)) { it / 12 } }
+                            ) {
                                 composable(Routes.HomeScreen.route) {
                                     HomeScreen(
                                         modifier = Modifier.padding(innerPadding),
@@ -259,7 +309,8 @@ class MainActivity : ComponentActivity() {
                                         versesViewmodel = versesViewmodel,
                                         readerViewmodel = readerViewModel,
                                         mainViewmodel = mainViewModel,
-                                        navigation = navigation
+                                        navigation = navigation,
+                                        playbackViewmodel = playbackViewModel
                                     )
                                 }
                                 composable(Routes.BibleScreen.route) {
@@ -302,7 +353,7 @@ class MainActivity : ComponentActivity() {
                                     ShareAppScreen(mainViewModel, navigation)
                                 }
                                 composable(Routes.BibleDownloadScreen.route) {
-                                    BibleDownloadScreen(navController = navigation)
+                                    BibleDownloadScreen(navController = navigation, mainViewmodel = mainViewModel)
                                 }
                                 composable(Routes.RestartingScreen.route) {
                                     RestartingScreen()
@@ -315,6 +366,9 @@ class MainActivity : ComponentActivity() {
                                             popUpTo(Routes.OnboardingScreen.route) { inclusive = true }
                                         }
                                     })
+                                }
+                                composable(Routes.TutorialsScreen.route) {
+                                    com.jbncode.bibliaapp.ui.feature.tutorial.TutorialsScreen(mainViewModel, navigation)
                                 }
                                 composable(Routes.LibraryScreen.route) {
                                     LibraryScreen(mainViewModel, readerViewModel, navigation)
@@ -330,7 +384,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        pendingDestination.value = intent.getStringExtra(EXTRA_DESTINATION)
+        consumeIntent(intent)
     }
 
     override fun onResume() {

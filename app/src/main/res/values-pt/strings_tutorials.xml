@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorials_title">Como usar o BibliApp</string>
+    <string name="tutorials_done">Concluir</string>
+    <string name="onboarding_guide_fav">Marque versículos como favoritos com a estrela, destaque com cores ou adicione uma nota.</string>
+    <string name="onboarding_guide_search">Encontre qualquer palavra ou versículo na busca. Mais dicas em Mais → Como usar o BibliApp.</string>
+    <string name="tut_read_title">Ler e navegar</string>
+    <string name="tut_read_body">Deslize para a esquerda ou direita para mudar de capítulo. Toque no nome do livro no topo para escolher outro e no número do capítulo para ir a qualquer capítulo.</string>
+    <string name="tut_select_title">Selecionar versículos</string>
+    <string name="tut_select_body">Toque em um versículo para selecioná-lo; toque em mais para escolher vários. Aparece uma barra com favorito, destacar, nota, copiar e compartilhar. Toque em ✕ para limpar a seleção.</string>
+    <string name="tut_fav_title">Favoritos</string>
+    <string name="tut_fav_body">Selecione um ou mais versículos e toque na estrela. Ela acende com uma pequena animação. Depois veja todos em Minha biblioteca → Favoritos.</string>
+    <string name="tut_highlight_title">Destacar com cores</string>
+    <string name="tut_highlight_body">Selecione versículos, toque no pincel e escolha uma cor. Escolha o ✕ da paleta para remover um destaque.</string>
+    <string name="tut_note_title">Escrever notas</string>
+    <string name="tut_note_body">Selecione um versículo, toque no ícone de nota e escreva o que pensa. Versículos com nota mostram ✎. Você pode editá-la ou apagá-la do mesmo jeito.</string>
+    <string name="tut_listen_title">Ouvir a Bíblia</string>
+    <string name="tut_listen_body">Toque em reproduzir para ouvir o capítulo, mesmo com a tela apagada. Abra os ajustes de voz para escolher a voz e a velocidade. O app lembra onde você parou.</string>
+    <string name="tut_search_title">Buscar</string>
+    <string name="tut_search_body">Use a lupa para buscar palavras ou frases. Refine com filtros como Antigo ou Novo Testamento ou um livro específico.</string>
+    <string name="tut_bibles_title">Trocar de Bíblia</string>
+    <string name="tut_bibles_body">Vá em Mais → Outras Bíblias para trocar de versão ou baixar novas. O idioma do app acompanha o idioma da Bíblia escolhida.</string>
+    <string name="tut_streak_title">Sequência e lembretes</string>
+    <string name="tut_streak_body">O Início mostra sua sequência de leitura e progresso. Em Mais → Notificações escolha o horário do versículo diário e dos lembretes.</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_bibliapp_light">BibliApp Light</string>
+    <string name="theme_bibliapp_dark">BibliApp Dark</string>
+    <string name="theme_classic_light">Classic light</string>
+    <string name="theme_classic_dark">Classic dark</string>
+</resources>

@@ -23,7 +23,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -42,8 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -53,10 +50,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.jbncode.bibliaapp.R
 import com.jbncode.bibliaapp.data.user.ItemType
+import com.jbncode.bibliaapp.ui.components.AppTopBar
 import com.jbncode.bibliaapp.ui.components.SystemBarsColor
 import com.jbncode.bibliaapp.ui.feature.reader.ReaderViewModel
 import com.jbncode.bibliaapp.view.Routes
-import com.jbncode.bibliaapp.view.screens.TransformableTopAppBarTitle2
 import com.jbncode.bibliaapp.view.viewmodel.MainViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,25 +72,12 @@ fun LibraryScreen(
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val entries by remember(tab) { vm.entries(types[tab]) }.collectAsState(initial = emptyList())
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val shape = if (scrollBehavior.state.collapsedFraction < 0.05f) RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp) else RectangleShape
-
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                modifier = Modifier.clip(shape),
-                title = { TransformableTopAppBarTitle2(scrollBehavior, Icons.Default.Bookmark, null, stringResource(R.string.library_title)) },
-                navigationIcon = {
-                    IconButton(onClick = { navigation.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
-                },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                scrollBehavior = scrollBehavior
+            AppTopBar(
+                title = stringResource(R.string.library_title),
+                icon = Icons.Default.Bookmark,
+                onBack = { navigation.popBackStack() }
             )
         }
     ) { padding ->
@@ -113,6 +97,8 @@ fun LibraryScreen(
                             if (!navigation.popBackStack(Routes.BibleScreen.route, false)) navigation.navigate(Routes.BibleScreen.route)
                         }, onDelete = { vm.delete(e.item.id) })
                     }
+                    // Anuncio discreto al final de la lista (solo si hay varias entradas).
+                    if (entries.size >= 5) item(key = "ad") { com.jbncode.bibliaapp.view.components.InlineNativeAd() }
                 }
             }
         }

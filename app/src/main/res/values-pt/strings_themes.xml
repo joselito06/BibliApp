@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_bibliapp_light">Claro BibliApp</string>
+    <string name="theme_bibliapp_dark">Escuro BibliApp</string>
+    <string name="theme_classic_light">Claro clássico</string>
+    <string name="theme_classic_dark">Escuro clássico</string>
+</resources>

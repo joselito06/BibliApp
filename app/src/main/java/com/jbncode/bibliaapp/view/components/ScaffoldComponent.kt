@@ -139,10 +139,14 @@ fun NavigationBottomJBN(navigation: NavHostController) {
                     selected = selected,
                     onClick = {
                         // Una sola copia de cada pestaña en la pila (antes se apilaban al tocar varias veces).
+                        // Sin guardar/restaurar pilas: una notificación o un enlace podía
+                        // dejar una pila guardada "contaminada" y la pestaña restauraba otra
+                        // pantalla encima (el bug de Inicio/Biblia). El estado de cada pantalla
+                        // vive en sus ViewModels, así que no se pierde nada.
                         navigation.navigate(item.route) {
-                            popUpTo(Routes.BibleScreen.route) { saveState = true }
+                            popUpTo(Routes.BibleScreen.route) { saveState = false }
                             launchSingleTop = true
-                            restoreState = true
+                            restoreState = false
                         }
                     },
                     icon = { Icon(item.icon, contentDescription = null) },

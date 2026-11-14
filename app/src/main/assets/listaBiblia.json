@@ -57,7 +57,7 @@
     "read_separator": "al",
     "server_url": "https://bibliapp-api.joselito0125.workers.dev/",
     "isDownloaded": false,
-    "downloadDisabled": false
+    "downloadDisabled": true
   },
   {
     "id": 4,
@@ -675,26 +675,6 @@
     "read_verse": "Verse",
     "read_verse_plural": "Verses",
     "read_separator": "to",
-    "server_url": "https://bibliapp-api.joselito0125.workers.dev/",
-    "isDownloaded": false,
-    "downloadDisabled": false
-  },
-  {
-    "id": 35,
-    "langCode": "FRANCE",
-    "lang": "Français",
-    "langVisualCode": "fr",
-    "country": "NA",
-    "title": "La Bible en Français Courant",
-    "code": "frc97",
-    "description": "La version de la Bible en français courant diffère des autres versions actualmente en usage par les principes de traductions adoptés. Ceux-ci découlent directement d'une étude scientifique approfondie de la traduction en général.",
-    "new_testament_number": 40,
-    "database_zip_name": "frc97_c.zip",
-    "database_name": "france.sqlite3",
-    "read_chapter": "Chapitre",
-    "read_verse": "Verset",
-    "read_verse_plural": "Versets",
-    "read_separator": "à",
     "server_url": "https://bibliapp-api.joselito0125.workers.dev/",
     "isDownloaded": false,
     "downloadDisabled": false
