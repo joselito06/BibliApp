@@ -6,6 +6,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.BuildConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import dagger.hilt.android.HiltAndroidApp
@@ -44,14 +45,14 @@ class JetpackApp : Application(), Configuration.Provider {
 
         // Configuración de intervalo de escaneo (ej. cada 1 hora en producción)
         val configSettings = FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(30)
+            .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 30 else 3600)
             .build()
         remoteConfig.setConfigSettingsAsync(configSettings)
 
         // Valores por defecto (coinciden con tu versionName actual)
         val defaultValues = mapOf(
-            "min_version_required" to "1.0.0",
-            "latest_version" to "1.0.0",
+            "min_version_required" to "2.0.0",
+            "latest_version" to "2.0.0",
             "app_open_min_minutes" to 10L,
             "interstitial_min_interval_seconds" to 180L,
             "interstitial_every_n" to 2L
